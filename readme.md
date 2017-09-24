@@ -91,7 +91,7 @@
 ![前台首页](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-index.png)
 
 - 注册
-![注册](http://ows8onpla.bkt.clouddn.comhttps://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-register.png)
+![注册](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-register.png)
 
 - 登录
 ![登录](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-login.png)
