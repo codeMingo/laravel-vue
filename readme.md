@@ -88,32 +88,32 @@
 ## 项目部分页面截图 ##
 #### 前台 ####
 - 前台首页
-![前台首页](http://ows8onpla.bkt.clouddn.com/frontend-index.png)
+![前台首页](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-index.png)
 
 - 注册
-![注册](http://ows8onpla.bkt.clouddn.com/frontend-register.png)
+![注册](http://ows8onpla.bkt.clouddn.comhttps://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-register.png)
 
 - 登录
-![登录](http://ows8onpla.bkt.clouddn.com/frontend-login.png)
+![登录](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-login.png)
 
 - 文章页面
-![文章页面](http://ows8onpla.bkt.clouddn.com/frontend-article.png)
+![文章页面](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-article.png)
 
 - 评论区
-![评论区](http://ows8onpla.bkt.clouddn.com/frontend-interactive.png)
+![评论区](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-interactive.png)
 
 - 留言板
-![留言板](http://ows8onpla.bkt.clouddn.com/frontend-leave.png)
+![留言板](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-leave.png)
 
 - 视频详情
-![视频详情](http://ows8onpla.bkt.clouddn.com/frontend-video-detail.png)
+![视频详情](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-video-detail.png)
 
 - 视频观看
-![视频观看](http://ows8onpla.bkt.clouddn.com/frontend-video-play.png)
+![视频观看](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-video-play.png)
 
 #### 后台 ####
 - 后台首页
-![后台首页](http://ows8onpla.bkt.clouddn.com/backend-index.png)
+![后台首页](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/backend-index.png)
 
 - 管理员列表
-![管理员列表](http://ows8onpla.bkt.clouddn.com/backend-admin.png)
+![管理员列表](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/backend-admin.png)
