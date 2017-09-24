@@ -42,7 +42,7 @@ class Admin extends Authenticatable
         if (issetAndNotEmpty($searchForm['username'])) {
             $query->where('username', 'like', '%' . $searchForm['username'] . '%');
         }
-        return $query->paginate(config('app.pageSize'));
+        return $query->paginate(config('blog.pageSize'));
     }
 
     /**

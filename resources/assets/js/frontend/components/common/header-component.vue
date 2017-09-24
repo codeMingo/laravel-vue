@@ -96,6 +96,9 @@
         .link-logout {
             text-indent: 20px;
         }
+        .el-menu a {
+            box-sizing: border-box;
+        }
     }
     .web-logo {
         margin-left: 30px;

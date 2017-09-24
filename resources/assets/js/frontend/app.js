@@ -78,7 +78,7 @@ const app = new Vue({
         let _this = this;
         axios.get('/login-status').then(response => {
             let {status, data, message} = response.data;
-            if (status) {
+            if (status && Object.keys(data).length > 0) {
                 _this.$store.commit('setUserData', data.data);
             }
         }).catch(response => {

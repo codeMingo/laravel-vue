@@ -51,6 +51,10 @@ class LoginRepository extends BaseRepository
 
     }
 
+    /**
+     * 获取用户初始登录状态
+     * @return Array
+     */
     public function loginStatus()
     {
         $resultData = [];

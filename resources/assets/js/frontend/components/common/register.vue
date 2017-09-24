@@ -10,7 +10,7 @@
                     <div class="register-body">
                         <el-form label-position="right" label-width="80px" :model="registerForm" :rules="registerRules" ref="registerForm">
                             <el-form-item label="头像" prop="face">
-                                <el-upload class="avatar-uploader" action="/frontend/upload-image" :show-file-list="false" :on-success="uploadFaceSuccess" :before-upload="beforeUploadFace" :headers="uploadHeaders">
+                                <el-upload class="avatar-uploader" action="/upload-image" :show-file-list="false" :on-success="uploadFaceSuccess" :before-upload="beforeUploadFace" :headers="uploadHeaders">
                                     <img v-if="registerForm.face" :src="registerForm.face" class="avatar">
                                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                                 </el-upload>（不传默认使用系统头像）
@@ -181,8 +181,8 @@ export default {
             let _this = this;
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    _this.registerSubmitLoading = true;
-                    axios.post('/frontend/register/create-user', { 'data': _this.registerForm }).then(response => {
+                    _this.registerSubmitLoading = true;console.log(_this.registerForm);
+                    axios.post('/register/create-user', { 'data': _this.registerForm }).then(response => {
                         let data = response.data;
                         if (!data.status) {
                             _this.$message.error(data.message);
@@ -212,7 +212,7 @@ export default {
             this.$refs[formName].resetFields();
         },
         uploadFaceSuccess(res, file) {
-            this.registerForm.face = URL.createObjectURL(file.raw);
+            this.registerForm.face = res.data.faceUrl;
         },
         beforeUploadFace(file) {
             let _this = this,
