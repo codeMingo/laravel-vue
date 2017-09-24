@@ -33,9 +33,9 @@
 <pre>
     # 克隆项目到本地
     git clone https://github.com/linlianmin/laravel-vue-element.git
-    
+
     # 进入文件目录，laravel生成app_key
-    php artisan key:generate  
+    php artisan key:generate
 
     # 复制.env.example文件为.env，配置数据库参数
     # 执行数据表生成脚本和数据填充脚本
@@ -46,14 +46,14 @@
     # npm速度慢可考虑使用淘宝镜像，可能会出现诡异报错，npm install --registry=https://registry.npm.taobao.org
     # 全局安装yarn
     npm install -g yarn
-    
+
     # 使用yarn安装依赖库
     yarn install
 
     # yarn install 或 npm install 都可能报错，报错的原因很多（绝大部分是自身系统配置和墙的原因）
     # 详细查看报错原因，正常情况会提示安装哪一个依赖库报错
     # 最常见的是要求安装python和安装node-sass报错，python自行到python官网下载安装包安装即可（2.0版本以上），下载地址：（上面提供），node-sass报错的话安装淘宝镜像之后重新执行
-    npm install --save node-sass // yarn install 成功的话直接跳过此步奏    
+    npm install --save node-sass // yarn install 成功的话直接跳过此步奏
 
     # 运行脚本（编译js和sass等文件），成功之后即可访问项目
     yarn run dev
@@ -86,5 +86,34 @@
 </pre>
 
 ## 项目部分页面截图 ##
+#### 前台 ####
 - 前台首页
-![前台首页](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/4%7BZ786C_86D5XQ%60XD3_%5DO%60N.png)
+![前台首页](https://ows8onpla.bkt.clouddn.com/frontend-index.png)
+
+- 注册
+![注册](https://ows8onpla.bkt.clouddn.com/frontend-register.png)
+
+- 登录
+![登录](https://ows8onpla.bkt.clouddn.com/frontend-login.png)
+
+- 文章页面
+![文章页面](https://ows8onpla.bkt.clouddn.com/frontend-article.png)
+
+- 评论区
+![评论区](https://ows8onpla.bkt.clouddn.com/frontend-interactive.png)
+
+- 留言板
+![留言板](https://ows8onpla.bkt.clouddn.com/frontend-leave.png)
+
+- 视频详情
+![视频详情](https://ows8onpla.bkt.clouddn.com/frontend-video-detail.png)
+
+- 视频观看
+![视频观看](https://ows8onpla.bkt.clouddn.com/frontend-video-play.png)
+
+#### 后台 ####
+- 后台首页
+![后台首页](https://ows8onpla.bkt.clouddn.com/backend-index.png)
+
+- 管理员列表
+![管理员列表](https://ows8onpla.bkt.clouddn.com/backend-admin.png)

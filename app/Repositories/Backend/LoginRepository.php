@@ -10,8 +10,8 @@ class LoginRepository extends BaseRepository
     /**
      * 登录
      * @param  Array $data    登录信息
-     * @param  Request $request 
-     * @return Array          
+     * @param  Request $request
+     * @return Array
      */
     public function login($data, $request)
     {
@@ -19,15 +19,15 @@ class LoginRepository extends BaseRepository
             'username' => $data['username'],
             'password' => $data['password'],
         ];
-        if (!Auth('admin')->attempt($loginData)) {
+        if (!Auth::guard('admin')->attempt($loginData)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'message' => '用户名或密码错误',
             ];
         }
-        $adminList = Auth('admin')->user();
+        $adminList = Auth::guard('admin')->user();
         if (!$adminList->status) {
-            Auth::logout();
+            Auth::guard('admin')->logout();
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'message' => '帐号被禁用',
@@ -66,8 +66,8 @@ class LoginRepository extends BaseRepository
      */
     public function logout()
     {
-        if (Auth('admin')::check()) {
-            Auth('admin')::logout();
+        if (Auth::guard('admin')->check()) {
+            Auth::guard('admin')->logout();
         }
         return [
             'status'  => Parent::SUCCESS_STATUS,

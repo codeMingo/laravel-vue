@@ -149,6 +149,22 @@ export default {
             let myChart = echarts.init(document.getElementById('userInteractive'))
             // 绘制图表
             myChart.setOption({
+                title: {
+                    show: true, //显示策略，默认值true,可选为：true（显示） | false（隐藏）
+                    text: '用户数据统计图', //主标题文本，'\n'指定换行
+                    link: '', //主标题文本超链接,默认值true
+                    target: null, //指定窗口打开主标题超链接，支持'self' | 'blank'，不指定等同为'blank'（新窗口）
+                    subtext: '副标题', //副标题文本，'\n'指定换行
+                    sublink: '', //副标题文本超链接
+                    subtarget: null, //指定窗口打开副标题超链接，支持'self' | 'blank'，不指定等同为'blank'（新窗口）
+                    x: 'center', //水平安放位置，默认为'left'，可选为：'center' | 'left' | 'right' | {number}（x坐标，单位px）
+                    y: 'top', //垂直安放位置，默认为top，可选为：'top' | 'bottom' | 'center' | {number}（y坐标，单位px）
+                    textAlign: null, //水平对齐方式，默认根据x设置自动调整，可选为： left' | 'right' | 'center
+                    backgroundColor: 'rgba(0,0,0,0)', //标题背景颜色，默认'rgba(0,0,0,0)'透明
+                    borderColor: '#ccc', //标题边框颜色,默认'#ccc'
+                    borderWidth: 0, //标题边框线宽，单位px，默认为0（无边框）
+                    padding: 5, //标题内边距，单位px，默认各方向内边距为5，接受数组分别设定上右下左边距
+                },
                 tooltip: {
                     trigger: 'item',
                     formatter: "{a} <br/>{b}: {c} ({d}%)"
