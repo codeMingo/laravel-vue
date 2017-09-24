@@ -24,6 +24,7 @@
     "vue-quill-editor": "^2.2.1"
   },
   "dependencies": {
+    "echarts": "^3.7.1",
     "node-sass": "^4.5.3"
   }
 }
