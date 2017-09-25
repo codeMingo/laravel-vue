@@ -14,7 +14,7 @@ class RegisterRepository extends BaseRepository
 
     /**
      * 注册用户
-     * @param  Array $input 注册信息
+     * @param  Array $input [username, email, password, face]
      * @return Array
      */
     public function createUser($input)
@@ -85,7 +85,7 @@ class RegisterRepository extends BaseRepository
 
     /**
      * 激活用户
-     * @param  Array $input
+     * @param  Array $input [email_id, user_id]
      * @return Array
      */
     public function activeUser($input)

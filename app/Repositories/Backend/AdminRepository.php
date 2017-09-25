@@ -8,11 +8,13 @@ class AdminRepository extends BaseRepository
 {
 
     /**
-     * 获取列表
+     * 管理员列表
+     * @param  Array $input [searchForm]
+     * @return Array
      */
     public function lists($input)
     {
-        $resultData['lists'] = Admin::lists($input['searchForm']);
+        $resultData['lists']             = Admin::lists($input['searchForm']);
         $resultData['permissionOptions'] = AdminPermission::where('status', 1)->get();
         return [
             'status'  => Parent::SUCCESS_STATUS,
@@ -23,6 +25,8 @@ class AdminRepository extends BaseRepository
 
     /**
      * 新增
+     * @param  Array $input [username, email, password, permission_id, status]
+     * @return Array
      */
     public function create($input)
     {
@@ -30,7 +34,7 @@ class AdminRepository extends BaseRepository
         if (!empty($usernameUniqueData)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
-                'data'    => $this->data,
+                'data'    => [],
                 'message' => '管理员用户名已经存在',
             ];
         }
@@ -38,7 +42,7 @@ class AdminRepository extends BaseRepository
         if (!empty($emailUniqueData)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
-                'data'    => $this->data,
+                'data'    => [],
                 'message' => '管理员邮箱已经存在',
             ];
         }
@@ -57,31 +61,34 @@ class AdminRepository extends BaseRepository
     }
 
     /**
-     * 编辑
+     * 编辑管理员
+     * @param  Array $input [username, email, password, permission_id, status]
+     * @param  Int $admin_id
+     * @return Array
      */
-    public function update($input, $id)
+    public function update($input, $admin_id)
     {
-        $adminData = Admin::where('id', $id)->first();
+        $adminData = Admin::where('id', $admin_id)->first();
         if (empty($adminData)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
-                'data'    => $this->data,
+                'data'    => [],
                 'message' => '管理员不存在',
             ];
         }
-        $usernameUniqueData = Admin::where('id', '!=', $id)->where('username', $input['username'])->first();
+        $usernameUniqueData = Admin::where('id', '!=', $admin_id)->where('username', $input['username'])->first();
         if (!empty($usernameUniqueData)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
-                'data'    => $this->data,
+                'data'    => [],
                 'message' => '管理员用户名已经存在',
             ];
         }
-        $emailUniqueData = Admin::where('id', '!=', $id)->where('email', $input['email'])->first();
+        $emailUniqueData = Admin::where('id', '!=', $admin_id)->where('email', $input['email'])->first();
         if (!empty($emailUniqueData)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
-                'data'    => $this->data,
+                'data'    => [],
                 'message' => '管理员邮箱已经存在',
             ];
         };
@@ -94,7 +101,7 @@ class AdminRepository extends BaseRepository
         if ($input['password']) {
             $updateData['password'] = md5($input['password'] . env('APP_PASSWORD_ENCRYPT'));
         };
-        $update = Admin::where('id', $id)->update($updateData);
+        $update = Admin::where('id', $admin_id)->update($updateData);
         return [
             'status'  => $update ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
             'data'    => [],
@@ -104,10 +111,12 @@ class AdminRepository extends BaseRepository
 
     /**
      * 删除
+     * @param  Int $admin_id
+     * @return Array
      */
-    public function delete($id)
+    public function delete($admin_id)
     {
-        $deleted = Admin::where('id', $id)->delete();
+        $deleted = Admin::where('id', $admin_id)->delete();
         return [
             'status'  => $deleted ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
             'data'    => [],
@@ -116,11 +125,14 @@ class AdminRepository extends BaseRepository
     }
 
     /**
-     * 改变状态
+     * 改变某一个字段的值
+     * @param  Int $id
+     * @param  Array $data [field, value]
+     * @return Array
      */
-    public function changeFieldValue($id, $data)
+    public function changeFieldValue($id, $input)
     {
-        $result = Admin::where('id', $id)->update([$data['field'] => $data['value']]);
+        $result = Admin::where('id', $id)->update([$input['field'] => $input['value']]);
         return [
             'status'  => $result ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
             'data'    => [],

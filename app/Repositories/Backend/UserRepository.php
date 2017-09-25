@@ -7,7 +7,9 @@ class UserRepository extends BaseRepository
 {
 
     /**
-     * 获取列表
+     * 用户列表
+     * @param  Array $input [searchForm]
+     * @return Array
      */
     public function lists($input)
     {
@@ -23,6 +25,8 @@ class UserRepository extends BaseRepository
 
     /**
      * 新增
+     * @param  Array $input [username, email, password, permission_id, status]
+     * @return Array
      */
     public function create($input)
     {
@@ -57,7 +61,10 @@ class UserRepository extends BaseRepository
     }
 
     /**
-     * 编辑
+     * 编辑用户
+     * @param  Array $input [username, email, password, permission_id, status]
+     * @param  Int $user_id
+     * @return Array
      */
     public function update($input, $id)
     {
@@ -67,10 +74,12 @@ class UserRepository extends BaseRepository
 
     /**
      * 删除
+     * @param  Int $user_id
+     * @return Array
      */
-    public function delete($id)
+    public function delete($user_id)
     {
-        $deleteResult = User::where('id', $id)->delete();
+        $deleteResult = User::where('id', $user_id)->delete();
         return [
             'status'  => $deleteResult ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
             'data'    => [],
@@ -79,11 +88,14 @@ class UserRepository extends BaseRepository
     }
 
     /**
-     * 改变某条数据某一字段的值
+     * 改变某一个字段的值
+     * @param  Int $id
+     * @param  Array $input [field, value]
+     * @return Array
      */
-    public function changeFieldValue($id, $data)
+    public function changeFieldValue($id, $input)
     {
-        $updateResult = User::where('id', $id)->update([$data['field'] => $data['value']]);
+        $updateResult = User::where('id', $id)->update([$input['field'] => $input['value']]);
         return [
             'status'  => $updateResult ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
             'data'    => [],

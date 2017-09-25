@@ -20,7 +20,9 @@ abstract class BaseRepository
     }
 
     /**
-     * 获取字典
+     * 获取字段
+     * @param  Array $code_arr
+     * @return Array
      */
     public function getDicts($code_arr)
     {

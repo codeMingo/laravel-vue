@@ -9,7 +9,7 @@ class LoginRepository extends BaseRepository
 
     /**
      * 登录
-     * @param  Array $data    登录信息
+     * @param  Array $data [account, password, remember]
      * @param  Request $request
      * @return Array
      */
@@ -51,7 +51,7 @@ class LoginRepository extends BaseRepository
     }
 
     /**
-     * 获取用户初始登录状态
+     * 获取登录信息
      * @return Array
      */
     public function loginStatus()

@@ -11,7 +11,7 @@ class CommonRepository extends BaseRepository
 
     /**
      * 保存图片
-     * @param  Array $input 上传的文件
+     * @param  FILE $input
      * @return Array
      */
     public function uploadImage($input)
@@ -63,7 +63,7 @@ class CommonRepository extends BaseRepository
 
     /**
      * 发送邮件
-     * @param  Array $input
+     * @param  Array $input [view, to, ...]
      * @return null
      */
     public function sendEmail($input)

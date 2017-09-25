@@ -2,15 +2,16 @@
 namespace App\Repositories\Frontend;
 
 use App\Models\Article;
+use App\Models\ArticleComment;
 use App\Models\ArticleInteractive;
 use App\Models\ArticleRead;
-use App\Models\ArticleComment;
 
 class ArticleRepository extends BaseRepository
 {
+
     /**
      * 获取文章列表
-     * @param  Array $input 查询信息
+     * @param  Array $input [searchForm]
      * @return Array
      */
     public function lists($input)
@@ -25,7 +26,7 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 文章详情
-     * @param  int $id
+     * @param  int $article_id
      * @return Array
      */
     public function detail($article_id)
@@ -69,7 +70,7 @@ class ArticleRepository extends BaseRepository
      */
     public function interactive($input, $article_id)
     {
-        $type       = isset($input['type']) ? strval($input['type']) : '';
+        $type = isset($input['type']) ? strval($input['type']) : '';
         if (!$article_id || !$type) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -88,7 +89,7 @@ class ArticleRepository extends BaseRepository
         $dataList = ArticleInteractive::where('article_id', $article_id)->where($type, 1)->first();
         if (empty($dataList)) {
             $user_id = Auth::guard('web')->id();
-            $result = ArticleInteractive::create([
+            $result  = ArticleInteractive::create([
                 'user_id'    => $user_id,
                 'article_id' => $article_id,
                 $type        => 1,
@@ -119,7 +120,7 @@ class ArticleRepository extends BaseRepository
     {
         $article_id = isset($input['article_id']) ? intval($input['article_id']) : '';
         $commnet_id = isset($input['commnet_id']) ? intval($input['commnet_id']) : '';
-        $content = isset($input['content']) ? intval($input['content']) : '';
+        $content    = isset($input['content']) ? intval($input['content']) : '';
         if (!$article_id || !$content) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -137,10 +138,10 @@ class ArticleRepository extends BaseRepository
         }
         // 是否开启评论审核
         $is_open_audit = 1;
-        $audit_pass = '';
+        $audit_pass    = '';
         // 表示一级评论
         if (!$commnet_id) {
-            $audit_pass = Dict::getDictValueByTextEn('audit_pass');
+            $audit_pass  = Dict::getDictValueByTextEn('audit_pass');
             $commentList = ArticleComment::where('id', $commnet_id)->where('status', 1)->where('is_audit', $audit_pass)->first();
             if (empty($commentList)) {
                 return [
@@ -150,14 +151,14 @@ class ArticleRepository extends BaseRepository
                 ];
             }
         }
-        $user_id = Auth::guard('web')->id();
+        $user_id      = Auth::guard('web')->id();
         $createResult = ArticleComment::create([
-            'user_id' => $user_id,
-            'parent_id' => $commnet_id ? $commnet_id : 0;
+            'user_id'    => $user_id,
+            'parent_id'  => $commnet_id ? $commnet_id : 0;
             'article_id' => $article_id,
-            'content' => $content,
-            'is_audit' => $is_open_audit ? Dict::getDictValueByTextEn('audit_loading') : $audit_pass,
-            'status' => 1,
+            'content'    => $content,
+            'is_audit'   => $is_open_audit ? Dict::getDictValueByTextEn('audit_loading') : $audit_pass,
+            'status'     => 1,
         ]);
 
         if (!$createResult) {
@@ -170,17 +171,15 @@ class ArticleRepository extends BaseRepository
         // 评论成功
 
         return [
-            return [
-                'status'  => Parent::SUCCESS_STATUS,
-                'data'    => [
-                    'data' => [
-                        'comment_id' => $createResult->parent_id,
-                        'content' => $createResult->content,
-                        'create_at' => $createResult->create_at
-                    ]
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => [
+                'data' => [
+                    'comment_id' => $createResult->parent_id,
+                    'content'    => $createResult->content,
+                    'create_at'  => $createResult->create_at,
                 ],
-                'message' => '操作成功',
-            ];
+            ],
+            'message' => '操作成功',
         ];
     }
 }
