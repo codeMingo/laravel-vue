@@ -20,6 +20,7 @@ class CreateArticleInteractsTable extends Migration
             $table->integer('article_id')->comment('文章id');
             $table->tinyInteger('like')->default(0)->comment('点赞');
             $table->tinyInteger('hate')->default(0)->comment('反对');
+            $table->tinyInteger('collect')->default(0)->comment('收藏');
             $table->timestamps();
         });
     }

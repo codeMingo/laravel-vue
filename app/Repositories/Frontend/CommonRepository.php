@@ -34,6 +34,8 @@ class CommonRepository extends BaseRepository
                 'message' => '上传的图片不得大于500KB',
             ];
         }
+        // redis记录该ip上传图片次数，一小时只允许上传10张
+
         //七牛上传图片
         $auth   = new Auth(config('blog.qiniuAccessKey'), config('blog.qiniuSecretKey'));
         $bucket = config('blog.qiniuImageBucket');

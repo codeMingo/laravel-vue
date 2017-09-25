@@ -29,7 +29,6 @@ class LoginRepository extends BaseRepository
             ];
         }
         $user         = Auth::guard('web')->user();
-        file_put_contents('e:/user.txt', json_encode($user));
         $updateResult = User::where('id', $user['id'])->update([
             'last_login_time' => date('Y-m-d H:i:s', time()),
             'last_login_ip'   => $request->getClientIp(),

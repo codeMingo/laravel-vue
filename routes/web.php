@@ -13,7 +13,11 @@ Route::group(['namespace' => 'Frontend'], function () {
     Route::post('/sendEmail', 'CommonController@sendEmail');
     // 注册
     Route::post('/register/create-user', 'RegisterController@createUser');
-
+    // 文章模块
+    Route::get('/article/lists', 'ArticleController@lists');
+    Route::get('/article/detail/{article_id}', 'ArticleController@detail');
+    Route::put('/article/interactive/{article_id}', 'ArticleController@interactive');
+    Route::post('/article/comment', 'ArticleController@comment');
 });
 
 /*后台*/

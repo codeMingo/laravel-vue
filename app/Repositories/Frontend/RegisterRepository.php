@@ -2,12 +2,12 @@
 namespace App\Repositories\Frontend;
 
 use App\Mail\RegisterOrder;
+use App\Models\Dict;
 use App\Models\EmailRecord;
 use App\Models\User;
-use Illuminate\Support\Facades\Mail;
-use App\Models\Dict;
 use App\Repositories\Frontend\CommonRepository;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterRepository extends BaseRepository
 {
@@ -58,21 +58,20 @@ class RegisterRepository extends BaseRepository
             ];
         }
         $insertEmailResult = EmailRecord::create([
-            'type_id'     => Dict::getDictByTextEn('register_active')->value,
+            'type_id'     => Dict::getDictValueByTextEn('register_active'),
             'user_id'     => $insertResult->id,
             'email_title' => '账户激活邮件',
             'text'        => '用户首次注册',
             'status'      => 1,
         ]);
         $mailData = [
-            'view' => 'register',
-            'to' => $insertResult->email,
+            'view'  => 'register',
+            'to'    => $insertResult->email,
             'title' => '账户激活邮件',
             'name'  => $insertResult->username,
             'url'   => env('APP_URL') . '/active?mail_id=' . $insertEmailResult->id . '&user_id=' . base64_encode($insertResult->id),
         ];
         CommonRepository::getInstance()->sendEmail($mailData);
-        Mail::to($insertResult->email)->send(new RegisterOrder($mailData));
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => [
@@ -92,7 +91,7 @@ class RegisterRepository extends BaseRepository
     public function activeUser($input)
     {
         $emailId = isset($input['email_id']) && !empty($input['email_id']) ? intval($input['email_id']) : '';
-        $userId = isset($input['user_id']) && !empty($input['user_id']) ? intval(base64_decode($input['user_id'])) : '';
+        $userId  = isset($input['user_id']) && !empty($input['user_id']) ? intval(base64_decode($input['user_id'])) : '';
         if (!$emailId || !$userId) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -103,7 +102,7 @@ class RegisterRepository extends BaseRepository
         // 判断邮件是否过期
         $emailList = EmailRecord::where([
             ['id', '=', $emailId],
-            ['user_id', '=', $userId]
+            ['user_id', '=', $userId],
         ])->first();
         if (empty($emailList) || time() - config('APP_EMAIL_REGISTER_TIME') < strtotime($emailList->create_at)) {
             return [
@@ -122,7 +121,7 @@ class RegisterRepository extends BaseRepository
         }
         // 激活
         $userList->active = 1;
-        $saveResult = $userList->save();
+        $saveResult       = $userList->save();
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => [],

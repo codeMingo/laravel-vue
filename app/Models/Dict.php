@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Dict extends Model
 {
-    public static function getDictByTextEn($textEn)
+    public static function getDictValueByTextEn($textEn)
     {
-        return Dict::where('text_en', $textEn)->first();
+        return Dict::where('text_en', $textEn)->first()->value;
     }
 }
