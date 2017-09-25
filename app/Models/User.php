@@ -36,13 +36,13 @@ class User extends Authenticatable
     {
         $whereParams = [];
         $query       = User::where($whereParams);
-        if (issetAndNotEmpty($searchForm['status'])) {
+        if (isset($searchForm['status']) && $searchForm['status'] !== '') {
             $query->where('status', $searchForm['status']);
         }
-        if (issetAndNotEmpty($searchForm['username'])) {
+        if (isset($searchForm['username']) && $searchForm['username'] !== '') {
             $query->where('username', 'like', '%' . $searchForm['username'] . '%');
         }
-        if (issetAndNotEmpty($searchForm['email'])) {
+        if (isset($searchForm['email']) && $searchForm['email'] !== '') {
             $query->where('email', 'like', '%' . $searchForm['email'] . '%');
         }
         return $query->paginate(config('app.pageSize'));

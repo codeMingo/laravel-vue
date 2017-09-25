@@ -17,11 +17,11 @@ class Article extends Model
     public static function lists($searchForm)
     {
         $whereParams = [];
-        if (issetAndNotEmpty($searchForm['category_id'])) {
+        if (isset($searchForm['category_id']) && !empty($searchForm['category_id'])) {
             $whereParams['category_id'] = $searchForm['category_id'];
         }
         $query = Article::where($whereParams);
-        if (issetAndNotEmpty($searchForm['title'])) {
+        if (isset($searchForm['title']) && $searchForm['title'] !== '') {
             $query->where('title', 'like', '%' . $searchForm['title'] . '%');
         }
         return $query->paginate(config('blog.pageSize'));
