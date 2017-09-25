@@ -66,6 +66,7 @@ class RegisterRepository extends BaseRepository
         ]);
         $mailData = [
             'view' => 'register',
+            'to' => $insertResult->email,
             'title' => '账户激活邮件',
             'name'  => $insertResult->username,
             'url'   => env('APP_URL') . '/active?mail_id=' . $insertEmailResult->id . '&user_id=' . base64_encode($insertResult->id),
@@ -83,6 +84,11 @@ class RegisterRepository extends BaseRepository
         ];
     }
 
+    /**
+     * 激活用户
+     * @param  Array $input
+     * @return Array
+     */
     public function activeUser($input)
     {
         $emailId = isset($input['email_id']) && !empty($input['email_id']) ? intval($input['email_id']) : '';

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 class RegisterController extends Controller
 {
 
+    // 创建用户
     public function createUser(Request $request)
     {
         $input  = $request->input('data');
@@ -16,6 +17,7 @@ class RegisterController extends Controller
         return response()->json($result);
     }
 
+    // 激活用户
     public function activeUser(Request $request)
     {
         $input  = $request->all();

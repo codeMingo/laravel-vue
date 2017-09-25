@@ -59,10 +59,22 @@ class CommonRepository extends BaseRepository
         ];
     }
 
+    /**
+     * 发送邮件
+     * @param  Array $input
+     * @return null
+     */
     public function sendEmail($input)
     {
         return true;
-        $mailMessage = (new RegisterOrder($mailData));
-        Mail::to("292304400@qq.com")->queue($mailMessage);
+        switch ($input['view']) {
+            case 'register':
+                $mailMessage = (new RegisterOrder($mailData));
+                break;
+            default:
+                $mailMessage = (new RegisterOrder($mailData));
+        }
+
+        Mail::to($input['to'])->queue($mailMessage);
     }
 }

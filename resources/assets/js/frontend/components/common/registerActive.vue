@@ -2,7 +2,8 @@
     <div class="content-container register-active-container">
         <div class="register-active-box">
             <div class="active-tip">
-                <p>激活邮件已下发送至您的邮箱　<el-tag type="primary">{{email}}</el-tag>，请注意查收</p>
+                <p>激活邮件已下发送至您的邮箱
+                    <el-tag type="primary">{{email}}</el-tag>，请注意查收</p>
                 <p>未收到？
                     <a href="javascript:;" @click="sendEmail" v-if="sendEmailing == 'not'">重新发送</a>
                     <el-tag type="gray" v-if="sendEmailing == 'doing'">发送中</el-tag>
@@ -131,6 +132,19 @@ export default {
             sendEmailing: 'not',
             loadingSecond: 60
         };
+    },
+    beforeCreate() {
+        let _this = this;
+        axios.post('/check-active-user', { 'data': { email: _this.email } }).then(response => {
+            let { status, data, message } = response.data;
+            if (status && Object.keys(data).length == 0) {
+                _this.$message.error(message);
+                _this.$router.push({ path: '/index' });
+            }
+        }).catch(response => {
+            console.log('error');
+            _this.$router.push({ path: '/index' });
+        });
     },
     mounted() {
 
