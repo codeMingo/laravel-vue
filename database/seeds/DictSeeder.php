@@ -13,8 +13,17 @@ class DictSeeder extends Seeder
     public function run()
     {
         $data = [
+            // 系统参数
+            ['code' => 'system', 'code_name' => '系统参数', 'value' => 20, 'text_en' => 'frontend_article_page_size', 'text' => '文章分页'],
+            ['code' => 'system', 'code_name' => '系统参数', 'value' => 20, 'text_en' => 'frontend_video_page_size', 'text' => '视频分页'],
+            ['code' => 'system', 'code_name' => '系统参数', 'value' => 30, 'text_en' => 'frontend_leave_page_size', 'text' => '留言分页'],
+            ['code' => 'system', 'code_name' => '系统参数', 'value' => 5, 'text_en' => 'frontend_article_recommend_page_size', 'text' => '文章推荐展示数'],
+            ['code' => 'system', 'code_name' => '系统参数', 'value' => 5, 'text_en' => 'frontend_video_recommend_page_size', 'text' => '视频推荐展示数'],
+            ['code' => 'system', 'code_name' => '系统参数', 'value' => 5, 'text_en' => 'frontend_leave_recommend_page_size', 'text' => '留言推荐展示数'],
+            ['code' => 'system', 'code_name' => '系统参数', 'value' => 1, 'text_en' => 'comment_audit', 'text' => '评论审核'],
+            ['code' => 'system', 'code_name' => '系统参数', 'value' => 1, 'text_en' => 'leave_audit', 'text' => '留言审核'],
             // 性别
-            ['code' => 'gender', 'code_name' => '性别', 'value' => 0, 'text_en' => '', 'text' => '未知'],
+            ['code' => 'gender', 'code_name' => '性别', 'value' => 0, 'text_en' => 'unknown', 'text' => '未知'],
             ['code' => 'gender', 'code_name' => '性别', 'value' => 10, 'text_en' => 'male', 'text' => '男'],
             ['code' => 'gender', 'code_name' => '性别', 'value' => 20, 'text_en' => 'female', 'text' => '女'],
             // 是否激活

@@ -5,6 +5,7 @@ use App\Models\Article;
 use App\Models\ArticleComment;
 use App\Models\ArticleInteractive;
 use App\Models\ArticleRead;
+use App\Repositories\Frontend\DictRepository;
 
 class ArticleRepository extends BaseRepository
 {
@@ -136,13 +137,10 @@ class ArticleRepository extends BaseRepository
                 'message' => '不存在这篇文章',
             ];
         }
-        // 是否开启评论审核
-        $is_open_audit = 1;
-        $audit_pass    = '';
+        $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['open_audit', 'audit_loading', 'audit_pass']);
         // 表示一级评论
         if (!$commnet_id) {
-            $audit_pass  = Dict::getDictValueByTextEn('audit_pass');
-            $commentList = ArticleComment::where('id', $commnet_id)->where('status', 1)->where('is_audit', $audit_pass)->first();
+            $commentList = ArticleComment::where('id', $commnet_id)->where('status', 1)->where('is_audit', $dictListsValue['audit_pass'])->first();
             if (empty($commentList)) {
                 return [
                     'status'  => Parent::ERROR_STATUS,
@@ -157,7 +155,7 @@ class ArticleRepository extends BaseRepository
             'parent_id'  => $commnet_id ? $commnet_id : 0;
             'article_id' => $article_id,
             'content'    => $content,
-            'is_audit'   => $is_open_audit ? Dict::getDictValueByTextEn('audit_loading') : $audit_pass,
+            'is_audit'   => $dictListsValue['open_audit'] ? $dictListsValue['audit_loading'] : $dictListsValue['audit_pass'],
             'status'     => 1,
         ]);
 
