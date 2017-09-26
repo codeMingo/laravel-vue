@@ -10,7 +10,7 @@ class ArticleRepository extends BaseRepository
 {
 
     /**
-     * 获取文章列表
+     * 文章列表
      * @param  Array $input [searchForm]
      * @return Array
      */
@@ -181,5 +181,121 @@ class ArticleRepository extends BaseRepository
             ],
             'message' => '操作成功',
         ];
+    }
+
+    /**
+     * 获取点赞 or 反对 or 收藏详情
+     * @param  Array $input [type]
+     * @param  int $article_id
+     * @return Array
+     */
+    public function interactiveDetail($input, $article_id)
+    {
+        $type = isset($input['type']) ? strval($input['type']) : '';
+        if (!$article_id || !$type) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '发生未知错误',
+            ];
+        }
+        $articleList = Article::where('id', $article_id)->where('status', 1)->first();
+        if (empty($articleList)) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '不存在这篇文章',
+            ];
+        }
+        $resultData['lists'] = ArticleInteractive::where('article_id', $article_id)->where($type, 1)->where('status', 1)->user()->get();
+        return [
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
+            'message' => '数据获取成功',
+        ];
+    }
+
+    /**
+     * 推荐文章
+     * @param  Array $input [type]
+     * @return Array
+     */
+    public function recommendList($input)
+    {
+        $resultData = [];
+        if (empty($input)) {
+            $resultData['lists'] = Article::where('recommend', 1)->where('status', 1)->get();
+        } else {
+            $type = isset($input['type']) ? strval($input['type']) : '';
+            switch ($type) {
+                case 'hot':
+                    $resultData['lists'] = $this->getHotLists();
+                    break;
+                case 'most-like':
+                    $resultData['lists'] = $this->getMostLikeList();
+                    break;
+                case 'most-collect':
+                    $resultData['lists'] = $this->getMostCollectList();
+                    break;
+                case 'most-comment':
+                    $resultData['lists'] = $this->getMostCommentList();
+                    break;
+                case 'most-read':
+                    $resultData['lists'] = $this->getMostReadList();
+                    break;
+                default:
+                    $resultData['lists'] = $this->getHotLists();
+            }
+        }
+        return [
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
+            'message' => '数据获取成功',
+        ];
+    }
+
+    /**
+     * 热门文章
+     * @return Obejct
+     */
+    public function getHotLists()
+    {
+
+    }
+
+    /**
+     * 热最多人点赞文章
+     * @return Obejct
+     */
+    public function getMostLikeList()
+    {
+
+    }
+
+    /**
+     * 最多人收藏文章
+     * @return Obejct
+     */
+    public function getMostCollectList()
+    {
+
+    }
+
+    /**
+     * 最多人评论文章
+     * @return Obejct
+     */
+    public function getMostCommentList()
+    {
+
+    }
+
+    /**
+     * 最多人浏览文章
+     * @return Obejct
+     */
+    public function getMostReadList()
+    {
+
     }
 }

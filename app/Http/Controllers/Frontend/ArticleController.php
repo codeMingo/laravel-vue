@@ -37,4 +37,20 @@ class ArticleController extends BaseController
         $result = ArticleRepository::getInstance()->comment($input);
         return response()->json($result);
     }
+
+    // 点赞 or 反对 or 收藏 详情
+    public function interactiveDetail(Request $request, $id)
+    {
+        $input = $request->input('data');
+        $result = ArticleRepository::getInstance()->interactiveDetail($input, $id);
+        return response()->json($result);
+    }
+
+    // 推荐文章
+    public function recommendList(Request $request)
+    {
+        $input = $request->input('data');
+        $result = ArticleRepository::getInstance()->recommendList($input);
+        return response()->json($result);
+    }
 }
