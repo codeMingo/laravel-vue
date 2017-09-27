@@ -13,6 +13,14 @@ class Article extends Model
         return $this->hasMany('App\Models\ArticleComment');
     }
 
+    // 关联所有的互动
+    public function interactives()
+    {
+        return $this->hasMany('App\Models\ArticleInteractive');
+    }
+
+
+
     // 获取文章列表
     public static function lists($searchForm)
     {

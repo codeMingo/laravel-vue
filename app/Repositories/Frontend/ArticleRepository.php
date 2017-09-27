@@ -6,6 +6,7 @@ use App\Models\ArticleComment;
 use App\Models\ArticleInteractive;
 use App\Models\ArticleRead;
 use App\Repositories\Frontend\DictRepository;
+use DB;
 
 class ArticleRepository extends BaseRepository
 {
@@ -254,6 +255,7 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 热门文章
+     * 点赞 + 反对 + 评论 + 收藏 最多
      * @return Obejct
      */
     public function getHotLists()
@@ -267,7 +269,10 @@ class ArticleRepository extends BaseRepository
      */
     public function getMostLikeList()
     {
-
+        $articleLists = Article::withCount('interactives', function($query) {
+            $query->where('like', 1)->where('status', 1);
+        })->get()->sortBy('interactives_count');
+        return $articleLists;
     }
 
     /**
@@ -276,7 +281,10 @@ class ArticleRepository extends BaseRepository
      */
     public function getMostCollectList()
     {
-
+        $articleLists = Article::withCount('interactives', function($query) {
+            $query->where('collect', 1)->where('status', 1);
+        })->get()->sortBy('interactives_count');
+        return $articleLists;
     }
 
     /**
@@ -285,7 +293,10 @@ class ArticleRepository extends BaseRepository
      */
     public function getMostCommentList()
     {
-
+        $articleLists = Article::withCount('comments', function($query) {
+            $query->where('status', 1);
+        })->get()->sortBy('comments_count');
+        return $articleLists;
     }
 
     /**
@@ -294,6 +305,9 @@ class ArticleRepository extends BaseRepository
      */
     public function getMostReadList()
     {
-
+        $articleLists = Article::withCount('reads', function($query) {
+            $query->where('status', 1);
+        })->get()->sortBy('reads_count');
+        return $articleLists;
     }
 }
