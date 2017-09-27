@@ -98,7 +98,7 @@ export default {
             return text;
         },
         create() {
-            this.$router.push({ path: '/articles/create' });
+            this.$router.push({ path: '/article/create' });
         }
     }
 }
