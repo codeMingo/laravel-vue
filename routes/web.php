@@ -38,11 +38,15 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'backend', 'middleware' => '
     // 公共模块
     Route::get('/index', 'IndexController@index');
 
-    //管理员模块
+    // 管理员模块
     Route::resource('admins', 'AdminController');
     Route::post('admin/change-field-value/{id}', 'AdminController@changeFieldValue');
 
-    //用户模块
+    // 用户模块
     Route::resource('users', 'UserController');
     Route::post('user/change-field-value/{id}', 'UserController@changeFieldValue');
+
+    // 文章模块
+    Route::resource('articles', 'ArticleController');
+    Route::get('article/options', 'ArticleController@options');
 });

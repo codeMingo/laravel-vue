@@ -39,6 +39,10 @@ class DictSeeder extends Seeder
             // 邮件类型
             ['code' => 'email_type', 'code_name' => '邮件类型', 'value' => 10, 'text_en' => 'register_active', 'text' => '注册'],
             ['code' => 'email_type', 'code_name' => '邮件类型', 'value' => 20, 'text_en' => 'repassword_email', 'text' => '重置密码'],
+            // 文章状态
+            ['code' => 'article_status', 'code_name' => '文章状态', 'value' => 0, 'text_en' => 'article_not_show', 'text' => '下架'],
+            ['code' => 'article_status', 'code_name' => '文章状态', 'value' => 10, 'text_en' => 'article_is_audit', 'text' => '审核中'],
+            ['code' => 'article_status', 'code_name' => '文章状态', 'value' => 20, 'text_en' => 'article_is_show', 'text' => '正常'],
         ];
         \App\Models\Dict::insert($data);
     }

@@ -39,7 +39,7 @@ class Admin extends Authenticatable
             $whereParams['permission_id'] = $searchForm['permission_id'];
         }
         $query = Admin::where($whereParams);
-        if ((isset($searchForm['username']) && $searchForm['username'] !== '') {
+        if (isset($searchForm['username']) && $searchForm['username'] !== '') {
             $query->where('username', 'like', '%' . $searchForm['username'] . '%');
         }
         return $query->paginate(config('blog.pageSize'));
