@@ -36,6 +36,7 @@ class ArticleRepository extends BaseRepository
     {
         $categoty_id = isset($input['categoty_id']) ? intval($input['categoty_id']) : '';
         $title       = isset($input['title']) ? strstr($input['title']) : '';
+        $thumbnail   = isset($input['thumbnail']) ? strstr($input['thumbnail']) : '';
         $auther      = isset($input['auther']) ? strstr($input['auther']) : '';
         $content     = isset($input['content']) ? strstr($input['content']) : '';
         $tag_include = isset($input['tag_include']) ? implode(',', $input['tag_include']) : '';
@@ -65,6 +66,7 @@ class ArticleRepository extends BaseRepository
         $insertResult = Article::create([
             'category_id' => $category_id,
             'title'       => $title,
+            'thumbnail'   => $thumbnail,
             'auther'      => $auther,
             'content'     => $content,
             'tag_include' => $tag_include,
@@ -106,6 +108,7 @@ class ArticleRepository extends BaseRepository
         }
         $categoty_id = isset($input['categoty_id']) ? intval($input['categoty_id']) : '';
         $title       = isset($input['title']) ? strstr($input['title']) : '';
+        $thumbnail   = isset($input['thumbnail']) ? strstr($input['thumbnail']) : '';
         $auther      = isset($input['auther']) ? strstr($input['auther']) : '';
         $content     = isset($input['content']) ? strstr($input['content']) : '';
         $tag_include = isset($input['tag_include']) ? implode(',', $input['tag_include']) : '';
@@ -135,6 +138,7 @@ class ArticleRepository extends BaseRepository
         $updateResult = Article::where('id', $article_id)->update([
             'category_id' => $category_id,
             'title'       => $title,
+            'thumbnail'   => $thumbnail,
             'auther'      => $auther,
             'content'     => $content,
             'tag_include' => $tag_include,

@@ -19,34 +19,39 @@ class RegisterRepository extends BaseRepository
      */
     public function createUser($input)
     {
-        if (empty($input) || empty($input['username']) || empty($input['password']) || empty($input['email'])) {
+        $username = isset($input['username']) ? strval($input['username']) : '';
+        $email = isset($input['email']) ? strval($input['email']) : '';
+        $face = isset($input['face']) ? strval($input['face']) : '';
+        $password = isset($input['password']) ? Hash::make(strval($input['password'])) : '';
+
+        if (!$username || !$email || !$password) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
                 'message' => '必填信息不得为空',
             ];
         }
-        $usernameUniqueData = User::where('username', $input['username'])->first();
-        if (!empty($usernameUniqueData)) {
+        $usernameList = User::where('username', $username)->first();
+        if (!empty($usernameList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '用户用户名已经存在',
+                'message' => '用户名已经存在',
             ];
         }
-        $emailUniqueData = User::where('email', $input['email'])->first();
-        if (!empty($emailUniqueData)) {
+        $emailList = User::where('email', $email)->first();
+        if (!empty($emailList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '用户邮箱已经存在',
+                'message' => '邮箱已经存在',
             ];
         }
         $insertResult = User::create([
-            'username' => $input['username'],
-            'email'    => $input['email'],
-            'face'     => $input['face'],
-            'password' => Hash::make($input['password']),
+            'username' => $username,
+            'email'    => $email,
+            'face'     => $face,
+            'password' => $password,
             'active'   => 0,
             'status'   => 1,
         ]);

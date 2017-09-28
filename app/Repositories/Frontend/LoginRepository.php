@@ -15,11 +15,22 @@ class LoginRepository extends BaseRepository
      */
     public function login($input, $request)
     {
-        if (strpos($input['account'], '@')) {
+        $account  = isset($input['account']) ? strval($input['account']) : '';
+        $password = isset($input['password']) ? strval($input['password']) : '';
+        $remember = isset($input['remember']) ? (bool) $input['remember'] : false;
+
+        if (!$account || $password) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '用户名或密码不得为空',
+            ];
+        }
+        if (strpos($account, '@')) {
             //邮箱登录
-            $flag = Auth::guard('web')->attempt(['email' => $input['account'], 'password' => $input['password'], 'active' => 1, 'status' => 1], $input['remember']);
+            $flag = Auth::guard('web')->attempt(['email' => $account, 'password' => $password, 'active' => 1, 'status' => 1], $remember);
         } else {
-            $flag = Auth::guard('web')->attempt(['username' => $input['account'], 'password' => $input['password']]);
+            $flag = Auth::guard('web')->attempt(['username' => $account, 'password' => $password]);
         }
         if (!$flag) {
             return [
@@ -36,7 +47,7 @@ class LoginRepository extends BaseRepository
         $resultData['data'] = [
             'username' => $user['username'],
             'email'    => $user['email'],
-            'face'    => $user['face'],
+            'face'     => $user['face'],
         ];
         return [
             'status'  => Parent::SUCCESS_STATUS,
@@ -61,14 +72,14 @@ class LoginRepository extends BaseRepository
             $userList = Auth::guard('web')->user();
             $userData = [
                 'username' => $userList->username,
-                'email' => $userList->email,
-                'face' => $userList->face
+                'email'    => $userList->email,
+                'face'     => $userList->face,
             ];
             $resultData['data'] = $userData;
         }
         return [
-            'status' => Parent::SUCCESS_STATUS,
-            'data' => $resultData,
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
             'message' => '获取成功',
         ];
     }

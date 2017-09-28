@@ -15,13 +15,21 @@ class LoginRepository extends BaseRepository
      */
     public function login($data, $request)
     {
-        $loginData = [
-            'username' => $data['username'],
-            'password' => $data['password'],
-        ];
-        if (!Auth::guard('admin')->attempt($loginData)) {
+        $username = isset($input['username']) ? strval($input['username']) : '';
+        $password = isset($input['password']) ? strval($input['password']) : '';
+
+        if (!$username || !$password) {
             return [
                 'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '必填字段不得为空',
+            ];
+        }
+
+        if (!Auth::guard('admin')->attempt(['username' => $username, 'password' => $password])) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
                 'message' => '用户名或密码错误',
             ];
         }
@@ -33,16 +41,16 @@ class LoginRepository extends BaseRepository
                 'message' => '帐号被禁用',
             ];
         };
-        $updateData = [
+
+        $updateResult = Admin::where('id', $adminList->id)->update([
             'last_login_ip'   => $request->getClientIp(),
             'last_login_time' => date('Y-m-d H:i:s', time()),
-        ];
-        $updateResult = Admin::where('id', $adminList->id)->update($updateData);
+        ]);
         if (!$updateResult) {
             return [
-                'status' => Parent::ERROR_STATUS,
-                'data' => [],
-                'message' => '登录失败，发生未知错误'
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '登录失败，发生未知错误',
             ];
         }
         $returnData['data'] = [
@@ -52,7 +60,7 @@ class LoginRepository extends BaseRepository
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $returnData,
-            'message' => '登录成功'
+            'message' => '登录成功',
         ];
     }
 

@@ -19,6 +19,7 @@ class CreateArticlesTable extends Migration
             $table->integer('category_id')->comment('类别id');
             $table->integer('user_id')->default(0)->comment('用户id');
             $table->string('title', 100)->comment('标题');
+            $table->string('thumbnail')->default('')->comment('缩略图');
             $table->string('auther', 20)->default('')->comment('作者');
             $table->mediumText('content')->comment('内容');
             $table->string('tag_include')->default('')->comment('标签');
