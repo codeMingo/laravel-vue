@@ -2,6 +2,8 @@
 namespace App\Repositories\Backend;
 
 use App\Models\Article;
+use App\Models\ArticleComment;
+use App\Models\ArticleInteractive;
 use App\Models\Category;
 use App\Repositories\Backend\DictRepository;
 
@@ -9,7 +11,9 @@ class ArticleRepository extends BaseRepository
 {
 
     /**
-     * 获取列表
+     * 文章列表
+     * @param  Array $input [searchForm]
+     * @return Array
      */
     public function lists($input)
     {
@@ -19,12 +23,14 @@ class ArticleRepository extends BaseRepository
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
-            'message' => '',
+            'message' => '获取成功',
         ];
     }
 
     /**
-     * 新增
+     * 新增文章
+     * @param  Array $input [category_id, title, auther, content, tag_include, source, is_audit, recommend, status]
+     * @return array
      */
     public function create($input)
     {
@@ -83,11 +89,14 @@ class ArticleRepository extends BaseRepository
     }
 
     /**
-     * 编辑
+     * 编辑文章
+     * @param Int $article_id
+     * @param  Array $input [category_id, title, auther, content, tag_include, source, is_audit, recommend, status]
+     * @return array
      */
-    public function update($id, $input)
+    public function update($article_id, $input)
     {
-        $articleList = Article::where('id', $id)->first();
+        $articleList = Article::where('id', $article_id)->first();
         if (empty($articleList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -123,7 +132,7 @@ class ArticleRepository extends BaseRepository
             ];
         }
 
-        $updateResult = Article::where('id', $id)->update([
+        $updateResult = Article::where('id', $article_id)->update([
             'category_id' => $category_id,
             'title'       => $title,
             'auther'      => $auther,
@@ -150,11 +159,13 @@ class ArticleRepository extends BaseRepository
     }
 
     /**
-     * 删除
+     * 删除文章
+     * @param  Array $article_id
+     * @return Array
      */
-    public function destroy($id)
+    public function destroy($article_id)
     {
-        $deleteResult = Article::where('id', $id)->delete();
+        $deleteResult = Article::where('id', $article_id)->delete();
         if (!$deleteResult) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -170,8 +181,9 @@ class ArticleRepository extends BaseRepository
         ];
     }
 
-    /*
+    /**
      * 获取options
+     * @return Array
      */
     public function getOptions()
     {
@@ -184,12 +196,14 @@ class ArticleRepository extends BaseRepository
         ];
     }
 
-    /*
-     * 获取一条文章
+    /**
+     * 获取一篇文章详情
+     * @param  Int $article_id
+     * @return Array
      */
-    public function show($id)
+    public function show($article_id)
     {
-        $resultData['data'] = Article::where('id', $id)->first();
+        $resultData['data'] = Article::where('id', $article_id)->first();
         if (empty($resultData)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -199,6 +213,64 @@ class ArticleRepository extends BaseRepository
         }
         $resultData['options']['categories'] = Category::lists('article');
         $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
+        return [
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
+            'message' => '获取成功',
+        ];
+    }
+
+    /**
+     * 获取一篇文章所有的 点赞 or 反对 or 收藏
+     * @param  Array $article_id
+     * @return Array
+     */
+    public function getInteractives($article_id)
+    {
+        $articleList = Article::where('id', $article_id)->first();
+        if (empty($articleList)) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '不存在这篇文章',
+            ];
+        }
+        $interactiveLists    = ArticleInteractive::where('article_id', $article_id)->user()->get();
+        $resultData['lists'] = [];
+        if (!empty($interactiveLists)) {
+            foreach ($interactiveLists as $key => $item) {
+                if ($item->like) {
+                    $resultData['lists']['like'][] = $item;
+                } else if ($item->hate) {
+                    $resultData['lists']['hate'][] = $item;
+                } else if ($item->collect) {
+                    $resultData['lists']['collect'][] = $item;
+                }
+            }
+        }
+        return [
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
+            'message' => '获取成功',
+        ];
+    }
+
+    /**
+     * 获取评论列表
+     * @param  Int $article_id
+     * @return Array
+     */
+    public function getComments($article_id)
+    {
+        $articleList = Article::where('id', $article_id)->first();
+        if (empty($articleList)) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '不存在这篇文章',
+            ];
+        }
+        $resultData['lists'] = ArticleComment::where('article_id', $article_id)->user()->get();
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
