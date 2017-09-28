@@ -132,11 +132,11 @@ class AdminRepository extends BaseRepository
      */
     public function changeFieldValue($id, $input)
     {
-        $result = Admin::where('id', $id)->update([$input['field'] => $input['value']]);
+        $updateResult = Admin::where('id', $id)->update([$input['field'] => $input['value']]);
         return [
-            'status'  => $result ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
+            'status'  => $updateResult ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
             'data'    => [],
-            'message' => $result ? '更改状态成功' : '更改状态失败',
+            'message' => $updateResult ? '操作成功' : '操作失败',
         ];
     }
 }

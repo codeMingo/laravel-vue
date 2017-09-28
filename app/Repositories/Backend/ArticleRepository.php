@@ -277,4 +277,43 @@ class ArticleRepository extends BaseRepository
             'message' => '获取成功',
         ];
     }
+
+    /**
+     * 获取浏览列表
+     * @param  Int $article_id
+     * @return Array
+     */
+    public function getReads($article_id)
+    {
+        $articleList = Article::where('id', $article_id)->first();
+        if (empty($articleList)) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '不存在这篇文章',
+            ];
+        }
+        $resultData['lists'] = ArticleRead::where('article_id', $article_id)->user()->get();
+        return [
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
+            'message' => '获取成功',
+        ];
+    }
+
+    /**
+     * 改变某一个字段的值
+     * @param  Int $id
+     * @param  Array $data [field, value]
+     * @return Array
+     */
+    public function changeFieldValue($id, $input)
+    {
+        $updateResult = Article::where('id', $id)->update([$input['field'] => $input['value']]);
+        return [
+            'status'  => $updateResult ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
+            'data'    => [],
+            'message' => $updateResult ? '操作成功' : '操作失败',
+        ];
+    }
 }
