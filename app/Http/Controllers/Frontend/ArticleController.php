@@ -47,10 +47,18 @@ class ArticleController extends BaseController
     }
 
     // 推荐文章
-    public function recommendList(Request $request)
+    public function recommendLists(Request $request)
     {
         $input = $request->input('data');
         $result = ArticleRepository::getInstance()->recommendList($input);
+        return response()->json($result);
+    }
+
+    // 获取我点赞 or 反对 or 收藏的文章
+    public function interativeLists(Request $request)
+    {
+        $input = $request->input('data');
+        $result = ArticleRepository::getInstance()->interativeLists($input);
         return response()->json($result);
     }
 }

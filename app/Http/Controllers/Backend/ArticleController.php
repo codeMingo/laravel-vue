@@ -48,7 +48,8 @@ class ArticleController extends BaseController
      */
     public function show($id)
     {
-        //
+        $result = ArticleRepository::getInstance()->show($id);
+        return response()->json($result);
     }
 
     /**
@@ -71,7 +72,9 @@ class ArticleController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        //
+        $input = $request->input('data');
+        $result = ArticleRepository::getInstance()->update($id, $input);
+        return response()->json($result);
     }
 
     /**
@@ -82,7 +85,8 @@ class ArticleController extends BaseController
      */
     public function destroy($id)
     {
-        //
+        $result = ArticleRepository::getInstance()->destroy($id);
+        return response()->json($result);
     }
 
     public function options()

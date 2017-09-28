@@ -21,7 +21,11 @@ class Article extends Model
 
 
 
-    // 获取文章列表
+    /**
+     * 文章列表
+     * @param  Array $searchForm [catetory_id, title]
+     * @return Object
+     */
     public static function lists($searchForm)
     {
         $whereParams = [];

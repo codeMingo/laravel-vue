@@ -228,22 +228,22 @@ class ArticleRepository extends BaseRepository
             $type = isset($input['type']) ? strval($input['type']) : '';
             switch ($type) {
                 case 'hot':
-                    $resultData['lists'] = $this->getHotLists();
+                    $resultData['lists'] = $this->hotLists();
                     break;
                 case 'most-like':
-                    $resultData['lists'] = $this->getMostLikeList();
+                    $resultData['lists'] = $this->mostLikeLists();
                     break;
                 case 'most-collect':
-                    $resultData['lists'] = $this->getMostCollectList();
+                    $resultData['lists'] = $this->mostCollectLists();
                     break;
                 case 'most-comment':
-                    $resultData['lists'] = $this->getMostCommentList();
+                    $resultData['lists'] = $this->mostCommentLists();
                     break;
                 case 'most-read':
-                    $resultData['lists'] = $this->getMostReadList();
+                    $resultData['lists'] = $this->mostReadLists();
                     break;
                 default:
-                    $resultData['lists'] = $this->getHotLists();
+                    $resultData['lists'] = $this->hotLists();
             }
         }
         return [
@@ -255,23 +255,26 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 热门文章
-     * 点赞 + 反对 + 评论 + 收藏 最多
+     * 点赞 + 反对 + 收藏 最多
      * @return Obejct
      */
-    public function getHotLists()
+    public function hotLists($page_size)
     {
-
+        $articleLists = Article::withCount('interactives', function($query) {
+            $query->where('status', 1);
+        })->sortBy('interactives_count')->paginate($page_size);
+        return $articleLists;
     }
 
     /**
      * 热最多人点赞文章
      * @return Obejct
      */
-    public function getMostLikeList()
+    public function mostLikeLists()
     {
         $articleLists = Article::withCount('interactives', function($query) {
             $query->where('like', 1)->where('status', 1);
-        })->get()->sortBy('interactives_count');
+        })->sortBy('interactives_count')->paginate($page_size);
         return $articleLists;
     }
 
@@ -279,11 +282,11 @@ class ArticleRepository extends BaseRepository
      * 最多人收藏文章
      * @return Obejct
      */
-    public function getMostCollectList()
+    public function mostCollectLists()
     {
         $articleLists = Article::withCount('interactives', function($query) {
             $query->where('collect', 1)->where('status', 1);
-        })->get()->sortBy('interactives_count');
+        })->sortBy('interactives_count')->paginate($page_size);
         return $articleLists;
     }
 
@@ -291,11 +294,11 @@ class ArticleRepository extends BaseRepository
      * 最多人评论文章
      * @return Obejct
      */
-    public function getMostCommentList()
+    public function mostCommentLists()
     {
         $articleLists = Article::withCount('comments', function($query) {
             $query->where('status', 1);
-        })->get()->sortBy('comments_count');
+        })->sortBy('comments_count')->paginate($page_size);
         return $articleLists;
     }
 
@@ -303,11 +306,39 @@ class ArticleRepository extends BaseRepository
      * 最多人浏览文章
      * @return Obejct
      */
-    public function getMostReadList()
+    public function mostReadLists()
     {
         $articleLists = Article::withCount('reads', function($query) {
             $query->where('status', 1);
-        })->get()->sortBy('reads_count');
+        })->sortBy('reads_count')->paginate($page_size);
         return $articleLists;
+    }
+
+
+    public function interactiveLists($input)
+    {
+        $field_arr = isset($input['field']) ? explode(',', strval($input['fields'])) : [];
+        if (empty($field_arr)) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '参数错误，请联系管理员',
+            ];
+        }
+        $user_id = Auth::guard('web')->id();
+        $query = ArticleInteractive::where('user_id', $user_id)->where('status', 1);
+        if (isset($field_arr['like'])) {
+            $query = $query->where('like', 1);
+        } else if (isset($field_arr['hate'])) {
+            $query = $query->where('hate', 1);
+        } else if (isset($field_arr['collect'])) {
+            $query = $query->where('collect', 1);
+        }
+        $resultData['lists'] = $query->paginate();
+        return [
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
+            'message' => '数据获取成功',
+        ];
     }
 }
