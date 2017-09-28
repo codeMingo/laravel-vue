@@ -13,7 +13,7 @@ class LoginRepository extends BaseRepository
      * @param  Request $request
      * @return Array
      */
-    public function login($data, $request)
+    public function login($input, $request)
     {
         $username = isset($input['username']) ? strval($input['username']) : '';
         $password = isset($input['password']) ? strval($input['password']) : '';

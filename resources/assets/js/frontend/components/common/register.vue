@@ -13,7 +13,8 @@
                                 <el-upload class="avatar-uploader" action="/upload-image" :show-file-list="false" :on-success="uploadFaceSuccess" :before-upload="beforeUploadFace" :headers="uploadHeaders">
                                     <img v-if="registerForm.face" :src="registerForm.face" class="avatar">
                                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                                </el-upload>（不传默认使用系统头像）
+                                </el-upload>
+                                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb（不传默认使用系统头像）</div>
                             </el-form-item>
                             <el-form-item label="用户名" prop="username">
                                 <el-input v-model="registerForm.username" placeholder="登录账号，2-15个字符"></el-input>

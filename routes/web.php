@@ -37,6 +37,7 @@ Route::post('/backend/logout', 'Auth\LoginController@adminLogout');
 Route::group(['namespace' => 'Backend', 'prefix' => 'backend', 'middleware' => 'auth.admin'], function () {
     // 公共模块
     Route::get('/index', 'IndexController@index');
+    Route::post('/upload-image', 'CommonController@uploadImage');
 
     // 管理员模块
     Route::resource('admins', 'AdminController');

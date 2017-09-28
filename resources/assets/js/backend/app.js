@@ -88,6 +88,7 @@ axios.interceptors.response.use(function(response) {
     return Promise.reject(error);
 });
 
+window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
 //注入
 const app = new Vue({
     router,

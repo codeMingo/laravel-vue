@@ -5,7 +5,7 @@
             <el-input v-model="searchForm.auther" placeholder="请输入作者" style="width: 200px;"></el-input>
             <el-select v-model="searchForm.category_id" placeholder="请选择文章类别">
                 <el-option label="全部" value=""></el-option>
-                <el-option v-for="item in options.categories" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                <el-option v-for="item in options.categories" :key="item.id" :label="item.category_name" :value="item.id"></el-option>
             </el-select>
             <el-select v-model="searchForm.status" placeholder="请选择状态">
                 <el-option label="全部" value=""></el-option>
@@ -14,15 +14,18 @@
         </table-header-component>
         <el-table :data="tableData" border style="width: 100%">
             <el-table-column prop="title" label="标题"></el-table-column>
-            <el-table-column prop="category_id" label="类别" :formatter="formatCategory"></el-table-column>
+            <el-table-column label="类别">
+                <template scope="scope">
+                    {{scope.row.category_id | formatByOptions(options.categories, 'id', 'category_name')}}
+                </template>
+            </el-table-column>
             <el-table-column prop="auther" label="作者"></el-table-column>
-            <el-table-column prop="reading" label="阅读量"></el-table-column>
             <el-table-column prop="created_at" label="发表时间"></el-table-column>
             <el-table-column prop="status" label="状态" :formatter="formatStatus"></el-table-column>
             <el-table-column align="center" label="操作" width="250">
                 <template scope="scope">
-                    <!-- <el-button size="small" type="info" @click="toLink('/article/save/' + scope.row.id)">查看详情</el-button>
-                    <el-button size="small" type="success" @click="toLink('/article/save/' + scope.row.id)">编辑</el-button> -->
+                    <el-button size="small" type="info" @click="toLink('/article/show/' + scope.row.id)">查看详情</el-button>
+                    <el-button size="small" type="success" @click="toLink('/article/update/' + scope.row.id)">编辑</el-button>
                     <el-button size="small" type="danger" @click="trashed(scope.row.id)">删除</el-button>
                 </template>
             </el-table-column>
@@ -81,7 +84,7 @@ export default {
         },
         formatStatus(row) {
             let text = '-';
-            this.options.statusOptions.forEach(function(item) {
+            this.options.status.forEach(function(item) {
                 if (row.status == item.value) {
                     return text = item.text;
                 }
@@ -90,7 +93,7 @@ export default {
         },
         formatCategory(row) {
             let text = '-';
-            this.options.categoryOptions.forEach(function(item) {
+            this.options.categories.forEach(function(item) {
                 if (row.category_id == item.id) {
                     return text = item.name;
                 }
@@ -99,6 +102,9 @@ export default {
         },
         create() {
             this.$router.push({ path: '/article/create' });
+        },
+        toLink(url) {
+            this.$router.push({ path: url });
         }
     }
 }

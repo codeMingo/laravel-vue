@@ -30,8 +30,8 @@ class DictSeeder extends Seeder
             ['code' => 'active', 'code_name' => '是否激活', 'value' => 0, 'text_en' => 'not_actived', 'text' => '未激活'],
             ['code' => 'active', 'code_name' => '是否激活', 'value' => 10, 'text_en' => 'is_actived', 'text' => '已激活'],
             // 菜单类型
-            ['code' => 'category', 'code_name' => '菜单类型', 'value' => 10, 'text_en' => 'article', 'text' => '文章菜单'],
-            ['code' => 'category', 'code_name' => '菜单类型', 'value' => 20, 'text_en' => 'video', 'text' => '视频菜单'],
+            ['code' => 'category', 'code_name' => '菜单类型', 'value' => 10, 'text_en' => 'article_category', 'text' => '文章菜单'],
+            ['code' => 'category', 'code_name' => '菜单类型', 'value' => 20, 'text_en' => 'video_category', 'text' => '视频菜单'],
             // 审核
             ['code' => 'audit', 'code_name' => '审核结果', 'value' => 0, 'text_en' => 'audit_loading', 'text' => '审核中'],
             ['code' => 'audit', 'code_name' => '审核结果', 'value' => 10, 'text_en' => 'audit_refuse', 'text' => '拒绝'],

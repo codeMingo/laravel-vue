@@ -16,11 +16,11 @@ class CreateDictsTable extends Migration
         Schema::create('dicts', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->string('code', 20)->comment('分类代码');
-            $table->string('code_name', 10)->comment('分类名称');
+            $table->string('code', 50)->comment('分类代码');
+            $table->string('code_name', 50)->comment('分类名称');
             $table->tinyInteger('value')->unsigned()->comment('字典数值');
-            $table->string('text_en', 20)->default('')->comment('字典英文文字');
-            $table->string('text', 20)->default('')->comment('字典中文文字');
+            $table->string('text_en', 50)->default('')->comment('字典英文文字');
+            $table->string('text', 50)->default('')->comment('字典中文文字');
             $table->tinyInteger('sort_no')->unsigned()->default(0)->comment('排序号');
             $table->string('remarks', 50)->default('')->comment('备注');
             $table->tinyInteger('status')->default(1)->comment('状态(0|1)');

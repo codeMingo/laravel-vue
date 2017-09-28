@@ -8,7 +8,7 @@
                 <el-col :span="12">
                     <el-form-item label="类别" prop="category_id">
                         <el-select v-model="form.category_id" placeholder="请选择文章类别">
-                            <el-option v-for="item in options.categories" :key="item.id" :label="item.name" :value="item.id + ''"></el-option>
+                            <el-option v-for="item in options.categories" :key="item.id" :label="item.category_name" :value="item.id + ''"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
@@ -38,7 +38,19 @@
                         </el-select>
                     </el-form-item>
                 </el-col>
+                <el-col :span="12">
+                    <el-form-item label="是否推荐" prop="recommend">
+                        <el-select v-model="form.recommend" placeholder="请选择文章是否推荐">
+                            <el-option v-for="item in options.recommends" :key="item.value" :label="item.text" :value="item.value + ''"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
             </el-row>
+            <el-form-item label="缩略图" prop="thumbnail">
+                <el-upload class="upload-demo" action="/backend/upload-image" :on-preview="previewThumbnail" :on-remove="removeThumbnail" :file-list="thumbnailFileList" list-type="picture" :on-success="uploadThumbnailSuccess" :before-upload="beforeUploadThumbnail" :on-change="thumbnailChange" :headers="uploadHeaders">
+                    <el-button size="small" type="primary">点击上传</el-button>
+                </el-upload>
+            </el-form-item>
             <el-form-item label="内容" prop="content">
                 <quill-edit class="interactive-now-content" v-model="form.content" :options="editorOption"></quill-edit>
             </el-form-item>
@@ -62,36 +74,37 @@ export default {
                 title: '',
                 auther: '',
                 source: '',
+                thumbnail: '',
+                recommend: '',
                 reading: 0,
                 content: '',
                 status: ''
             },
             options: {
                 categories: [],
+                recommends: [],
                 status: []
             },
+            thumbnailFileList: [],
             rules: {
                 category_id: [
                     { required: true, message: '请选择文章类别', trigger: 'blur' }
                 ],
                 title: [
-                    { required: true, message: '请输入文章标题', trigger: 'blur' }
+                    { max: 50, message: '长度不得超过 50 个字符', trigger: 'blur' }
                 ],
                 auther: [
-                    { required: true, message: '请输入文章作者', trigger: 'blur' }
+                    { max: 25, message: '长度不得超过 25 个字符', trigger: 'blur' }
                 ],
                 source: [
-                    { required: true, message: '请输入文章来源', trigger: 'blur' }
+                    { max: 255, message: '长度不得超过 255 个字符', trigger: 'blur' }
                 ],
                 reading: [
                     { type: 'number', message: '阅读量必须为数字' }
                 ],
                 content: [
                     { required: true, message: '请输入文章内容', trigger: 'blur' }
-                ],
-                status: [
-                    { required: true, message: '请选择文章状态', trigger: 'blur' }
-                ],
+                ]
             },
             editorOption: {
                 modules: {
@@ -103,17 +116,19 @@ export default {
                         [{ 'script': 'sub' }, { 'script': 'super' }],
                         [{ 'indent': '-1' }, { 'indent': '+1' }],
                         [{ 'direction': 'rtl' }],
-                        //[{ 'size': ['small', false, 'large', 'huge'] }],
-                        //[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                         [{ 'color': [] }, { 'background': [] }],
-                        //[{ 'font': [] }],
-                        //[{ 'align': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
                         ['clean'],
-                        ['link']
-                        //['link', 'image', 'video']
+                        ['link', 'image', 'video']
                     ]
                 }
-            }
+            },
+            uploadHeaders: {
+                'X-CSRF-TOKEN': window.laravelCsrfToken
+            },
         }
     },
     mounted() {
@@ -132,17 +147,43 @@ export default {
             _this.$refs[formName].validate((valid) => {
                 if (valid) {
                     axios.post('/backend/articles', { 'data': _this.form }).then(response => {
-                        _this.$store.state.submitLoading = false;
-                        if (!response.status) {
-                            _this.$message.error(response.message);
+                        let {status, data, message} = response.data;
+                        if (!status) {
+                            _this.$message.error(message);
                             return false;
                         }
-                        _this.$message.success(response.message);
-                        _this.formVisible = false;
-                        _this.toLink('/article/index');
+                        _this.$message.success(message);
+                        _this.$router.push({ path: '/article/index' });
                     });
                 }
             });
+        },
+        removeThumbnail(file, fileList) {
+            //console.log(file, fileList);
+        },
+        previewThumbnail(file) {
+            //console.log(file);
+        },
+        uploadThumbnailSuccess(res, file) {
+            this.form.thumbnail = res.data.imageUrl;
+        },
+        beforeUploadThumbnail(file) {
+            let _this = this,
+                fileType = file.type,
+                fileSize = file.size / 1024,
+                truePictureType = ['image/jpeg', 'image/jpg', 'image/png', 'image/x-png'];
+            if (truePictureType.indexOf(fileType) == -1) {
+                _this.$message.error('请上传正确的图片的格式（jpg/png）');
+                return false;
+            }
+            if (fileSize > 500) {
+                _this.$message.error('上传的图片大小不能超过 500KB');
+                return false;
+            }
+            return true;
+        },
+        thumbnailChange(file, fileList) {
+            this.thumbnailFileList = fileList.slice(-1);
         }
     }
 }

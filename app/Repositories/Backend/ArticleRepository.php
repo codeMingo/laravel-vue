@@ -18,7 +18,7 @@ class ArticleRepository extends BaseRepository
     public function lists($input)
     {
         $resultData['lists']                 = Article::lists($input['searchForm']);
-        $resultData['options']['categories'] = Category::lists('article');
+        $resultData['options']['categories'] = Category::lists('article_category');
         $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
         return [
             'status'  => Parent::SUCCESS_STATUS,
@@ -32,20 +32,20 @@ class ArticleRepository extends BaseRepository
      * @param  Array $input [category_id, title, auther, content, tag_include, source, is_audit, recommend, status]
      * @return array
      */
-    public function create($input)
+    public function store($input)
     {
-        $categoty_id = isset($input['categoty_id']) ? intval($input['categoty_id']) : '';
-        $title       = isset($input['title']) ? strstr($input['title']) : '';
-        $thumbnail   = isset($input['thumbnail']) ? strstr($input['thumbnail']) : '';
-        $auther      = isset($input['auther']) ? strstr($input['auther']) : '';
-        $content     = isset($input['content']) ? strstr($input['content']) : '';
+        $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
+        $title       = isset($input['title']) ? strval($input['title']) : '';
+        $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
+        $auther      = isset($input['auther']) ? strval($input['auther']) : '';
+        $content     = isset($input['content']) ? strval($input['content']) : '';
         $tag_include = isset($input['tag_include']) ? implode(',', $input['tag_include']) : '';
-        $source      = isset($input['source']) ? strstr($input['source']) : '';
-        $is_audit    = isset($input['is_audit']) ? strstr($input['is_audit']) : '';
-        $recommend   = isset($input['recommend']) ? intval($input['recommend']) : '';
-        $status      = isset($input['status']) ? intval($input['status']) : '';
+        $source      = isset($input['source']) ? strval($input['source']) : '';
+        $is_audit    = isset($input['is_audit']) ? intval($input['is_audit']) : 0;
+        $recommend   = isset($input['recommend']) && !empty($input['recommend']) ? 1 : 0;
+        $status      = isset($input['status']) ? intval($input['status']) : 0;
 
-        if (!$categoty_id || !$title || !$content) {
+        if (!$category_id || !$title || !$content) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
@@ -85,7 +85,7 @@ class ArticleRepository extends BaseRepository
         // 操作成功写入日志
         return [
             'status'  => Parent::SUCCESS_STATUS,
-            'data'    => '',
+            'data'    => [],
             'message' => '新增成功',
         ];
     }
@@ -106,18 +106,18 @@ class ArticleRepository extends BaseRepository
                 'message' => '不存在这篇文章',
             ];
         }
-        $categoty_id = isset($input['categoty_id']) ? intval($input['categoty_id']) : '';
-        $title       = isset($input['title']) ? strstr($input['title']) : '';
-        $thumbnail   = isset($input['thumbnail']) ? strstr($input['thumbnail']) : '';
-        $auther      = isset($input['auther']) ? strstr($input['auther']) : '';
-        $content     = isset($input['content']) ? strstr($input['content']) : '';
+        $category_id = isset($input['category_id']) ? intval($input['category_id']) : '';
+        $title       = isset($input['title']) ? strval($input['title']) : '';
+        $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
+        $auther      = isset($input['auther']) ? strval($input['auther']) : '';
+        $content     = isset($input['content']) ? strval($input['content']) : '';
         $tag_include = isset($input['tag_include']) ? implode(',', $input['tag_include']) : '';
-        $source      = isset($input['source']) ? strstr($input['source']) : '';
-        $is_audit    = isset($input['is_audit']) ? strstr($input['is_audit']) : '';
+        $source      = isset($input['source']) ? strval($input['source']) : '';
+        $is_audit    = isset($input['is_audit']) ? strval($input['is_audit']) : '';
         $recommend   = isset($input['recommend']) ? intval($input['recommend']) : '';
         $status      = isset($input['status']) ? intval($input['status']) : '';
 
-        if (!$categoty_id || !$title || !$content) {
+        if (!$category_id || !$title || !$content) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
@@ -192,7 +192,8 @@ class ArticleRepository extends BaseRepository
     public function getOptions()
     {
         $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
-        $resultData['options']['categories'] = Category::lists('article');
+        $resultData['options']['categories'] = Category::lists('article_category');
+        $resultData['options']['recommends'] = [['text'=> '是', 'value' => 1], ['text'=> '否', 'value' => 0]];
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
@@ -215,7 +216,7 @@ class ArticleRepository extends BaseRepository
                 'message' => '不存在这篇文章',
             ];
         }
-        $resultData['options']['categories'] = Category::lists('article');
+        $resultData['options']['categories'] = Category::lists('article_category');
         $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
         return [
             'status'  => Parent::SUCCESS_STATUS,
