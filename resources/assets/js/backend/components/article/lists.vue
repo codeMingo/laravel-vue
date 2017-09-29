@@ -21,11 +21,25 @@
             </el-table-column>
             <el-table-column prop="auther" label="作者"></el-table-column>
             <el-table-column prop="created_at" label="发表时间"></el-table-column>
-            <el-table-column prop="status" label="状态" :formatter="formatStatus"></el-table-column>
+            <el-table-column label="是否推荐">
+                <template scope="scope">
+                    <el-tag type="gray" v-show="!scope.row.recommend" @click.native="changeFieldValue('recommend', scope.row.id, 1)">否</el-tag>
+                    <el-tag type="primary" v-show="scope.row.recommend" @click.native="changeFieldValue('recommend', scope.row.id, 0)">是</el-tag>
+                </template>
+            </el-table-column>
+            <el-table-column label="状态">
+                <template scope="scope">
+                    {{scope.row.status | formatByOptions(options.status, 'value', 'text')}}
+                </template>
+            </el-table-column>
             <el-table-column align="center" label="操作" width="250">
                 <template scope="scope">
-                    <el-button size="small" type="info" @click="toLink('/article/show/' + scope.row.id)">查看详情</el-button>
-                    <el-button size="small" type="success" @click="toLink('/article/update/' + scope.row.id)">编辑</el-button>
+                    <router-link to="/article/show/" + scope.row.id>
+                        <el-button size="small" type="info">查看详情</el-button>
+                    </router-link>
+                    <router-link to="/article/update/" + scope.row.id>
+                        <el-button size="small" type="warning">编辑</el-button>
+                    </router-link>
                     <el-button size="small" type="danger" @click="trashed(scope.row.id)">删除</el-button>
                 </template>
             </el-table-column>
@@ -102,9 +116,6 @@ export default {
         },
         create() {
             this.$router.push({ path: '/article/create' });
-        },
-        toLink(url) {
-            this.$router.push({ path: url });
         }
     }
 }
