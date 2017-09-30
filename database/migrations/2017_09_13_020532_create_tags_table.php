@@ -16,10 +16,9 @@ class CreateTagsTable extends Migration
         Schema::create('tags', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
+            $table->integer('admin_id')->comment('创建用户');
             $table->integer('tag_type')->comment('菜单类型');
             $table->string('tag_name')->comment('标签名称');
-            $table->string('instruction')->default('')->comment('说明');
-            $table->integer('sort')->default(0)->comment('菜单排序，正序');
             $table->tinyInteger('status')->default(1)->comment('状态(0|1)');
             $table->timestamps();
         });
