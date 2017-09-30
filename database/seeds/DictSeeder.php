@@ -1,6 +1,7 @@
 <?php
 namespace Database\Seeder;
 
+use DB;
 use Illuminate\Database\Seeder;
 
 class DictSeeder extends Seeder
@@ -12,6 +13,7 @@ class DictSeeder extends Seeder
      */
     public function run()
     {
+        DB::table('dicts')->truncate();
         $data = [
             // 系统参数
             ['code' => 'system', 'code_name' => '系统参数', 'value' => 20, 'text_en' => 'frontend_article_page_size', 'text' => '文章分页'],

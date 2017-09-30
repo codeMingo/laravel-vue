@@ -74,21 +74,13 @@ class AdminRepository extends BaseRepository
             'params' => [
                 'input' => $input,
             ],
-            'text'   => $insertResult ? '新增管理员成功' : '新增管理员失败，未知错误',
+            'text'   => !$insertResult ? '新增管理员失败，未知错误' : '新增管理员成功',
             'status' => !!$insertResult,
         ]);
-
-        if (!$insertResult) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '未知错误，请联系管理员',
-            ];
-        }
         return [
-            'status'  => Parent::SUCCESS_STATUS,
+            'status'  => !$insertResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => [],
-            'message' => '新增成功',
+            'message' => !$insertResult ? '新增管理员失败，未知错误' : '新增管理员成功',
         ];
     }
 
@@ -155,14 +147,14 @@ class AdminRepository extends BaseRepository
             'params' => [
                 'input' => $input,
             ],
-            'text'   => !$updateResult ? '更新管理员失败，未知错误': '更新管理员成功',
+            'text'   => !$updateResult ? '更新管理员失败，未知错误' : '更新管理员成功',
             'status' => !!$updateResult,
         ]);
 
         return [
             'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => [],
-            'message' => !$updateResult ? '更新管理员失败，未知错误': '更新管理员成功',
+            'message' => !$updateResult ? '更新管理员失败，未知错误' : '更新管理员成功',
         ];
     }
 
@@ -181,7 +173,7 @@ class AdminRepository extends BaseRepository
             'params' => [
                 'admin_id' => $admin_id,
             ],
-            'text'   => $deleteResult ? '删除管理员成功' : '删除管理员失败，未知错误',
+            'text'   => !$deleteResult ? '删除管理员失败，未知错误' : '删除管理员成功',
             'status' => !!$deleteResult,
         ]);
 
@@ -220,14 +212,14 @@ class AdminRepository extends BaseRepository
                 'admin_id' => $admin_id,
                 'input'    => $input,
             ],
-            'text'   => !$updateResult ? '操作失败' : '操作成功',
+            'text'   => !$updateResult ? '操作失败，未知错误' : '操作成功',
             'status' => !!$updateResult,
         ]);
 
         return [
             'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => [],
-            'message' => !$updateResult ? '操作失败' : '操作成功',
+            'message' => !$updateResult ? '操作失败，未知错误' : '操作成功',
         ];
     }
 }

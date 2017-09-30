@@ -158,14 +158,14 @@ class ArticleRepository extends BaseRepository
                 'article_id' => $article_id,
                 'input'      => $input,
             ],
-            'text'   => $updateResult ? '更新文章成功' : '更新文章失败，未知错误',
+            'text'   => !$updateResult ? '更新文章失败，未知错误' : '更新文章成功',
             'status' => !!$updateResult,
         ]);
 
         return [
             'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => '',
-            'message' => !$updateResult ? '更新文章成功' : '更新文章失败，未知错误',
+            'message' => !$updateResult ? '更新文章失败，未知错误' : '更新文章成功',
         ];
     }
 
@@ -185,7 +185,7 @@ class ArticleRepository extends BaseRepository
                 'article_id' => $article_id,
                 'input'      => $input,
             ],
-            'text'   => !$deleteResult ? '更新文章失败，未知错误' : '更新文章成功',
+            'text'   => !$deleteResult ? '删除文章失败，未知错误' : '删除文章成功',
             'status' => !!$deleteResult,
         ]);
 
@@ -342,7 +342,7 @@ class ArticleRepository extends BaseRepository
         return [
             'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => [],
-            'message' => !$updateResult ? '操作失败' : '操作成功',
+            'message' => !$updateResult ? '操作失败，未知错误' : '操作成功',
         ];
     }
 }

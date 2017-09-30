@@ -1,6 +1,7 @@
 <?php
 namespace Database\Seeder;
 
+use DB;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,7 +14,8 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        for ($i = 1; $i < 100; $i ++) {
+        DB::table('users')->truncate();
+        for ($i = 1; $i < 100; $i++) {
             $data[] = [
                 'username' => 'user' . $i,
                 'email'    => 'userEmail' . $i . '@qq.com',

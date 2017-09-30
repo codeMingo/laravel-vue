@@ -1,6 +1,7 @@
 <?php
 namespace Database\Seeder;
 
+use DB;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,6 +14,7 @@ class AdminSeeder extends Seeder
      */
     public function run()
     {
+        DB::table('admins')->truncate();
         for ($i = 1; $i < 100; $i++) {
             $data[] = [
                 'username'           => 'admin' . $i,
