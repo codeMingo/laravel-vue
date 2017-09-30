@@ -8,7 +8,7 @@
 - Markdown编辑器、echarts图表、excel导入导出
 - 日志管理
 - 权限控制
-- 七牛云存储、redis缓存、视频抢购并发
+- 七牛云存储、redis缓存、视频抢购并发、登录限制
 - 公共错误401、404页面
 - QQ、微信登录
 - 邮件发送，redis队列
@@ -50,9 +50,8 @@
     # 使用yarn安装依赖库
     yarn install
 
-    # yarn install 或 npm install 都可能报错，报错的原因很多（绝大部分是自身系统配置和墙的原因）
-    # 详细查看报错原因，正常情况会提示安装哪一个依赖库报错
-    # 最常见的是要求安装python和安装node-sass报错，python自行到python官网下载安装包安装即可（2.0版本以上），下载地址：（上面提供），node-sass报错的话安装淘宝镜像之后重新执行
+    # yarn install 或 npm install 都可能报错，报错的原因很多，详细查看报错原因，正常情况会提示安装哪一个依赖库报（绝大部分是自身系统配置和墙的原因）
+    # 最常见的是node-sass报错，重新执行
     npm install --save node-sass // yarn install 成功的话直接跳过此步奏
 
     # 运行脚本（编译js和sass等文件），成功之后即可访问项目
@@ -78,6 +77,7 @@
 ├── ├── ├── assets
 ├── ├── ├── ├── js             // vue组件和app.js等
 ├── └── └── └── sass           // sass文件
+├── instruction                // 说明文档
 ├── .env.example               // 配置文件
 ├── webpack.mix.js             // webpack
 ├── .gitignore                 // git 忽略项
@@ -93,14 +93,8 @@
 - 注册
 ![注册](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-register.png)
 
-- 登录
-![登录](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-login.png)
-
 - 文章页面
 ![文章页面](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-article.png)
-
-- 评论区
-![评论区](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-interactive.png)
 
 - 留言板
 ![留言板](https://raw.githubusercontent.com/linlianmin/laravel-vue-element/master/public/github-images/frontend-leave.png)
