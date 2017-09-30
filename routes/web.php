@@ -38,6 +38,7 @@ Route::group(['namespace' => 'Backend', 'prefix' => 'backend', 'middleware' => '
     // 公共模块
     Route::get('/index', 'IndexController@index');
     Route::post('/upload-image', 'CommonController@uploadImage');
+    Route::post('/update-redis', 'CommonController@uploadRedis');
 
     // 管理员模块
     Route::resource('admins', 'AdminController');

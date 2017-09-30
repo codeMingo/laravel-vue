@@ -15,4 +15,11 @@ class CommonController extends BaseController
         $result = CommonRepository::getInstance()->uploadImage($input);
         return response()->json($result);
     }
+
+    // 一键更新所有的缓存
+    public function updateRedis(Request $request)
+    {
+        $result = CommonRepository::getInstance()->updateRedis($request);
+        return response()->json($result);
+    }
 }

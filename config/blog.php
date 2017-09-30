@@ -10,11 +10,11 @@ return [
     // 注册激活邮件的有效时间
     'registerEmailTime' => env('APP_EMAIL_REGISTER_TIME', 86400),
 
-    // 七牛密钥
+    // 七牛
     'qiniuAccessKey'    => env('QINIU_ACCESS_KEY', ''),
     'qiniuSecretKey'    => env('QINIU_SECRET_KEY', ''),
-
-    // 七牛bucket
     'qiniuImageBucket'  => env('QINIU_IMAGE_BUCKET', ''),
     'qiniuBucketUrl'    => env('QINIU_BUCKET_URL', ''),
+
+    // redis
 ];

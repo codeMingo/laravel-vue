@@ -1,8 +1,8 @@
 <?php
 namespace App\Repositories\Backend;
 
-use App\Mail\RegisterOrder;
-use Illuminate\Support\Facades\Mail;
+use DB;
+use Illuminate\Support\Facades\Redis;
 use Qiniu\Auth;
 use Qiniu\Storage\UploadManager;
 
@@ -20,6 +20,7 @@ class CommonRepository extends BaseRepository
         $fileTmpPath        = $input->getLinkTarget(); // 要上传文件的本地路径
         $imageExtensionName = $input->getClientOriginalExtension();
         $imageSize          = $input->getSize() / 1024; // 单位为KB
+
         if (!in_array(strtolower($imageExtensionName), ['jpeg', 'jpg', 'gpeg', 'png'])) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -31,12 +32,12 @@ class CommonRepository extends BaseRepository
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '上传的图片不得大于500KB',
+                'message' => '上传的图片不得大于' . config('blog.pictureSize') . 'KB',
             ];
         }
         // redis记录该ip上传图片次数，一小时只允许上传10张
 
-        //七牛上传图片
+        // 七牛上传图片
         $auth   = new Auth(config('blog.qiniuAccessKey'), config('blog.qiniuSecretKey'));
         $bucket = config('blog.qiniuImageBucket');
         // 生成上传Token
@@ -59,5 +60,53 @@ class CommonRepository extends BaseRepository
             'data'    => $ret,
             'message' => '上传成功',
         ];
+    }
+
+    public function updateRedis($request)
+    {
+        $ip_address                 = $request->get_client_ip();
+        $backendLimitLoginUserArray = $backendLimitLoginIpArray = $frontendLimitLoginIpArray = [];
+
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'Common/updateRedis',
+            'params' => [
+                'ip_address' => $ip_address,
+            ],
+            'text'   => 'redis缓存更新',
+            'status' => 1,
+        ]);
+
+        // 清除所有的redis
+        Redis::flushall();
+
+        // 后台限制登录账号
+        $backendLimitLoginLists = DB::select('select username from admin where status = 0');
+        foreach ($backendLimitLoginLists as $key => $item) {
+            $backendLimitLoginUserArray[] = $item->username;
+        }
+        Redis::sadd('limitBackendLoginUser', $backendLimitLoginUserArray);
+
+        // 后台限制登录ip
+        $limitIpList = DB::select('select ip_address from ip_limit_login where status = 1');
+        foreach ($limitIpList as $key => $item) {
+            if ($item->type == 1) {
+                //前台
+                $backendLimitLoginIpArray[] = $item->ip_address;
+            } else {
+                $frontendLimitLoginIpArray[] = $item->ip_address;
+            }
+        }
+        Redis::sadd('limitBackendLoginIp', $backendLimitLoginIpArray);
+        Redis::sadd('limitFrontendLoginIp', $frontendLimitLoginIpArray);
+
+        // 文章缓存
+
+        return [
+            'status':Parent::SUCCESS_STATUS,
+            'data'    => [],
+            'message' => 'redis更新成功',
+        ];
+
     }
 }

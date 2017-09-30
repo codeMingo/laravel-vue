@@ -57,7 +57,7 @@ abstract class BaseRepository
             'status'     => $input['status']
         ]);
         } catch (Exception $e) {
-            Log::info('saveAdminOperateRecord fail，params :' . json_encode($input));
+            Log::info('RECORD FAIL：saveAdminOperateRecord is error，params :' . json_encode($input));
         }
 
     }
