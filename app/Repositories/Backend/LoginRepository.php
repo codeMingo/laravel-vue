@@ -20,7 +20,7 @@ class LoginRepository extends BaseRepository
     {
         $username   = isset($input['username']) ? strval($input['username']) : '';
         $password   = isset($input['password']) ? strval($input['password']) : '';
-        $ip_address = $request->get_client_ip();
+        $ip_address = $request->getClientIp();
 
         if (!$username || !$password) {
             return [
@@ -63,7 +63,7 @@ class LoginRepository extends BaseRepository
                 'admin_id'   => '',
                 'params'     => json_encode($input),
                 'text'       => '登录失败，用户名或密码错误',
-                'ip_address' => ;
+                'ip_address' => $ip_address,
                 'status'     => 0,
             ]);
             return [
@@ -86,7 +86,7 @@ class LoginRepository extends BaseRepository
                 'admin_id'   => $adminList->id,
                 'params'     => json_encode($input),
                 'text'       => '登录失败，帐号被限制',
-                'ip_address' => $ip_address;
+                'ip_address' => $ip_address,
                 'status'     => 0,
             ]);
 
@@ -95,7 +95,7 @@ class LoginRepository extends BaseRepository
 
             return [
                 'status'  => Parent::ERROR_STATUS,
-                'data'    => [];
+                'data'    => [],
                 'message' => '登录失败，帐号被限制',
             ];
         };
@@ -110,7 +110,7 @@ class LoginRepository extends BaseRepository
             'admin_id'   => $adminList->id,
             'params'     => json_encode($input),
             'text'       => !$updateResult ? '登录失败，发生未知错误' : '登录成功',
-            'ip_address' => $ip_address;
+            'ip_address' => $ip_address,
             'status'     => !!$updateResult,
         ]);
 
