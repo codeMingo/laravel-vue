@@ -29,7 +29,7 @@ class AdminRepository extends BaseRepository
      * @param  Array $input [username, email, password, permission_id, status]
      * @return Array
      */
-    public function create($input)
+    public function store($input)
     {
         $username      = isset($input['username']) ? strval($input['username']) : '';
         $email         = isset($input['email']) ? strval($input['email']) : '';
@@ -67,6 +67,17 @@ class AdminRepository extends BaseRepository
             'permission_id' => $permission_id,
             'status'        => $status,
         ]);
+
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'Admin/store',
+            'params' => [
+                'input' => $input,
+            ],
+            'text'   => $insertResult ? '新增管理员成功' : '新增管理员失败，未知错误',
+            'status' => !!$insertResult,
+        ]);
+
         if (!$insertResult) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -137,17 +148,21 @@ class AdminRepository extends BaseRepository
             $updateData['password'] = $password;
         };
         $updateResult = Admin::where('id', $admin_id)->update($updateData);
-        if (!$updateResult) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '未知错误，请联系管理员',
-            ];
-        }
+
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'Admin/update',
+            'params' => [
+                'input' => $input,
+            ],
+            'text'   => !$updateResult ? '更新管理员失败，未知错误': '更新管理员成功',
+            'status' => !!$updateResult,
+        ]);
+
         return [
-            'status'  => Parent::SUCCESS_STATUS,
+            'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => [],
-            'message' => '更新成功',
+            'message' => !$updateResult ? '更新管理员失败，未知错误': '更新管理员成功',
         ];
     }
 
@@ -156,23 +171,34 @@ class AdminRepository extends BaseRepository
      * @param  Int $admin_id
      * @return Array
      */
-    public function delete($admin_id)
+    public function destroy($admin_id)
     {
-        $deleted = Admin::where('id', $admin_id)->delete();
+        $deleteResult = Admin::where('id', $admin_id)->delete();
+
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'Admin/destroy',
+            'params' => [
+                'admin_id' => $admin_id,
+            ],
+            'text'   => $deleteResult ? '删除管理员成功' : '删除管理员失败，未知错误',
+            'status' => !!$deleteResult,
+        ]);
+
         return [
-            'status'  => $deleted ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
+            'status'  => !$deleteResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => [],
-            'message' => $deleted ? '管理员删除成功' : '管理员删除失败',
+            'message' => !$deleteResult ? '删除管理员失败，未知错误' : '删除管理员成功',
         ];
     }
 
     /**
      * 改变某一个字段的值
-     * @param  Int $id
+     * @param  Int $admin_id
      * @param  Array $data [field, value]
      * @return Array
      */
-    public function changeFieldValue($id, $input)
+    public function changeFieldValue($admin_id, $input)
     {
         $field = isset($input['field']) ? strval($input['field']) : '';
         $value = isset($input['value']) ? strval($input['value']) : '';
@@ -181,15 +207,27 @@ class AdminRepository extends BaseRepository
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '未知错误，请联系管理员',
+                'message' => '参数错误，请刷新页面重试',
             ];
         }
 
-        $updateResult = Admin::where('id', $id)->update([$field => $value]);
+        $updateResult = Admin::where('id', $admin_id)->update([$field => $value]);
+
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'Admin/changeFieldValue',
+            'params' => [
+                'admin_id' => $admin_id,
+                'input'    => $input,
+            ],
+            'text'   => !$updateResult ? '操作失败' : '操作成功',
+            'status' => !!$updateResult,
+        ]);
+
         return [
-            'status'  => $updateResult ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
+            'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => [],
-            'message' => $updateResult ? '操作成功' : '操作失败',
+            'message' => !$updateResult ? '操作失败' : '操作成功',
         ];
     }
 }

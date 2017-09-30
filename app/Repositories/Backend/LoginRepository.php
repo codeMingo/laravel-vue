@@ -2,6 +2,7 @@
 namespace App\Repositories\Backend;
 
 use App\Models\Admin;
+use App\Models\AdminLoginRecord;
 use Illuminate\Support\Facades\Auth;
 
 class LoginRepository extends BaseRepository
@@ -26,7 +27,17 @@ class LoginRepository extends BaseRepository
             ];
         }
 
+        // 连续登录错误超过5次，1小时内禁止登录
+
+
         if (!Auth::guard('admin')->attempt(['username' => $username, 'password' => $password])) {
+            AdminLoginRecord::create([
+                'admin_id'   => '',
+                'params'     => json_encode($input),
+                'text'       => '登录失败，用户名或密码错误',
+                'ip_address' => $request->get_client_ip();
+                'status'     => 0,
+            ]);
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
@@ -36,15 +47,28 @@ class LoginRepository extends BaseRepository
         $adminList = Auth::guard('admin')->user();
         if (!$adminList->status) {
             Auth::guard('admin')->logout();
+            AdminLoginRecord::create([
+                'admin_id'   => $adminList->id,
+                'params'     => json_encode($input),
+                'text'       => '帐号被禁用',
+                'ip_address' => $request->get_client_ip();
+                'status'     => 0,
+            ]);
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'message' => '帐号被禁用',
             ];
         };
-
         $updateResult = Admin::where('id', $adminList->id)->update([
             'last_login_ip'   => $request->getClientIp(),
             'last_login_time' => date('Y-m-d H:i:s', time()),
+        ]);
+        AdminLoginRecord::create([
+            'admin_id'   => $adminList->id,
+            'params'     => json_encode($input),
+            'text'       => !$updateResult ? '登录失败，发生未知错误' : '登录成功',
+            'ip_address' => $request->get_client_ip();
+            'status'     => !!$updateResult,
         ]);
         if (!$updateResult) {
             return [

@@ -86,7 +86,7 @@ class AdminController extends BaseController
      */
     public function destroy($id)
     {
-        $result = AdminRepository::getInstance()->delete($id);
+        $result = AdminRepository::getInstance()->destroy($id);
         return response()->json($result);
     }
 

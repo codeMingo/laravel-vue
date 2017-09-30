@@ -1,7 +1,10 @@
 <?php
 namespace App\Repositories\Backend;
 
+use App\Models\AdminOperateRecord;
 use App\Models\Dict;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 abstract class BaseRepository
 {
@@ -34,5 +37,28 @@ abstract class BaseRepository
             }
         }
         return $result;
+    }
+
+    /**
+     * 记录操作日志
+     * @param  Reuqest $request
+     * @param  Array  $input [action, params, text, status]
+     * @return Array
+     */
+    public function saveOperateRecord(Reuqest $request, $input)
+    {
+        try {
+            AdminOperateRecord::create([
+            'admin_id'   => Auth::guard('admin')->id(),
+            'action'     => $input['action'],
+            'params'     => json_encode($input['params']),
+            'text'       => $input['text'],
+            'ip_address' => $request->get_client_ip(),
+            'status'     => $input['status']
+        ]);
+        } catch (Exception $e) {
+            Log::info('saveAdminOperateRecord fail，params :' . json_encode($input));
+        }
+
     }
 }

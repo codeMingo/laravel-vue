@@ -75,18 +75,21 @@ class ArticleRepository extends BaseRepository
             'recommend'   => $recommend,
             'status'      => $status,
         ]);
-        if (!$insertResult) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '未知错误，请联系管理员',
-            ];
-        }
-        // 操作成功写入日志
+
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'Article/store',
+            'params' => [
+                'input' => $input,
+            ],
+            'text'   => !$insertResult ? '新增文章失败，未知错误' : '新增文章成功',
+            'status' => !!$insertResult,
+        ]);
+
         return [
-            'status'  => Parent::SUCCESS_STATUS,
+            'status'  => !$insertResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => [],
-            'message' => '新增成功',
+            'message' => !$insertResult ? '新增文章失败，未知错误' : '新增文章成功',
         ];
     }
 
@@ -147,18 +150,22 @@ class ArticleRepository extends BaseRepository
             'recommend'   => $recommend,
             'status'      => $status,
         ]);
-        if (!$updateResult) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '未知错误，请联系管理员',
-            ];
-        }
-        // 操作成功写入日志
+
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'Article/update',
+            'params' => [
+                'article_id' => $article_id,
+                'input'      => $input,
+            ],
+            'text'   => $updateResult ? '更新文章成功' : '更新文章失败，未知错误',
+            'status' => !!$updateResult,
+        ]);
+
         return [
-            'status'  => Parent::SUCCESS_STATUS,
+            'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => '',
-            'message' => '新增成功',
+            'message' => !$updateResult ? '更新文章成功' : '更新文章失败，未知错误',
         ];
     }
 
@@ -170,18 +177,22 @@ class ArticleRepository extends BaseRepository
     public function destroy($article_id)
     {
         $deleteResult = Article::where('id', $article_id)->delete();
-        if (!$deleteResult) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '未知错误，请联系管理员',
-            ];
-        }
-        // 操作成功写入日志
+
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'Article/update',
+            'params' => [
+                'article_id' => $article_id,
+                'input'      => $input,
+            ],
+            'text'   => !$deleteResult ? '更新文章失败，未知错误' : '更新文章成功',
+            'status' => !!$deleteResult,
+        ]);
+
         return [
-            'status'  => Parent::SUCCESS_STATUS,
+            'status'  => !$deleteResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => '',
-            'message' => '删除成功',
+            'message' => !$deleteResult ? '删除文章失败，未知错误' : '删除文章成功',
         ];
     }
 
@@ -193,7 +204,7 @@ class ArticleRepository extends BaseRepository
     {
         $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
         $resultData['options']['categories'] = Category::lists('article_category');
-        $resultData['options']['recommends'] = [['text'=> '是', 'value' => 1], ['text'=> '否', 'value' => 0]];
+        $resultData['options']['recommends'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
@@ -218,7 +229,7 @@ class ArticleRepository extends BaseRepository
         }
         $resultData['options']['categories'] = Category::lists('article_category');
         $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
-        $resultData['options']['recommends'] = [['text'=> '是', 'value' => 1], ['text'=> '否', 'value' => 0]];
+        $resultData['options']['recommends'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
@@ -309,17 +320,29 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 改变某一个字段的值
-     * @param  Int $id
+     * @param  Int $article_id
      * @param  Array $data [field, value]
      * @return Array
      */
-    public function changeFieldValue($id, $input)
+    public function changeFieldValue($article_id, $input)
     {
-        $updateResult = Article::where('id', $id)->update([$input['field'] => $input['value']]);
+        $updateResult = Article::where('id', $article_id)->update([$input['field'] => $input['value']]);
+
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'Article/changeFieldValue',
+            'params' => [
+                'article_id' => $article_id,
+                'input'      => $input,
+            ],
+            'text'   => !$updateResult ? '操作失败，未知错误' : '操作成功',
+            'status' => !!$updateResult,
+        ]);
+
         return [
-            'status'  => $updateResult ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
+            'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
             'data'    => [],
-            'message' => $updateResult ? '操作成功' : '操作失败',
+            'message' => !$updateResult ? '操作失败' : '操作成功',
         ];
     }
 }
