@@ -48,8 +48,27 @@ Object.keys(filters).forEach(key => {
 //vuex
 const store = new Vuex.Store({
     state: {
-        submitLoading: false
+        submitLoading: false,
+
+        // sidebar的class
+        sidebarCollapse: false,
+        sidebarMainContainerClass: '',
+        sidebarWrapperClass: '',
     },
+    mutations: {
+        toggleSidebar(state) {  // sidebar状态切换
+            state.sidebarCollapse = !state.sidebarCollapse;
+            if (state.sidebarCollapse) {
+                state.sidebarMainContainerClass = 'main-container-toggle';
+                state.sidebarWrapperClass = 'sidebar-wrapper-toggle';
+                sessionStorage.setItem('sidebarCollapse', 1);
+            } else {
+                state.sidebarMainContainerClass = '';
+                state.sidebarWrapperClass = '';
+                sessionStorage.removeItem('sidebarCollapse');
+            }
+        }
+    }
 });
 
 //vue-router
@@ -91,6 +110,14 @@ axios.interceptors.response.use(function(response) {
 window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
 //注入
 const app = new Vue({
+    beforeCreate() {
+        // 记忆sidebar是否收缩
+        if (sessionStorage.getItem('sidebarCollapse')) {
+            this.$store.state.sidebarCollapse = true;
+            this.$store.state.sidebarMainContainerClass = 'main-container-toggle';
+            this.$store.state.sidebarWrapperClass = 'sidebar-wrapper-toggle';
+        }
+    },
     router,
     store
 }).$mount('#app');

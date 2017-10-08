@@ -1,62 +1,128 @@
 <template>
-    <el-menu :unique-opened='true' mode="vertical" theme="dark" :default-active="$route.path">
-        <template v-for="item in $router.options.routes" v-if="!item.hidden">
-            <el-submenu :index="item.name" v-if="!item.noDropdown">
-                <template slot="title">
-                    <i :class="item.iconCls"></i>&nbsp;&nbsp;&nbsp;{{item.name}}
-                </template>
-                <router-link v-for="child in item.children" :key="child.path" v-if="!child.hidden" class="title-link" :to="item.path+'/'+child.path">
-                    <el-menu-item :index="item.path+'/'+child.path">
-                        {{child.name}}
-                    </el-menu-item>
-                </router-link>
+    <el-row :gutter="20" style="margin: 0px; padding: 0px;">
+        <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+            <div class="hamburger-container" @click="toggleSidebar"><i class="fa fa-navicon"></i></div>
+            <el-breadcrumb class="sidebar-breadcrumb" separator="/">
+                <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+                <el-breadcrumb-item>活动列表</el-breadcrumb-item>
+                <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+            </el-breadcrumb>
+            <div class="sidebar-tag">
+                <el-tag v-for="tag in tags" :key="tag.name" :closable="true" :type="tag.type">
+                    {{tag.name}}
+                </el-tag>
+            </div>
+            <el-submenu index="5" style="float: right;margin-right: 5px;">
+                <template slot="title">{{adminData.permission_text}}：{{adminData.username}}</template>
+                <el-menu-item index="5-1">个人中心</el-menu-item>
+                <el-menu-item index="5-1">刷新缓存</el-menu-item>
+                <el-menu-item index="5-2">设置</el-menu-item>
+                <el-menu-item index="5-3" @click="logout">退出</el-menu-item>
             </el-submenu>
-            <router-link v-if="item.noDropdown&&item.children.length>0" :to="item.path+'/'+item.children[0].path">
-                <el-menu-item :index="item.path+'/'+item.children[0].path">
-                    <i :class="item.iconCls"></i>&nbsp;&nbsp;&nbsp;{{item.children[0].name}}
-                </el-menu-item>
-            </router-link>
-        </template>
-    </el-menu>
+        </el-menu>
+    </el-row>
 </template>
-<style rel="stylesheet/scss" lang="scss" scoped>
-.el-menu {
-    min-height: 100%;
-    border-radius: 0;
-}
-
-.el-submenu .el-menu-item:active,
-.el-submenu .el-menu-item:hover {
-    text-decoration: none;
-}
-
-.wscn-icon {
-    margin-right: 10px;
-}
-
-.hideSidebar .title-link {
-    display: inline-block;
-    padding-left: 10px;
-}
-</style>
-<script type="text/javascript">
+<script>
 export default {
+    name: 'Sidebar',
     data() {
         return {
-            permission_routers: '',
+            activeIndex: '1',
+            adminData: {
+                username: '',
+                permissionText: ''
+            },
+            tags: [
+                { name: '标签一', type: '' },
+                { name: '标签二', type: '' },
+                { name: '标签三', type: '' },
+                { name: '标签六', type: 'primary' }
+            ]
         };
     },
     mounted() {
-
+        let _this = this;
+        var adminData = sessionStorage.getItem('admin');
+        if (adminData) {
+            _this.adminData = JSON.parse(adminData);
+        }
     },
     methods: {
-        getMenu: function() {
-            axios.get('backend/menu-list').then(function(res) {
-                permission_routers = res.data.lists;
-            }).catch(function(res) {
-
+        handleSelect(key, keyPath) {
+            console.log(key, keyPath);
+        },
+        logout() {
+            let _this = this;
+            axios.post('/backend/logout').then(function(res) {
+                let { status, message } = res.data;
+                if (!status) {
+                    _this.$message.error('未知错误，管理员退出失败');
+                    return false;
+                }
+                _this.$message.success(message);
+                _this.$router.push({ path: '/login' });
+            }).catch(function(err) {
+                _this.$message.error('网络连接失败');
             });
+        },
+        toggleSidebar() {
+            this.$store.commit('toggleSidebar');
         }
     }
 }
 </script>
+<style rel="stylesheet/scss" lang="scss" scoped>
+.el-menu {
+    border-radius: 0;
+}
+
+.hamburger-container {
+    padding: 0 20px;
+    float: left;
+    height: 60px;
+    line-height: 60px;
+    color: #48576A;
+    cursor: pointer;
+    transform: rotate(0deg);
+    transition: .38s;
+    transform-origin: 50% 50%;
+}
+
+.hamburger-container.is-active {
+    transform: rotate(90deg);
+}
+
+.hamburger-container:hover {
+    color: #59A7FC;
+}
+
+.el-submenu .el-menu-item {
+    min-width: 0 !important;
+}
+
+.sidebar-breadcrumb.el-breadcrumb {
+    display: inline-block;
+    font-size: 14px;
+    height: 60px;
+    line-height: 60px;
+    margin-left: 10px;
+    .no-redirect {
+        color: #97a8be;
+        cursor: text;
+    }
+}
+
+.sidebar-tag {
+    display: inline-block;
+    font-size: 14px;
+    height: 60px;
+    line-height: 60px;
+    margin-left: 10px;
+    vertical-align: top;
+    margin-left: 10px;
+    .el-tag {
+        margin-right: 5px;
+        cursor: pointer;
+    }
+}
+</style>

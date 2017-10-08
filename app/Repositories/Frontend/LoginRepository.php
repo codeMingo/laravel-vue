@@ -19,11 +19,11 @@ class LoginRepository extends BaseRepository
         $password = isset($input['password']) ? strval($input['password']) : '';
         $remember = isset($input['remember']) ? (bool) $input['remember'] : false;
 
-        if (!$account || $password) {
+        if (!$account || !$password) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '用户名或密码不得为空',
+                'message' => '登录失败，必填字段不得为空',
             ];
         }
         if (strpos($account, '@')) {
@@ -36,7 +36,7 @@ class LoginRepository extends BaseRepository
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '用户名或密码错误',
+                'message' => '登录失败，用户名或密码错误',
             ];
         }
         $user         = Auth::guard('web')->user();

@@ -31,7 +31,11 @@ html, body {
             bottom: 0;
             left: 0;
             z-index: 1001;
-            overflow-x: hidden;
+            // overflow-x: hidden;
+            transition: all .28s ease-out;
+        }
+        .sidebar-wrapper-toggle {
+            width: 64px;
             transition: all .28s ease-out;
         }
         .main-container {
@@ -44,6 +48,10 @@ html, body {
                     padding-bottom: 10px;
                 }
             }
+        }
+        .main-container-toggle {
+            margin-left: 64px;
+            transition: all .28s ease-out;
         }
     }
 }

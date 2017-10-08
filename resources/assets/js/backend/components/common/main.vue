@@ -1,11 +1,11 @@
 <template>
     <div class="container">
         <el-row :gutter="20" style="margin: 0px; padding: 0px;">
-            <div class="sidebar-wrapper">
-                <Herader-component class="sidebar-container"></Herader-component>
+            <div class="sidebar-wrapper" :class="$store.state.sidebarWrapperClass">
+                <Sidebar-component class="sidebar-container"></Sidebar-component>
             </div>
-            <div class="main-container">
-                <Sidebar-component></Sidebar-component>
+            <div class="main-container" :class="$store.state.sidebarMainContainerClass">
+                <Herader-component></Herader-component>
                 <div class="app-main">
                     <router-view></router-view>
                 </div>

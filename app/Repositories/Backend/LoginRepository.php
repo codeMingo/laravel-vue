@@ -115,8 +115,9 @@ class LoginRepository extends BaseRepository
         ]);
 
         $returnData['data'] = [
-            'username' => $adminList->username,
-            'email'    => $adminList->email,
+            'username'        => $adminList->username,
+            'email'           => $adminList->email,
+            'permission_text' => '超级管理员',
         ];
         return [
             'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,

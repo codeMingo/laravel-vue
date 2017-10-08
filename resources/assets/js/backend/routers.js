@@ -36,7 +36,7 @@ export default [{
         iconCls: 'fa fa-television', //图标样式class
         noDropdown: true,
         children: [
-            { path: 'index', component: Index, name: '首页', iconCls: 'el-icon-edit' }
+            { path: 'index', component: Index, name: '首页'}
         ]
     }, {
         path: '/admin',
