@@ -34,10 +34,10 @@
             </el-table-column>
             <el-table-column align="center" label="操作" width="250">
                 <template scope="scope">
-                    <router-link to="/article/show/" + scope.row.id>
+                    <router-link :to="{ path: '/article/show/' + scope.row.id }">
                         <el-button size="small" type="info">查看详情</el-button>
                     </router-link>
-                    <router-link to="/article/update/" + scope.row.id>
+                    <router-link to="{ path: '/article/update/' + scope.row.id }">
                         <el-button size="small" type="warning">编辑</el-button>
                     </router-link>
                     <el-button size="small" type="danger" @click="trashed(scope.row.id)">删除</el-button>
@@ -105,14 +105,20 @@ export default {
             });
             return text;
         },
-        formatCategory(row) {
-            let text = '-';
-            this.options.categories.forEach(function(item) {
-                if (row.category_id == item.id) {
-                    return text = item.name;
+        changeFieldValue(field, id, value) {
+            let paramsData = { 'data': { 'field': field, 'value': value } };
+            axios.post('/backend/article/change-field-value/' + id, paramsData).then(response => {
+                if (!response.data.status) {
+                    window._this.$message.error(response.data.message);
+                    return false;
                 }
+                window._this.$message.success(response.data.message);
+                window._this.tableData.forEach((item, index) => {
+                    if (item.id == id) {
+                        item[field] = value;
+                    }
+                });
             });
-            return text;
         },
         create() {
             this.$router.push({ path: '/article/create' });

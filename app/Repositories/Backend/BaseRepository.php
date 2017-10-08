@@ -3,8 +3,9 @@ namespace App\Repositories\Backend;
 
 use App\Models\AdminOperateRecord;
 use App\Models\Dict;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 abstract class BaseRepository
 {
@@ -45,7 +46,7 @@ abstract class BaseRepository
      * @param  Array  $input [action, params, text, status]
      * @return Array
      */
-    public function saveOperateRecord(Reuqest $request, $input)
+    public function saveOperateRecord($input)
     {
         try {
             AdminOperateRecord::create([
@@ -53,7 +54,7 @@ abstract class BaseRepository
             'action'     => $input['action'],
             'params'     => json_encode($input['params']),
             'text'       => $input['text'],
-            'ip_address' => $request->get_client_ip(),
+            'ip_address' => $input['ip_address'],
             'status'     => $input['status']
         ]);
         } catch (Exception $e) {

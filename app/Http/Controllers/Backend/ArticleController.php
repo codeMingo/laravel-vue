@@ -38,7 +38,7 @@ class ArticleController extends BaseController
     public function store(Request $request)
     {
         $input = $request->input('data');
-        $result = ArticleRepository::getInstance()->store($input);
+        $result = ArticleRepository::getInstance()->store($input, $request);
         return response()->json($result);
     }
 

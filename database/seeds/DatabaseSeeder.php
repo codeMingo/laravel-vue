@@ -15,5 +15,6 @@ class DatabaseSeeder extends Seeder
         $this->call('Database\Seeder\UserSeeder');
         $this->call('Database\Seeder\AdminPermissionSeeder');
         $this->call('Database\Seeder\DictSeeder');
+        $this->call('Database\Seeder\CategorySeeder');
     }
 }

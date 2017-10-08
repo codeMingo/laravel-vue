@@ -32,7 +32,7 @@ class ArticleRepository extends BaseRepository
      * @param  Array $input [category_id, title, auther, content, tag_include, source, is_audit, recommend, status]
      * @return array
      */
-    public function store($input)
+    public function store($input, $request)
     {
         $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
         $title       = isset($input['title']) ? strval($input['title']) : '';
@@ -84,6 +84,7 @@ class ArticleRepository extends BaseRepository
             ],
             'text'   => !$insertResult ? '新增文章失败，未知错误' : '新增文章成功',
             'status' => !!$insertResult,
+            'ip_address' => $request->getClientIp()
         ]);
 
         return [

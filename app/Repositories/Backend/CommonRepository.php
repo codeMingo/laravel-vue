@@ -103,7 +103,7 @@ class CommonRepository extends BaseRepository
         // 文章缓存
 
         return [
-            'status':Parent::SUCCESS_STATUS,
+            'status'  => Parent::SUCCESS_STATUS,
             'data'    => [],
             'message' => 'redis更新成功',
         ];
