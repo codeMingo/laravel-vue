@@ -17,9 +17,9 @@ class CommonController extends BaseController
     }
 
     // 一键更新所有的缓存
-    public function updateRedis(Request $request)
+    public function updateRedis()
     {
-        $result = CommonRepository::getInstance()->updateRedis($request);
+        $result = CommonRepository::getInstance()->updateRedis();
         return response()->json($result);
     }
 }

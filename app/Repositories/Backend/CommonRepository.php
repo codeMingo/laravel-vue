@@ -62,16 +62,15 @@ class CommonRepository extends BaseRepository
         ];
     }
 
-    public function updateRedis($request)
+    public function updateRedis()
     {
-        $ip_address                 = $request->get_client_ip();
         $backendLimitLoginUserArray = $backendLimitLoginIpArray = $frontendLimitLoginIpArray = [];
 
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'Common/updateRedis',
             'params' => [
-                'ip_address' => $ip_address,
+                'ip_address' => getClientIp(),
             ],
             'text'   => 'redis缓存更新',
             'status' => 1,

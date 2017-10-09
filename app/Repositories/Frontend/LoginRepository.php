@@ -10,10 +10,9 @@ class LoginRepository extends BaseRepository
     /**
      * 登录
      * @param  Array $data [account, password, remember]
-     * @param  Request $request
      * @return Array
      */
-    public function login($input, $request)
+    public function login($input)
     {
         $account  = isset($input['account']) ? strval($input['account']) : '';
         $password = isset($input['password']) ? strval($input['password']) : '';
@@ -42,7 +41,7 @@ class LoginRepository extends BaseRepository
         $user         = Auth::guard('web')->user();
         $updateResult = User::where('id', $user['id'])->update([
             'last_login_time' => date('Y-m-d H:i:s', time()),
-            'last_login_ip'   => $request->getClientIp(),
+            'last_login_ip'   => getClientIp(),
         ]);
         $resultData['data'] = [
             'username' => $user['username'],

@@ -51,7 +51,7 @@ class LoginController extends Controller
     public function adminLogin(Request $request)
     {
         $input  = $request->input('data');
-        $result = \App\Repositories\Backend\LoginRepository::getInstance()->login($input, $request);
+        $result = \App\Repositories\Backend\LoginRepository::getInstance()->login($input);
         return response()->json($result);
     }
 
@@ -81,7 +81,7 @@ class LoginController extends Controller
     public function userLogin(Request $request)
     {
         $input  = $request->input('data');
-        $result = \App\Repositories\Frontend\LoginRepository::getInstance()->login($input, $request);
+        $result = \App\Repositories\Frontend\LoginRepository::getInstance()->login($input);
         return response()->json($result);
     }
 

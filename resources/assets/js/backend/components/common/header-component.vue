@@ -13,7 +13,7 @@
                 </el-tag>
             </div>
             <el-submenu index="5" style="float: right;margin-right: 5px;">
-                <template slot="title">{{adminData.permission_text}}：{{adminData.username}}</template>
+                <template slot="title">{{this.$store.state.adminData.permission_text}}：{{this.$store.state.adminData.username}}</template>
                 <el-menu-item index="5-1">个人中心</el-menu-item>
                 <el-menu-item index="5-1">刷新缓存</el-menu-item>
                 <el-menu-item index="5-2">设置</el-menu-item>
@@ -22,55 +22,6 @@
         </el-menu>
     </el-row>
 </template>
-<script>
-export default {
-    name: 'Sidebar',
-    data() {
-        return {
-            activeIndex: '1',
-            adminData: {
-                username: '',
-                permissionText: ''
-            },
-            tags: [
-                { name: '标签一', type: '' },
-                { name: '标签二', type: '' },
-                { name: '标签三', type: '' },
-                { name: '标签六', type: 'primary' }
-            ]
-        };
-    },
-    mounted() {
-        let _this = this;
-        var adminData = sessionStorage.getItem('admin');
-        if (adminData) {
-            _this.adminData = JSON.parse(adminData);
-        }
-    },
-    methods: {
-        handleSelect(key, keyPath) {
-            console.log(key, keyPath);
-        },
-        logout() {
-            let _this = this;
-            axios.post('/backend/logout').then(function(res) {
-                let { status, message } = res.data;
-                if (!status) {
-                    _this.$message.error('未知错误，管理员退出失败');
-                    return false;
-                }
-                _this.$message.success(message);
-                _this.$router.push({ path: '/login' });
-            }).catch(function(err) {
-                _this.$message.error('网络连接失败');
-            });
-        },
-        toggleSidebar() {
-            this.$store.commit('toggleSidebar');
-        }
-    }
-}
-</script>
 <style rel="stylesheet/scss" lang="scss" scoped>
 .el-menu {
     border-radius: 0;
@@ -126,3 +77,48 @@ export default {
     }
 }
 </style>
+<script type="text/javascript">
+export default {
+    name: 'Sidebar',
+    data() {
+        return {
+            activeIndex: '1',
+            tags: [
+                { name: '标签一', type: '' },
+                { name: '标签二', type: '' },
+                { name: '标签三', type: '' },
+                { name: '标签六', type: 'primary' }
+            ]
+        };
+    },
+    mounted() {
+        let _this = this;
+        var adminData = sessionStorage.getItem('admin');
+        if (adminData) {
+            _this.adminData = JSON.parse(adminData);
+        }
+    },
+    methods: {
+        handleSelect(key, keyPath) {
+            console.log(key, keyPath);
+        },
+        logout() {
+            let _this = this;
+            axios.post('/backend/logout').then(function(res) {
+                let { status, message } = res.data;
+                if (!status) {
+                    _this.$message.error('未知错误，管理员退出失败');
+                    return false;
+                }
+                _this.$message.success(message);
+                _this.$router.push({ path: '/login' });
+            }).catch(function(err) {
+                _this.$message.error('网络连接失败');
+            });
+        },
+        toggleSidebar() {
+            this.$store.commit('toggleSidebar');
+        }
+    }
+}
+</script>

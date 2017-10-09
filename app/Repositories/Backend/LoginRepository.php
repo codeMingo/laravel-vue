@@ -13,14 +13,13 @@ class LoginRepository extends BaseRepository
     /**
      * 登录
      * @param  Array $data [username, password]
-     * @param  Request $request
      * @return Array
      */
-    public function login($input, $request)
+    public function login($input)
     {
         $username   = isset($input['username']) ? strval($input['username']) : '';
         $password   = isset($input['password']) ? strval($input['password']) : '';
-        $ip_address = $request->getClientIp();
+        $ip_address = getClientIp();
 
         if (!$username || !$password) {
             return [
@@ -116,7 +115,6 @@ class LoginRepository extends BaseRepository
 
         $returnData['data'] = [
             'username'        => $adminList->username,
-            'email'           => $adminList->email,
             'permission_text' => '超级管理员',
         ];
         return [

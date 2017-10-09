@@ -26,18 +26,17 @@ import NProgress from 'nprogress';
 // Progress 进度条 样式
 import 'nprogress/nprogress.css';
 
-// vuex
-import Vuex from 'vuex';
-
 // vue插件
 import plugins from './plugins.js';
 
 // vue过滤函数
 import * as filters from './filters.js';
 
+// vuex
+import store from './store.js';
+
 Vue.use(VueRouter);
 Vue.use(ElementUI);
-Vue.use(Vuex);
 Vue.use(plugins);
 
 //注册全局的过滤函数
@@ -45,31 +44,6 @@ Object.keys(filters).forEach(key => {
     Vue.filter(key, filters[key]);
 });
 
-//vuex
-const store = new Vuex.Store({
-    state: {
-        submitLoading: false,
-
-        // sidebar的class
-        sidebarCollapse: false,
-        sidebarMainContainerClass: '',
-        sidebarWrapperClass: '',
-    },
-    mutations: {
-        toggleSidebar(state) {  // sidebar状态切换
-            state.sidebarCollapse = !state.sidebarCollapse;
-            if (state.sidebarCollapse) {
-                state.sidebarMainContainerClass = 'main-container-toggle';
-                state.sidebarWrapperClass = 'sidebar-wrapper-toggle';
-                sessionStorage.setItem('sidebarCollapse', 1);
-            } else {
-                state.sidebarMainContainerClass = '';
-                state.sidebarWrapperClass = '';
-                sessionStorage.removeItem('sidebarCollapse');
-            }
-        }
-    }
-});
 
 //vue-router
 const router = new VueRouter({
@@ -78,14 +52,30 @@ const router = new VueRouter({
 
 //vue-router拦截器
 router.beforeEach((to, from, next) => {
-    if (!sessionStorage.getItem('admin') && to.path != '/login') {
-        next({
-            path: '/login'
+    // 判断是否登录
+    let _this = this;
+    if ((!_this.$store.state.adminData.username || !_this.$store.state.adminData.permission_text) && to.path != '/login') {
+        axios.get('/backend/login-status').then(response => {
+            let { status, data, message } = response.data;
+            if (status && Object.keys(data).length > 0) {
+                _this.$store.commit('setAdminData', data.data);
+                next();
+            } else {
+                next({
+                    path: '/login'
+                });
+            }
+        }).catch(response => {
+            console.log('未知错误');
         });
         return false;
     }
+
     if (to.path == '/login') {
-        sessionStorage.removeItem('admin');
+        _this.$store.commit('setAdminData', {
+            username: '',
+            permission_text: ''
+        });
     }
     next();
 });
@@ -107,10 +97,11 @@ axios.interceptors.response.use(function(response) {
     return Promise.reject(error);
 });
 
-window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
 //注入
 const app = new Vue({
     beforeCreate() {
+        window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+
         // 记忆sidebar是否收缩
         if (sessionStorage.getItem('sidebarCollapse')) {
             this.$store.state.sidebarCollapse = true;

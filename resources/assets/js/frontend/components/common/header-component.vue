@@ -144,7 +144,6 @@ export default {
                     _this.$message.error('未知错误，用户退出失败');
                     return false;
                 }
-                sessionStorage.removeItem('user');
                 _this.$store.commit('setUserData', { username: '', email: '', face: '' });
                 _this.$message.success(message);
                 _this.$router.push({ path: '/index' });

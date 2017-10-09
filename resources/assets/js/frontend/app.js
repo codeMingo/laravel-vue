@@ -48,6 +48,20 @@ const router = new VueRouter({
 });
 //vue-router拦截器
 router.beforeEach((to, from, next) => {
+    let _this = this;
+
+    // 判断是否登录
+    if (!_this.$store.state.userData.username || !_this.$store.state.userData.email) {
+        axios.get('/login-status').then(response => {
+            let {status, data, message} = response.data;
+            if (status && Object.keys(data).length > 0) {
+                _this.$store.commit('setUserData', data.data);
+            }
+        }).catch(response => {
+            console.log('未知错误');
+        });
+    }
+
     if (to.path == '/') {
         next({
             path: '/index'
@@ -72,18 +86,10 @@ axios.interceptors.response.use(function(response) {
 }, function(error) {
     return Promise.reject(error);
 });
-window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+
 const app = new Vue({
     beforeCreate() {
-        let _this = this;
-        axios.get('/login-status').then(response => {
-            let {status, data, message} = response.data;
-            if (status && Object.keys(data).length > 0) {
-                _this.$store.commit('setUserData', data.data);
-            }
-        }).catch(response => {
-            console.log('未知错误');
-        });
+        window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
     },
     router,
     store

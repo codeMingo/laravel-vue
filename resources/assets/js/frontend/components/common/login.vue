@@ -131,9 +131,8 @@ export default {
                             _this.$message.error(message);
                             return false;
                         }
-                        sessionStorage.setItem('user', JSON.stringify(data.data));
+                        _this.$store.commit('setUserData', data.data);
                         _this.$message.success(message);
-                        _this.$store.state.userData = data.data;
                         _this.$router.push({ path: '/index' });
                     }).catch(response => {
                         _this.loginSubmitLoading = false;
