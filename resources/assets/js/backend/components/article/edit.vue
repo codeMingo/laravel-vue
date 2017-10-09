@@ -65,6 +65,7 @@ export default {
     data() {
         return {
             form: {
+                id: this.$route.params.id
                 category_id: '',
                 title: '',
                 auther: '',
@@ -126,13 +127,14 @@ export default {
         }
     },
     mounted() {
-        this.getOptions();
+        this.getList();
     },
     methods: {
-        getOptions() {
+        getList() {
             let _this = this;
-            axios.get('/backend/article/options').then(response => {
+            axios.get('/backend/article/' + _this.form.id + '/edit').then(response => {
                 let { status, data, message } = response.data;
+                _this.form = data.data;
                 _this.options = data.options;
             });
         },
@@ -140,8 +142,8 @@ export default {
             let _this = this;
             _this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    axios.post('/backend/articles', { 'data': _this.form }).then(response => {
-                        let {status, data, message} = response.data;
+                    axios.put('/backend/article/' + _this.form.id, { 'data': _this.form }).then(response => {
+                        let { status, data, message } = response.data;
                         if (!status) {
                             _this.$message.error(message);
                             return false;

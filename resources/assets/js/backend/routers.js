@@ -19,6 +19,8 @@ import UserNoActive from './components/user/noActive.vue';
 // 文章管理
 import ArticleLists from './components/article/lists.vue';
 import ArticleCreate from './components/article/create.vue';
+import ArticleDetail from './components/article/detail.vue';
+import ArticleEdit from './components/article/edit.vue';
 
 export default [{
         path: '/login',
@@ -74,6 +76,8 @@ export default [{
         children: [
             { path: 'index', component: ArticleLists, name: '文章列表' },
             { path: 'create', component: ArticleCreate, name: '新增文章', hidden: true },
+            { path: 'detail/:id', component: ArticleDetail, name: '文章详情', hidden: true },
+            { path: 'edit/:id', component: ArticleEdit, name: '文章修改', hidden: true },
         ]
     }
-]
+];

@@ -62,7 +62,8 @@ class ArticleController extends BaseController
      */
     public function edit($id)
     {
-        //
+        $result = ArticleRepository::getInstance()->edit($id);
+        return response()->json($result);
     }
 
     /**

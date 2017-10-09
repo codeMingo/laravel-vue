@@ -237,6 +237,32 @@ class ArticleRepository extends BaseRepository
         ];
     }
 
+
+    /**
+     * 获取一篇文章编辑
+     * @param  Int $article_id
+     * @return Array
+     */
+    public function edit($article_id)
+    {
+        $resultData['data'] = Article::where('id', $article_id)->first();
+        if (empty($resultData)) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '不存在这篇文章',
+            ];
+        }
+        $resultData['options']['categories'] = Category::lists('article_category');
+        $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
+        $resultData['options']['recommends'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
+        return [
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
+            'message' => '获取成功',
+        ];
+    }
+
     /**
      * 获取一篇文章所有的 点赞 or 反对 or 收藏
      * @param  Array $article_id
