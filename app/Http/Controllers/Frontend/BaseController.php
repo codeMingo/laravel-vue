@@ -14,5 +14,4 @@ class BaseController extends Controller
             return $next($request);
         });
     }
-
 }

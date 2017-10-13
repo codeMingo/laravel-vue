@@ -5,8 +5,9 @@ use App\Models\Article;
 use App\Models\ArticleComment;
 use App\Models\ArticleInteractive;
 use App\Models\ArticleRead;
+use App\Repositories\Frontend\CategoryRepository;
 use App\Repositories\Frontend\DictRepository;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class ArticleRepository extends BaseRepository
 {
@@ -18,7 +19,8 @@ class ArticleRepository extends BaseRepository
      */
     public function lists($input)
     {
-        $resultData['lists'] = Article::lists($input['searchForm']);
+        $resultData['lists']                 = $this->getArticleLists($input['searchForm']);
+        $resultData['options']['categories'] = CategoryRepository::getInstance()->getListsByDictText('article_category');
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
@@ -260,7 +262,7 @@ class ArticleRepository extends BaseRepository
      */
     public function hotLists($page_size)
     {
-        $articleLists = Article::withCount('interactives', function($query) {
+        $articleLists = Article::withCount('interactives', function ($query) {
             $query->where('status', 1);
         })->sortBy('interactives_count')->paginate($page_size);
         return $articleLists;
@@ -272,7 +274,7 @@ class ArticleRepository extends BaseRepository
      */
     public function mostLikeLists()
     {
-        $articleLists = Article::withCount('interactives', function($query) {
+        $articleLists = Article::withCount('interactives', function ($query) {
             $query->where('like', 1)->where('status', 1);
         })->sortBy('interactives_count')->paginate($page_size);
         return $articleLists;
@@ -284,7 +286,7 @@ class ArticleRepository extends BaseRepository
      */
     public function mostCollectLists()
     {
-        $articleLists = Article::withCount('interactives', function($query) {
+        $articleLists = Article::withCount('interactives', function ($query) {
             $query->where('collect', 1)->where('status', 1);
         })->sortBy('interactives_count')->paginate($page_size);
         return $articleLists;
@@ -296,7 +298,7 @@ class ArticleRepository extends BaseRepository
      */
     public function mostCommentLists()
     {
-        $articleLists = Article::withCount('comments', function($query) {
+        $articleLists = Article::withCount('comments', function ($query) {
             $query->where('status', 1);
         })->sortBy('comments_count')->paginate($page_size);
         return $articleLists;
@@ -308,17 +310,21 @@ class ArticleRepository extends BaseRepository
      */
     public function mostReadLists()
     {
-        $articleLists = Article::withCount('reads', function($query) {
+        $articleLists = Article::withCount('reads', function ($query) {
             $query->where('status', 1);
         })->sortBy('reads_count')->paginate($page_size);
         return $articleLists;
     }
 
-
+    /**
+     * 获取互动文章
+     * @param  Array $input []
+     * @return [type]        [description]
+     */
     public function interactiveLists($input)
     {
-        $field_arr = isset($input['field']) ? explode(',', strval($input['fields'])) : [];
-        if (empty($field_arr)) {
+        $interactive_type_arr = isset($input['interactive_type']) ? explode(',', strval($input['interactive_type'])) : [];
+        if (empty($interactive_type_arr)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
@@ -326,19 +332,81 @@ class ArticleRepository extends BaseRepository
             ];
         }
         $user_id = Auth::guard('web')->id();
-        $query = ArticleInteractive::where('user_id', $user_id)->where('status', 1);
-        if (isset($field_arr['like'])) {
-            $query = $query->where('like', 1);
-        } else if (isset($field_arr['hate'])) {
-            $query = $query->where('hate', 1);
-        } else if (isset($field_arr['collect'])) {
-            $query = $query->where('collect', 1);
+        $query   = ArticleInteractive::where('user_id', $user_id)->where('status', 1);
+
+        if (isset($interactive_type_arr['like'])) {
+            $query = $query->orwhere('like', 1);
         }
-        $resultData['lists'] = $query->paginate();
+
+        if (isset($interactive_type_arr['hate'])) {
+            $query = $query->orWhere('hate', 1);
+        }
+
+        if (isset($interactive_type_arr['collect'])) {
+            $query = $query->orWhere('collect', 1);
+        }
+
+        $page_size           = DB::table('dicts')->where('text_en', 'article_page_size')->value('value');
+        $resultData['lists'] = $query->paginate($page_size);
+
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
             'message' => '数据获取成功',
         ];
+    }
+
+    /**
+     * 获取文章数据
+     * @param  Array $search_form [所有可搜索字段]
+     * @return Object
+     */
+    public function getArticleLists($search_form)
+    {
+        $where_params['status'] = 1;
+        $page_size              = DB::table('dicts')->where('text_en', 'article_page_size')->value('value');
+
+        if (empty($searchForm)) {
+            return Article::where($whereParams)->paginate($page_size);
+        }
+
+        if (isset($searchForm['status'])) {
+            $whereParams['status'] = $searchForm['status'];
+        }
+
+        if (isset($searchForm['is_audit'])) {
+            $whereParams['is_audit'] = $searchForm['is_audit'];
+        }
+
+        if (isset($searchForm['recommend'])) {
+            $whereParams['recommend'] = $searchForm['recommend'];
+        }
+
+        if (isset($searchForm['category_id']) && !empty($searchForm['category_id'])) {
+            $whereParams['category_id'] = $searchForm['category_id'];
+        }
+
+        if (isset($searchForm['admin_id']) && !empty($searchForm['admin_id'])) {
+            $whereParams['admin_id'] = $searchForm['admin_id'];
+        }
+
+        if (isset($searchForm['user_id']) && !empty($searchForm['user_id'])) {
+            $whereParams['user_id'] = $searchForm['user_id'];
+        }
+
+        $query = Article::where($whereParams);
+        if (isset($searchForm['title']) && $searchForm['title'] !== '') {
+            $query->where('title', 'like', '%' . $searchForm['title'] . '%');
+        }
+
+        if (isset($searchForm['auther']) && $searchForm['auther'] !== '') {
+            $query->where('auther', 'like', '%' . $searchForm['auther'] . '%');
+        }
+
+        if (isset($searchForm['tag_include']) && is_array($searchForm['tag_include']) && !empty($searchForm['tag_include'])) {
+            $query->whereIn('tag_include', $searchForm['tag_include']);
+        }
+
+        return $query->paginate($page_size);
     }
 }

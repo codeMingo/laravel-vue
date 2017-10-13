@@ -6,6 +6,7 @@ use App\Models\ArticleComment;
 use App\Models\ArticleInteractive;
 use App\Models\Category;
 use App\Repositories\Backend\DictRepository;
+use App\Repositories\Backend\CategoryRepository;
 
 class ArticleRepository extends BaseRepository
 {
@@ -17,8 +18,8 @@ class ArticleRepository extends BaseRepository
      */
     public function lists($input)
     {
-        $resultData['lists']                 = Article::lists($input['searchForm']);
-        $resultData['options']['categories'] = Category::lists('article_category');
+        $resultData['lists']                 = $this->getArticleLists($input['searchForm']);
+        $resultData['options']['categories'] = CategoryRepository::getInstance()->getListsByDictText('article_category');
         $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
         return [
             'status'  => Parent::SUCCESS_STATUS,
@@ -370,5 +371,59 @@ class ArticleRepository extends BaseRepository
             'data'    => [],
             'message' => !$updateResult ? '操作失败，未知错误' : '操作成功',
         ];
+    }
+
+    /**
+     * 获取文章数据
+     * @param  Array $search_form [所有可搜索字段]
+     * @return Object
+     */
+    public function getArticleLists($search_form)
+    {
+        $where_params['status'] = 1;
+        $page_size              = DB::table('dicts')->where('text_en', 'article_page_size')->value('value');
+
+        if (empty($searchForm)) {
+            return Article::where($whereParams)->paginate($page_size);
+        }
+
+        if (isset($searchForm['status'])) {
+            $whereParams['status'] = $searchForm['status'];
+        }
+
+        if (isset($searchForm['is_audit'])) {
+            $whereParams['is_audit'] = $searchForm['is_audit'];
+        }
+
+        if (isset($searchForm['recommend'])) {
+            $whereParams['recommend'] = $searchForm['recommend'];
+        }
+
+        if (isset($searchForm['category_id']) && !empty($searchForm['category_id'])) {
+            $whereParams['category_id'] = $searchForm['category_id'];
+        }
+
+        if (isset($searchForm['admin_id']) && !empty($searchForm['admin_id'])) {
+            $whereParams['admin_id'] = $searchForm['admin_id'];
+        }
+
+        if (isset($searchForm['user_id']) && !empty($searchForm['user_id'])) {
+            $whereParams['user_id'] = $searchForm['user_id'];
+        }
+
+        $query = Article::where($whereParams);
+        if (isset($searchForm['title']) && $searchForm['title'] !== '') {
+            $query->where('title', 'like', '%' . $searchForm['title'] . '%');
+        }
+
+        if (isset($searchForm['auther']) && $searchForm['auther'] !== '') {
+            $query->where('auther', 'like', '%' . $searchForm['auther'] . '%');
+        }
+
+        if (isset($searchForm['tag_include']) && is_array($searchForm['tag_include']) && !empty($searchForm['tag_include'])) {
+            $query->whereIn('tag_include', $searchForm['tag_include']);
+        }
+
+        return $query->paginate($page_size);
     }
 }
