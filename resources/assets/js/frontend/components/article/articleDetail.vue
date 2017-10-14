@@ -242,6 +242,7 @@ export default {
     },
     data() {
         return {
+            article_id: this.$route.params.id,
             currentPage1: 5,
             comment: {
                 content: ''
@@ -270,9 +271,20 @@ export default {
         };
     },
     mounted() {
-
+        this.getList();
     },
     methods: {
+        getList() {
+            let _this = this;
+            axios.get('/article/detail/' + _this.article_id).then(response => {
+                let { status, data, message } = response.data;
+                _this.article_data = data.lists.data;
+                _this.article_options = data.options;
+                _this.article_pagination.per_page = parseInt(data.lists.per_page);
+                _this.article_pagination.current_page = parseInt(data.lists.current_page);
+                _this.article_pagination.total = parseInt(data.lists.total);
+            });
+        },
         handleSizeChange(val) {
             console.log(`每页 ${val} 条`);
         },

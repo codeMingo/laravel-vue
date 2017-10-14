@@ -41,7 +41,7 @@ export function formatByOptions(val, options, objKey, objValue, text = '-') {
         return text;
     }
     options.forEach(function(item) {
-        if (val === item[objKey]) {
+        if (val == item[objKey]) {
             return text = item[objValue];
         }
     });
@@ -60,5 +60,5 @@ export function subString(content, start, length) {
     content = content.replace(/[ | ]*\n/g, '\n'); //去除行尾空白
     content = content.replace(/\n[\s| | ]*\r/g, '\n'); //去除多余空行
     content = content.replace(/&nbsp;/ig, ''); //去掉&nbsp;
-    return content.substring(start, length);
+    return content.substring(start, length) + '...';
 }

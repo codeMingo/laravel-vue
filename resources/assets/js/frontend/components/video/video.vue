@@ -101,7 +101,6 @@ export default {
         }
     },
     mounted() {
-        this.$store.commit('changeMenuActive', '2');
     }
 }
 </script>

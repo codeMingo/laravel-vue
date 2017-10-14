@@ -5,22 +5,27 @@
                 <div class="breadcrumb">
                     <el-breadcrumb separator="/">
                         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-                        <el-breadcrumb-item>技术篇</el-breadcrumb-item>
+                        <template v-if="$route.params.category_id">
+                            <el-breadcrumb-item :to="{ path: '/article/index' }">全部文章</el-breadcrumb-item>
+                            <el-breadcrumb-item>{{search_form.category_id | formatByOptions(article_options.categories, 'id', 'category_name')}}</el-breadcrumb-item>
+                        </template>
+                        <template v-else>
+                            <el-breadcrumb-item>全部文章</el-breadcrumb-item>
+                        </template>
                     </el-breadcrumb>
                 </div>
                 <div class="content-box article-box">
-
-                    <div class="article-detail" v-for="(item, index) in articleData">
+                    <div class="article-detail" v-for="(item, index) in article_data">
                         <div class='article-picture'><img :src="item.thumbnail"></div>
                         <div class="article-word">
                             <h2 class='article-title'>
-                                <router-link :to="{ path: '/article/detail/' + item.id }" target="_blank">{{index}}、{{item.title}}</router-link>
+                                <el-tag type="primary">{{item.category_id | formatByOptions(article_options.categories, 'id', 'category_name')}}</el-tag>
+                                <router-link :to="{ path: '/article/detail/' + item.id }" target="_blank">{{item.title}}</router-link>
                             </h2>
                             <div class='article-right'>
                                 <p>
-                                    <span>作者：{{item.author}}</span>
+                                    <span>作者：{{item.auther}}</span>
                                     <span>发表时间：{{item.created_at}}</span>
-                                    <span>类别：{{item.category_id | formatByOptions(articleOptions.categories, 'id', 'category_name')}}</span>
                                 </p>
                             </div>
                             <div class='article-intro'>
@@ -36,7 +41,7 @@
                         </div>
                     </div>
                     <div class="page-box">
-                        <el-pagination @current-change="changeCurrentPage" :current-page.sync="articlePagination.currentPage" :page-size="articlePagination.pageSize" layout="total, prev, pager, next" :total="articlePagination.total">
+                        <el-pagination @current-change="changeCurrentPage" :current-page.sync="article_pagination.current_page" :page-size="article_pagination.per_page" layout="total, prev, pager, next" :total="article_pagination.total">
                         </el-pagination>
                     </div>
                 </div>
@@ -128,7 +133,7 @@
                 float: left;
                 width: 80%;
                 box-sizing: border-box;
-                padding-left: 5px;
+                padding-left: 10px;
                 .article-title {
                     margin-bottom: 5px;
                     a {
@@ -143,12 +148,15 @@
                 .article-right {
                     margin-bottom: 5px;
                     font-size: 12px;
+                    span {
+                        margin-right: 5px;
+                    }
                 }
                 .article-intro {
-                    text-indent: 20px;
-                    font-size: #666;
+                    font-size: 13px;
                     line-height: 180%;
                     margin-bottom: 5px;
+                    color: #666;
                 }
                 .article-interactive {
                     text-align: right;
@@ -167,36 +175,44 @@
 export default {
     data() {
         return {
-            articleData: [],
-            articleOptions: {
+            article_data: [],
+            article_options: {
                 categories: [],
-            }
-            articlePagination: {
-                currentPage: 0,
-                total: 0,
-                pageSize: 0,
             },
-            searchForm: []
+            article_pagination: {
+                current_page: 1,
+                total: 0,
+                per_page: 10,
+            },
+            search_form: {
+                category_id: this.$route.params.category_id
+            }
         };
     },
     mounted() {
         this.getLists();
     },
+    watch: {
+        '$route' (to, from) {
+            this.search_form.category_id = this.$route.params.category_id;
+            this.getLists();
+        }
+    },
     methods: {
         getLists() {
             let _this = this;
-            let paramsData = { 'data': { 'searchForm': _this.searchForm } };
-            axios.get('/article/lists?page=' + _this.articlePagination.currentPage, { params: paramsData }).then(response => {
+            let paramsData = { 'data': { 'search_form': _this.search_form } };
+            axios.get('/article/lists?page=' + _this.article_pagination.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
-                _this.articleData = data.lists.data;
-                _this.articleOptions = data.options;
-                _this.articlePagination.per_page = parseInt(data.lists.per_page);
-                _this.articlePagination.current_page = parseInt(data.lists.current_page);
-                _this.articlePagination.total = parseInt(data.lists.total);
-            })
+                _this.article_data = data.lists.data;
+                _this.article_options = data.options;
+                _this.article_pagination.per_page = parseInt(data.lists.per_page);
+                _this.article_pagination.current_page = parseInt(data.lists.current_page);
+                _this.article_pagination.total = parseInt(data.lists.total);
+            });
         },
         changeCurrentPage(val) {
-            this.articlePagination.currentPage = val;
+            this.article_pagination.current_page = val;
             this.getLists();
         }
     }

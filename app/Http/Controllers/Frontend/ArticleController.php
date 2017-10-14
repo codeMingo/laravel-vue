@@ -10,7 +10,7 @@ class ArticleController extends BaseController
     // 文章列表
     public function lists(Request $request)
     {
-        $input = $request->input('data');
+        $input = json_decode($request->input('data'), true);
         $result = ArticleRepository::getInstance()->lists($input);
         return response()->json($result);
     }
@@ -59,6 +59,13 @@ class ArticleController extends BaseController
     {
         $input = $request->input('data');
         $result = ArticleRepository::getInstance()->interativeLists($input);
+        return response()->json($result);
+    }
+
+    // 获取菜单列表
+    public function categoryLists()
+    {
+        $result = ArticleRepository::getInstance()->categoryLists();
         return response()->json($result);
     }
 }

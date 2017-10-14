@@ -54,11 +54,11 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     // 判断是否登录
     let _this = this;
-    if ((!_this.$store.state.adminData.username || !_this.$store.state.adminData.permission_text) && to.path != '/login') {
+    if ((!store.state.adminData.username || !store.state.adminData.permission_text) && to.path != '/login') {
         axios.get('/backend/login-status').then(response => {
             let { status, data, message } = response.data;
             if (status && Object.keys(data).length > 0) {
-                _this.$store.commit('setAdminData', data.data);
+                store.commit('setAdminData', data.data);
                 next();
             } else {
                 next({
@@ -72,7 +72,7 @@ router.beforeEach((to, from, next) => {
     }
 
     if (to.path == '/login') {
-        _this.$store.commit('setAdminData', {
+        store.commit('setAdminData', {
             username: '',
             permission_text: ''
         });
@@ -104,9 +104,9 @@ const app = new Vue({
 
         // 记忆sidebar是否收缩
         if (sessionStorage.getItem('sidebarCollapse')) {
-            this.$store.state.sidebarCollapse = true;
-            this.$store.state.sidebarMainContainerClass = 'main-container-toggle';
-            this.$store.state.sidebarWrapperClass = 'sidebar-wrapper-toggle';
+            store.state.sidebarCollapse = true;
+            store.state.sidebarMainContainerClass = 'main-container-toggle';
+            store.state.sidebarWrapperClass = 'sidebar-wrapper-toggle';
         }
     },
     router,

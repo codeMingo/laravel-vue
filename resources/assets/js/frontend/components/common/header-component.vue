@@ -8,7 +8,7 @@
             </el-col>
             <el-col :xs="18" :sm="18" :md="18" :lg="18">
                 <div class="web-menu">
-                    <el-menu theme="dark" :default-active="$store.state.menuActive" class="el-menu-demo" mode="horizontal" @select="menuSelect">
+                    <el-menu theme="dark" :default-active="$store.state.menu_active" class="el-menu-demo" mode="horizontal" @select="menuSelect">
                         <el-menu-item index="1">
                             <router-link to="/" class='menu-link'>首页</router-link>
                         </el-menu-item>
@@ -17,18 +17,11 @@
                         </el-menu-item>
                         <el-submenu index="3">
                             <template slot="title">技术篇</template>
-                            <el-menu-item index="3-1">
-                                <router-link to="/article/index">前端技术</router-link>
-                            </el-menu-item>
-                            <el-menu-item index="3-2">
-                                <router-link to="/article/index">PHP后端</router-link>
-                            </el-menu-item>
-                            <el-menu-item index="3-3">
-                                <router-link to="/article/index">服务器层</router-link>
-                            </el-menu-item>
-                            <el-menu-item index="3-4">
-                                <router-link to="/article/index">其它分享</router-link>
-                            </el-menu-item>
+                            <template v-for="(item, index) in $store.state.article_category">
+                                <el-menu-item :index="'3-' +index">
+                                    <router-link :to="{ path: '/article/index/' + item.id }">{{item.id}}{{item.category_name}}</router-link>
+                                </el-menu-item>
+                            </template>
                         </el-submenu>
                         <el-menu-item index="4">
                             <router-link to="/vote/index" class='menu-link'>投票</router-link>
@@ -36,9 +29,9 @@
                         <el-menu-item index="5">
                             <router-link to="/leave/index" class='menu-link'>留言板</router-link>
                         </el-menu-item>
-                        <template v-if="this.$store.state.userData.username">
+                        <template v-if="this.$store.state.user_data.username">
                             <el-submenu index="6">
-                                <template slot="title"><img :src="this.$store.state.userData.face" class="user-face">{{this.$store.state.userData.username}}</template>
+                                <template slot="title"><img :src="this.$store.state.user_data.face" class="user-face">{{this.$store.state.user_data.username}}</template>
                                 <el-menu-item index="6-1">
                                     <router-link to="/user/index">个人中心</router-link>
                                 </el-menu-item>
@@ -144,7 +137,7 @@ export default {
                     _this.$message.error('未知错误，用户退出失败');
                     return false;
                 }
-                _this.$store.commit('setUserData', { username: '', email: '', face: '' });
+                _this.$store.commit('setSateValue', 'user_data', { username: '', email: '', face: '' });
                 _this.$message.success(message);
                 _this.$router.push({ path: '/index' });
             }).catch(function(err) {

@@ -26,19 +26,20 @@ Object.keys(filters).forEach(key => {
 const store = new Vuex.Store({
     state: {
         submitLoading: false,
-        menuActive: '1',
-        userData: {
+        menu_active: '1',
+        login_status_already: false,
+        user_data: {
             username: '',
             email: '',
-            face: ''
-        }
+            face: '',
+        },
+        article_category: {},
     },
     mutations: {
-        changeMenuActive(state, active) {
-            state.menuActive = active;
-        },
-        setUserData(state, data) {
-            state.userData = data;
+        setStateValue(state, data) {
+            for(var item in data){
+                state[item] = data[item];
+            }
         }
     }
 });
@@ -51,14 +52,17 @@ router.beforeEach((to, from, next) => {
     let _this = this;
 
     // 判断是否登录
-    if (!_this.$store.state.userData.username || !_this.$store.state.userData.email) {
+    if ((!store.state.user_data.username || !store.state.user_data.email) && !store.state.login_status_already) {
         axios.get('/login-status').then(response => {
             let {status, data, message} = response.data;
-            if (status && Object.keys(data).length > 0) {
-                _this.$store.commit('setUserData', data.data);
+            if (status) {
+                store.commit('setStateValue', {'login_status_already': true});
+                if (Object.keys(data).length > 0) {
+                    store.commit('setStateValue', {'user_data': data.data});
+                }
             }
         }).catch(response => {
-            console.log('未知错误');
+            console.log('获取用户登录状态失败，未知错误');
         });
     }
 
@@ -90,6 +94,16 @@ axios.interceptors.response.use(function(response) {
 const app = new Vue({
     beforeCreate() {
         window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+
+        // 获取首页技术篇菜单
+        axios.get('/article/category').then(response => {
+            let {status, data, message} = response.data;
+            if (status && Object.keys(data).length > 0) {
+                store.commit('setStateValue', {'article_category': data.lists});
+            }
+        }).catch(response => {
+            console.log('获取菜单失败，未知错误');
+        });
     },
     router,
     store

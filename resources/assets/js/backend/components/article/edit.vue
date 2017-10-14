@@ -65,7 +65,7 @@ export default {
     data() {
         return {
             form: {
-                id: this.$route.params.id
+                id: this.$route.params.id,
                 category_id: '',
                 title: '',
                 auther: '',

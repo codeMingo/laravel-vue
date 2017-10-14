@@ -44,6 +44,7 @@ export default [{
     iconCls: '', //图标样式class
     noDropdown: true,
     children: [
+        { path: 'index/:category_id', component: Article, name: '技术篇', iconCls: '' },
         { path: 'index', component: Article, name: '技术篇', iconCls: '' },
         { path: 'detail/:id', component: ArticleDetail, name: '技术篇详情', iconCls: '' }
     ]
