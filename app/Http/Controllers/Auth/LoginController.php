@@ -70,7 +70,14 @@ class LoginController extends Controller
         return response()->json($result);
     }
 
-    //前台获取初始用户数据
+    // 后台获取初始用户数据
+    public function adminLoginStatus(Request $request)
+    {
+        $result = \App\Repositories\Backend\LoginRepository::getInstance()->loginStatus();
+        return response()->json($result);
+    }
+
+    // 前台获取初始用户数据
     public function loginStatus(Request $request)
     {
         $result = \App\Repositories\Frontend\LoginRepository::getInstance()->loginStatus();

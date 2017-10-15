@@ -22,7 +22,7 @@ class DictSeeder extends Seeder
             ['code' => 'system', 'code_name' => '系统参数', 'value' => 5, 'text_en' => 'article_recommend_page_size', 'text' => '文章推荐展示数'],
             ['code' => 'system', 'code_name' => '系统参数', 'value' => 5, 'text_en' => 'video_recommend_page_size', 'text' => '视频推荐展示数'],
             ['code' => 'system', 'code_name' => '系统参数', 'value' => 5, 'text_en' => 'leave_recommend_page_size', 'text' => '留言推荐展示数'],
-            ['code' => 'system', 'code_name' => '系统参数', 'value' => 1, 'text_en' => 'comment_audit', 'text' => '评论审核'],
+            ['code' => 'system', 'code_name' => '系统参数', 'value' => 1, 'text_en' => 'article_comment_audit', 'text' => '评论审核'],
             ['code' => 'system', 'code_name' => '系统参数', 'value' => 1, 'text_en' => 'leave_audit', 'text' => '留言审核'],
             ['code' => 'system', 'code_name' => '系统参数', 'value' => 3600, 'text_en' => 'login_limit_time', 'text' => '登录限制时间'],
             ['code' => 'system', 'code_name' => '系统参数', 'value' => 3600, 'text_en' => 'backend_login_limit_time', 'text' => '后台登录限制时间'],

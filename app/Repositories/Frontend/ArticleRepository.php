@@ -3,11 +3,12 @@ namespace App\Repositories\Frontend;
 
 use App\Models\Article;
 use App\Models\ArticleComment;
-use App\Models\ArticleInteractive;
+use App\Models\ArticleInteract;
 use App\Models\ArticleRead;
 use App\Repositories\Frontend\CategoryRepository;
 use App\Repositories\Frontend\DictRepository;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ArticleRepository extends BaseRepository
 {
@@ -35,7 +36,8 @@ class ArticleRepository extends BaseRepository
      */
     public function detail($article_id)
     {
-        $resultData['data'] = Article::where('id', $article_id)->where('status', 1)->comments()->first();
+        $article_show_status_value = DB::table('dicts')->where('code', 'article_status')->where('text_en', 'article_is_show')->value('value');
+        $resultData['data'] = Article::find($article_id)->with('comments', 'comments.user')->where('status', $article_show_status_value)->first();
         if (empty($resultData['data'])) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -43,22 +45,22 @@ class ArticleRepository extends BaseRepository
                 'message' => '不存在这篇文章',
             ];
         }
-        $resultData['data']['likeCount'] = ArticleInteractive::where('article_id', $article_id)->where('like', 1)->count();
-        $resultData['data']['hateCount'] = ArticleInteractive::where('article_id', $article_id)->where('hate', 1)->count();
-        $resultData['data']['readCount'] = ArticleRead::where('article_id', $article_id)->count();
+        $resultData['data']['like_count'] = ArticleInteract::where('article_id', $article_id)->where('like', 1)->count();
+        $resultData['data']['hate_count'] = ArticleInteract::where('article_id', $article_id)->where('hate', 1)->count();
+        $resultData['data']['read_count'] = ArticleRead::where('article_id', $article_id)->count();
         // 上一篇文章
-        $resultData['prevData'] = Article::where('id', '<', $article_id)->where('status', 1)->orderBy('id', 'desc')->first();
-        if (!empty($resultData['prevData'])) {
-            $resultData['prevData']['likeCount'] = ArticleInteractive::where('article_id', $resultData['prevData']->id)->where('like', 1)->count();
-            $resultData['prevData']['hateCount'] = ArticleInteractive::where('article_id', $resultData['prevData']->id)->where('hate', 1)->count();
-            $resultData['prevData']['readCount'] = ArticleRead::where('article_id', $resultData['prevData']->id)->count();
+        $resultData['prev_data'] = Article::where('id', '<', $article_id)->where('status', 1)->orderBy('id', 'desc')->first();
+        if (!empty($resultData['prev_data'])) {
+            $resultData['prev_data']['like_count'] = ArticleInteract::where('article_id', $resultData['prev_data']->id)->where('like', 1)->count();
+            $resultData['prev_data']['hate_count'] = ArticleInteract::where('article_id', $resultData['prev_data']->id)->where('hate', 1)->count();
+            $resultData['prev_data']['read_count'] = ArticleRead::where('article_id', $resultData['prev_data']->id)->count();
         }
         // 下一篇文章
-        $resultData['nextData'] = Article::where('id', '>', $article_id)->where('status', 1)->orderBy('id', 'asc')->first();
-        if (!empty($resultData['nextData'])) {
-            $resultData['nextData']['likeCount'] = ArticleInteractive::where('article_id', $resultData['nextData']->id)->where('like', 1)->count();
-            $resultData['nextData']['hateCount'] = ArticleInteractive::where('article_id', $resultData['nextData']->id)->where('hate', 1)->count();
-            $resultData['nextData']['readCount'] = ArticleRead::where('article_id', $resultData['nextData']->id)->count();
+        $resultData['next_data'] = Article::where('id', '>', $article_id)->where('status', 1)->orderBy('id', 'asc')->first();
+        if (!empty($resultData['next_data'])) {
+            $resultData['next_data']['like_count'] = ArticleInteract::where('article_id', $resultData['next_data']->id)->where('like', 1)->count();
+            $resultData['next_data']['hate_count'] = ArticleInteract::where('article_id', $resultData['next_data']->id)->where('hate', 1)->count();
+            $resultData['next_data']['read_count'] = ArticleRead::where('article_id', $resultData['next_data']->id)->count();
         }
         return [
             'status'  => Parent::SUCCESS_STATUS,
@@ -90,16 +92,16 @@ class ArticleRepository extends BaseRepository
                 'message' => '不存在这篇文章',
             ];
         }
-        $dataList = ArticleInteractive::where('article_id', $article_id)->where($type, 1)->first();
+        $dataList = ArticleInteract::where('article_id', $article_id)->where($type, 1)->first();
         if (empty($dataList)) {
             $user_id = Auth::guard('web')->id();
-            $result  = ArticleInteractive::create([
+            $result  = ArticleInteract::create([
                 'user_id'    => $user_id,
                 'article_id' => $article_id,
                 $type        => 1,
             ]);
         } else {
-            $result = ArticleInteractive::where('article_id', $article_id)->update($type, 0);
+            $result = ArticleInteract::where('article_id', $article_id)->update($type, 0);
         }
         if (!$result) {
             return [
@@ -117,22 +119,22 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 评论 or 回复
-     * @param  Array $input [article_id, commnet_id, content]
+     * @param  Array $input [article_id, comment_id, content]
      * @return Array
      */
-    public function comment($input)
+    public function comment($input, int $article_id)
     {
-        $article_id = isset($input['article_id']) ? intval($input['article_id']) : '';
-        $commnet_id = isset($input['commnet_id']) ? intval($input['commnet_id']) : '';
-        $content    = isset($input['content']) ? intval($input['content']) : '';
+        $comment_id = isset($input['comment_id']) ? intval($input['comment_id']) : '';
+        $content    = isset($input['content']) ? strval($input['content']) : '';
         if (!$article_id || !$content) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '未知错误',
+                'message' => '操作失败，文章id或内容为空',
             ];
         }
-        $articleList = Article::where('id', $article_id)->where('status', 1)->first();
+        $article_show_status_value = DB::table('dicts')->where('code', 'article_status')->where('text_en', 'article_is_show')->value('value');
+        $articleList = Article::where('id', $article_id)->where('status', $article_show_status_value)->first();
         if (empty($articleList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -140,10 +142,12 @@ class ArticleRepository extends BaseRepository
                 'message' => '不存在这篇文章',
             ];
         }
-        $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['open_audit', 'audit_loading', 'audit_pass']);
-        // 表示一级评论
-        if (!$commnet_id) {
-            $commentList = ArticleComment::where('id', $commnet_id)->where('status', 1)->where('is_audit', $dictListsValue['audit_pass'])->first();
+        $article_comment_audit = DB::table('dicts')->where('code', 'system')->where('text_en', 'article_comment_audit')->value('value');
+        $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['audit_loading', 'audit_pass']);
+
+        // 表示回复
+        if ($comment_id) {
+            $commentList = ArticleComment::where('id', $comment_id)->where('status', 1)->where('is_audit', $dictListsValue['audit_pass'])->first();
             if (empty($commentList)) {
                 return [
                     'status'  => Parent::ERROR_STATUS,
@@ -155,10 +159,10 @@ class ArticleRepository extends BaseRepository
         $user_id      = Auth::guard('web')->id();
         $createResult = ArticleComment::create([
             'user_id'    => $user_id,
-            'parent_id'  => $commnet_id ? $commnet_id : 0,
+            'parent_id'  => $comment_id ? $comment_id : 0,
             'article_id' => $article_id,
             'content'    => $content,
-            'is_audit'   => $dictListsValue['open_audit'] ? $dictListsValue['audit_loading'] : $dictListsValue['audit_pass'],
+            'is_audit'   => $article_comment_audit ? $dictListsValue['audit_loading'] : $dictListsValue['audit_pass'],
             'status'     => 1,
         ]);
 
@@ -166,7 +170,7 @@ class ArticleRepository extends BaseRepository
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '操作失败',
+                'message' => $comment_id ? '回复失败，未知错误' : '评论失败，未知错误',
             ];
         }
         // 评论成功
@@ -180,7 +184,7 @@ class ArticleRepository extends BaseRepository
                     'create_at'  => $createResult->create_at,
                 ],
             ],
-            'message' => '操作成功',
+            'message' => $comment_id ? '回复成功' : '评论成功',
         ];
     }
 
@@ -208,7 +212,7 @@ class ArticleRepository extends BaseRepository
                 'message' => '不存在这篇文章',
             ];
         }
-        $resultData['lists'] = ArticleInteractive::where('article_id', $article_id)->where($type, 1)->where('status', 1)->user()->get();
+        $resultData['lists'] = ArticleInteract::where('article_id', $article_id)->where($type, 1)->where('status', 1)->user()->get();
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
@@ -332,7 +336,7 @@ class ArticleRepository extends BaseRepository
             ];
         }
         $user_id = Auth::guard('web')->id();
-        $query   = ArticleInteractive::where('user_id', $user_id)->where('status', 1);
+        $query   = ArticleInteract::where('user_id', $user_id)->where('status', 1);
 
         if (isset($interactive_type_arr['like'])) {
             $query = $query->orwhere('like', 1);

@@ -18,7 +18,7 @@ class CreateDictsTable extends Migration
             $table->increments('id');
             $table->string('code', 50)->comment('分类代码');
             $table->string('code_name', 50)->comment('分类名称');
-            $table->tinyInteger('value')->unsigned()->comment('字典数值');
+            $table->integer('value')->comment('字典数值');
             $table->string('text_en', 50)->default('')->comment('字典英文文字');
             $table->string('text', 50)->default('')->comment('字典中文文字');
             $table->tinyInteger('sort_no')->unsigned()->default(0)->comment('排序号');

@@ -124,6 +124,29 @@ class LoginRepository extends BaseRepository
         ];
     }
 
+    /**
+     * 获取登录信息
+     * @return Array
+     */
+    public function loginStatus()
+    {
+        $resultData = [];
+        if (Auth::guard('admin')->check()) {
+            $adminList = Auth::guard('admin')->user();
+            $adminData = [
+                'username' => $adminList->username,
+                'email'    => $adminList->email,
+                'face'     => $adminList->face,
+            ];
+            $resultData['data'] = $adminData;
+        }
+        return [
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
+            'message' => '获取成功',
+        ];
+    }
+
     public function reset($input)
     {
 

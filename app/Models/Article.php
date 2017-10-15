@@ -16,7 +16,7 @@ class Article extends Model
     // 关联所有的评论
     public function comments()
     {
-        return $this->hasMany('App\Models\ArticleComment');
+        return $this->hasMany('App\Models\ArticleComment', 'article_id', 'id');
     }
 
     // 关联所有的互动

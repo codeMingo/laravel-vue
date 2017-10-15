@@ -10,16 +10,15 @@
                     </el-breadcrumb>
                 </div>
                 <div class="content-box article-detail-box">
-                    <h2 class="article-title">每周推送 Laravel 最新资讯</h2>
+                    <h2 class="article-title">{{article_data.title}}</h2>
                     <p class="article-right">
-                        <span>作者：<strong>林联敏</strong></span>
-                        <span>发表时间：<strong>2017-08-21 15:26：11</strong></span>
-                        <span>阅读量：<strong>329</strong></span>
-                        <span>评论：<strong>19</strong></span>
-                        <span>点赞：<strong>31</strong></span>
+                        <span>作者：<strong>{{article_data.auther}}</strong></span>
+                        <span>发表时间：<strong>{{article_data.created_at}}</strong></span>
+                        <span>阅读量：<strong>{{article_data.read_count}}</strong></span>
+                        <span>评论：<strong>{{article_data.comments | getCount}}</strong></span>
+                        <span>点赞：<strong>{{article_data.like_count}}</strong></span>
                     </p>
-                    <div class="article-content">前面我们实现了使用PC端上位机串口发送图像数据到VGA显示，通过MATLAB处理的图像数据直接是灰度图像，后面我们在此基础上修改，从而实现，基于FPGA的动态图片的Sobel边缘检测、中值滤波、Canny算子边缘检测、腐蚀和膨胀等。那么这篇文章我们将来实现基于FPGA的Sobel边缘检测。 图像边缘：简言之，边缘就是图像灰度值突变的地方，亦即图像在该部分的像素值变化速度非常之快，这就好比在坐标轴上一条曲线有刚开始的平滑突然来个大转弯，在变化出的导数非常大。 　　Sobel算子主要用作边缘检测，在技术上，它是一离散型差分算子，用来计算图像亮度函数灰度之近似值。在图像的恩和一点使用此算子，将会产生对应的灰度矢量或是其法矢量。 　　边缘是指其周围像素灰度急剧变化的那些像素的集合。边缘存在于目标、背景和区域之间，所以，他是图像分割所以来的最重要的依据。由于边缘是位置的标志，对灰度的变化不敏感，因此，边缘也是图像匹配的重要的特征。 Sobel边缘检测的核心在于像素矩阵的卷积，卷积对于数字图像处理非常重要，很多图像处理算法都是做卷积来实现的。卷积运算的本质就是对制定的图像区域的像素值进行加权求和的过程，其计算过程为图像区域中的每个像素值分别与卷积模板的每个元素对应相乘，将卷积的结果作求和运算，运算到的和就是卷积运算的结果。
-                    </div>
+                    <div class="article-content" v-html="article_data.content"></div>
                     <div class="article-interactive">
                         <div class="article-more">
                             <div class="article-prev">
@@ -34,14 +33,18 @@
                         <div class="article-advertise">
                         </div>
                     </div>
+                    <h2 class="sidebar-title">视频评论 （<span>56</span>条）</h2>
                     <div class="interactive-box comment-list">
-                        <h2 class="sidebar-title">视频评论 （<span>56</span>条）</h2>
                         <div class="interactive-list">
                             <div class="interactive-detail">
                                 <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
                                 <div class="interactive-word">
                                     <p class="user-name">高山流水<span>2017-07-12 16:12:31</span></p>
                                     <p class="interactive-content">运用laravel+vue+elementui，从零搭建一个技术博客！</p>
+                                    <p class="interactive-response-btn">
+                                        <a href="javascript:;">回复</a>
+                                        <a href="javascript:;">&nbsp;&nbsp;查看回复(<span>13</span>)</a>
+                                    </p>
                                 </div>
                                 <div class="interactive-response">
                                     <div class="interactive-detail">
@@ -71,19 +74,23 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="interactive-detail">
-                                <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
+                            <div class="interactive-detail" v-for="(item, index) in article_data.comments">
+                                <div class="user-face"><a href="javascript:;"><img :src="item.user.face" /></a></div>
                                 <div class="interactive-word">
-                                    <p class="user-name">高山流水<span>2017-07-12 16:12:31</span></p>
-                                    <p class="interactive-content">老哥，稳！</p>
+                                    <p class="user-name"><a href="javascript:;">{{item.user.username}}</a><span>{{item.created_at}}</span></p>
+                                    <p class="interactive-content" v-html="item.content"></p>
+                                    <p class="interactive-response-btn">
+                                        <a href="javascript:;" @click="addResponse(item.user.username, item.id)">回复</a>
+                                        <a href="javascript:;">&nbsp;&nbsp;查看回复(<span>13</span>)</a>
+                                    </p>
                                 </div>
                             </div>
+                            <p style="clear:both;"></p>
                         </div>
                     </div>
-                    <div class="interactive-now">
-                        <h2 class="sidebar-title">我要评论</h2>
-                        <!-- <div class="comment-now-content" contenteditable="true"><span># 高山流水</span></div> -->
-                        <quill-edit class="interactive-now-content" v-model="comment.content" :options="editorOption"></quill-edit>
+                    <h2 class="sidebar-title">我要评论</h2>
+                    <div class="interactive-now" id="response-box">
+                        <quill-edit class="interactive-now-content" ref="articleQuillEditor" v-model="comment_form.content" :options="editorOption"></quill-edit>
                         <div class="interactive-now-submit">
                             <el-button type="primary" @click="commentSubmit">提　交</el-button>
                         </div>
@@ -162,12 +169,12 @@
             font-size: 20px;
             text-align: center;
             margin: 10px 0;
-            color: #666;
+            color: #222;
         }
         .article-right {
             text-align: center;
-            font-size: 12px;
-            color: #999;
+            font-size: 13px;
+            color: #777;
             margin-bottom: 10px;
             span {
                 margin: 0 5px;
@@ -176,6 +183,9 @@
         .article-content {
             line-height: 180%;
             overflow: hidden;
+            font-size: 16px;
+            color: #222;
+            word-wrap: break-word;
             img {
                 max-width: 100%;
             }
@@ -242,10 +252,13 @@ export default {
     },
     data() {
         return {
+            article_data: {},
             article_id: this.$route.params.id,
             currentPage1: 5,
-            comment: {
-                content: ''
+            comment_form: {
+                comment_id: '',
+                content: '',
+                response_demo: ''
             },
             editorOption: {
                 modules: {
@@ -278,11 +291,8 @@ export default {
             let _this = this;
             axios.get('/article/detail/' + _this.article_id).then(response => {
                 let { status, data, message } = response.data;
-                _this.article_data = data.lists.data;
+                _this.article_data = data.data;
                 _this.article_options = data.options;
-                _this.article_pagination.per_page = parseInt(data.lists.per_page);
-                _this.article_pagination.current_page = parseInt(data.lists.current_page);
-                _this.article_pagination.total = parseInt(data.lists.total);
             });
         },
         handleSizeChange(val) {
@@ -292,7 +302,96 @@ export default {
             console.log(`当前页: ${val}`);
         },
         commentSubmit() {
-
+            let _this = this;
+            if (_this.comment_form.comment_id) {
+                let regx = /<p>(.+?)<\/p>/;
+                let regx_content = regx.exec(_this.comment_form.content);
+                if (regx_content[0] != _this.comment_form.response_demo) {
+                    _this.$confirm('回复格式错误，是否直接进行评论？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        _this.comment_form.comment_id = '';
+                        axios.put('/article/comment/' + _this.article_id, { 'data': _this.comment_form }).then(response => {
+                            let { data, message, status } = response.data;
+                            if (!status) {
+                                _this.$message.error(message);
+                                return false;
+                            }
+                            _this.$message.success(message);
+                        }).catch(response => {
+                            _this.$message({
+                                type: 'error',
+                                message: '操作失败，未知错误'
+                            });
+                        })
+                    }).catch(() => {
+                        _this.$message({
+                            type: 'info',
+                            message: '操作失败，未知错误'
+                        });
+                    });
+                    return false;
+                } else {
+                    axios.put('/article/comment/' + _this.article_id, { 'data': _this.comment_form }).then(response => {
+                        let { data, message, status } = response.data;
+                        if (!status) {
+                            _this.$message.error(message);
+                            return false;
+                        }
+                        _this.$message.success(message);
+                    }).catch(response => {
+                        _this.$message({
+                            type: 'error',
+                            message: '操作失败，未知错误'
+                        });
+                    })
+                }
+            } else {
+                axios.put('/article/comment/' + _this.article_id, { 'data': _this.comment_form }).then(response => {
+                    let { data, message, status } = response.data;
+                    if (!status) {
+                        _this.$message.error(message);
+                        return false;
+                    }
+                    _this.$message.success(message);
+                }).catch(response => {
+                    _this.$message({
+                        type: 'error',
+                        message: '操作失败，未知错误'
+                    });
+                })
+            }
+        },
+        addResponse(username, comment_id) {
+            /*console.log(document.getElementById('response-box').offsetTop);
+            window.scrollTo(0, document.body.scrollHeight);*/
+            window.scrollTo(0, document.getElementById('response-box').offsetTop);
+            this.$refs.articleQuillEditor.quill.setContents([{
+                    insert: '回复：' + username + '：',
+                    attributes: {
+                        italic: true,
+                        underline: true,
+                    }
+                },
+                {
+                    insert: '(此行不可编辑，请点击空格至下一行输入内容，否则回复无效)',
+                    attributes: {
+                        italic: false,
+                        underline: false,
+                    }
+                },
+                {
+                    insert: ' ',
+                    attributes: {
+                        italic: false,
+                        underline: false,
+                    }
+                }
+            ]);
+            this.comment_form.comment_id = comment_id;
+            this.comment_form.response_demo = this.comment_form.content;
         }
     }
 }

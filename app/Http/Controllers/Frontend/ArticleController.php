@@ -31,10 +31,10 @@ class ArticleController extends BaseController
     }
 
     // 评论 or 回复
-    public function comment(Request $request)
+    public function comment(Request $request, $article_id)
     {
         $input = $request->input('data');
-        $result = ArticleRepository::getInstance()->comment($input);
+        $result = ArticleRepository::getInstance()->comment($input, $article_id);
         return response()->json($result);
     }
 

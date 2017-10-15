@@ -36,11 +36,9 @@ const store = new Vuex.Store({
                 sessionStorage.removeItem('sidebarCollapse');
             }
         },
-        setAdminData(data) {
+        setAdminData(state, data) {
             state.adminData = data;
         }
     }
 });
-
-
 export default store;

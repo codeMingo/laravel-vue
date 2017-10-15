@@ -22,6 +22,7 @@ Route::group(['namespace' => 'Frontend'], function () {
     // 文章模块
     Route::get('/article/lists', 'ArticleController@lists');
     Route::get('/article/detail/{article_id}', 'ArticleController@detail');
+    Route::put('/article/comment/{article_id}', 'ArticleController@comment');
 
     // 需登录后操作的模块
     Route::group(['middleware' => 'auth'], function () {
@@ -38,6 +39,7 @@ Route::group(['namespace' => 'Frontend'], function () {
 Route::get('/backend', 'Auth\LoginController@index');
 Route::post('/backend/login', 'Auth\LoginController@adminLogin');
 Route::post('/backend/logout', 'Auth\LoginController@adminLogout');
+Route::get('/backend/login-status', 'Auth\LoginController@adminLoginStatus');
 Route::group(['namespace' => 'Backend', 'prefix' => 'backend', 'middleware' => 'auth.admin'], function () {
     // 公共模块
     Route::get('/index', 'IndexController@index');

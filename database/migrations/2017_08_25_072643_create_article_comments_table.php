@@ -23,6 +23,7 @@ class CreateArticleCommentsTable extends Migration
             $table->integer('is_audit')->default(0)->comment('审核(select)');
             $table->tinyInteger('status')->default(1)->comment('状态(0|1)');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

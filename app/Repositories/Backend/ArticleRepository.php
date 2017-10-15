@@ -5,8 +5,9 @@ use App\Models\Article;
 use App\Models\ArticleComment;
 use App\Models\ArticleInteractive;
 use App\Models\Category;
-use App\Repositories\Backend\DictRepository;
 use App\Repositories\Backend\CategoryRepository;
+use App\Repositories\Backend\DictRepository;
+use Illuminate\Support\Facades\DB;
 
 class ArticleRepository extends BaseRepository
 {
@@ -84,7 +85,7 @@ class ArticleRepository extends BaseRepository
                 'input' => $input,
             ],
             'text'   => !$insertResult ? '新增文章失败，未知错误' : '新增文章成功',
-            'status' => !!$insertResult
+            'status' => !!$insertResult,
         ]);
 
         return [
@@ -204,7 +205,7 @@ class ArticleRepository extends BaseRepository
     public function getOptions()
     {
         $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
-        $resultData['options']['categories'] = Category::lists('article_category');
+        $resultData['options']['categories'] = CategoryRepository::getInstance()->getListsByDictText('article_category');
         $resultData['options']['recommends'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
         return [
             'status'  => Parent::SUCCESS_STATUS,
@@ -237,7 +238,6 @@ class ArticleRepository extends BaseRepository
             'message' => '获取成功',
         ];
     }
-
 
     /**
      * 获取一篇文章编辑
@@ -384,34 +384,34 @@ class ArticleRepository extends BaseRepository
         $page_size              = DB::table('dicts')->where('text_en', 'article_page_size')->value('value');
 
         if (empty($searchForm)) {
-            return Article::where($whereParams)->paginate($page_size);
+            return Article::where($where_params)->paginate($page_size);
         }
 
         if (isset($searchForm['status'])) {
-            $whereParams['status'] = $searchForm['status'];
+            $where_params['status'] = $searchForm['status'];
         }
 
         if (isset($searchForm['is_audit'])) {
-            $whereParams['is_audit'] = $searchForm['is_audit'];
+            $where_params['is_audit'] = $searchForm['is_audit'];
         }
 
         if (isset($searchForm['recommend'])) {
-            $whereParams['recommend'] = $searchForm['recommend'];
+            $where_params['recommend'] = $searchForm['recommend'];
         }
 
         if (isset($searchForm['category_id']) && !empty($searchForm['category_id'])) {
-            $whereParams['category_id'] = $searchForm['category_id'];
+            $where_params['category_id'] = $searchForm['category_id'];
         }
 
         if (isset($searchForm['admin_id']) && !empty($searchForm['admin_id'])) {
-            $whereParams['admin_id'] = $searchForm['admin_id'];
+            $where_params['admin_id'] = $searchForm['admin_id'];
         }
 
         if (isset($searchForm['user_id']) && !empty($searchForm['user_id'])) {
-            $whereParams['user_id'] = $searchForm['user_id'];
+            $where_params['user_id'] = $searchForm['user_id'];
         }
 
-        $query = Article::where($whereParams);
+        $query = Article::where($where_params);
         if (isset($searchForm['title']) && $searchForm['title'] !== '') {
             $query->where('title', 'like', '%' . $searchForm['title'] . '%');
         }

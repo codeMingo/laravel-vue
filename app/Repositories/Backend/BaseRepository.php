@@ -54,7 +54,7 @@ abstract class BaseRepository
             'action'     => $input['action'],
             'params'     => json_encode($input['params']),
             'text'       => $input['text'],
-            'ip_address' => $input['ip_address'],
+            'ip_address' => getClientIp(),
             'status'     => $input['status']
         ]);
         } catch (Exception $e) {

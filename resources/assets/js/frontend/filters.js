@@ -62,3 +62,11 @@ export function subString(content, start, length) {
     content = content.replace(/&nbsp;/ig, ''); //去掉&nbsp;
     return content.substring(start, length) + '...';
 }
+
+export function getCount(Object) {
+    let count = 0;
+    if (Object == undefined) {
+        return count;
+    }
+    return Object.length;
+}
