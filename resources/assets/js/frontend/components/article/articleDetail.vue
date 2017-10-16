@@ -36,44 +36,6 @@
                     <h2 class="sidebar-title">视频评论 （<span>56</span>条）</h2>
                     <div class="interactive-box comment-list">
                         <div class="interactive-list">
-                            <div class="interactive-detail">
-                                <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
-                                <div class="interactive-word">
-                                    <p class="user-name">高山流水<span>2017-07-12 16:12:31</span></p>
-                                    <p class="interactive-content">运用laravel+vue+elementui，从零搭建一个技术博客！</p>
-                                    <p class="interactive-response-btn">
-                                        <a href="javascript:;">回复</a>
-                                        <a href="javascript:;">&nbsp;&nbsp;查看回复(<span>13</span>)</a>
-                                    </p>
-                                </div>
-                                <div class="interactive-response">
-                                    <div class="interactive-detail">
-                                        <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
-                                        <div class="interactive-word">
-                                            <p class="user-name">高山流水 #<span>amgogo先生</span><span>2017-07-12 16:12:31</span></p>
-                                            <p class="interactive-content">老哥，稳！</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="interactive-response">
-                                    <div class="interactive-detail">
-                                        <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
-                                        <div class="interactive-word">
-                                            <p class="user-name">amgogo先生 #<span>高山流水</span><span>2017-07-12 16:12:31</span></p>
-                                            <p class="interactive-content">本人从事php开发工作，一直奋战在一线，处于水深火热之中，工作之余看看知乎、逛逛github、打打游戏！</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="interactive-response">
-                                    <div class="interactive-detail">
-                                        <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
-                                        <div class="interactive-word">
-                                            <p class="user-name">高山流水 #<span>amgogo先生</span><span>2017-07-12 16:12:31</span></p>
-                                            <p class="interactive-content">老哥，稳！</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="interactive-detail" v-for="(item, index) in article_data.comments">
                                 <div class="user-face"><a href="javascript:;"><img :src="item.user.face" /></a></div>
                                 <div class="interactive-word">
@@ -81,8 +43,21 @@
                                     <p class="interactive-content" v-html="item.content"></p>
                                     <p class="interactive-response-btn">
                                         <a href="javascript:;" @click="addResponse(item.user.username, item.id)">回复</a>
-                                        <a href="javascript:;">&nbsp;&nbsp;查看回复(<span>13</span>)</a>
+                                        <a href="javascript:;" @click="showResponse(item)" v-show="item.response">
+                                            &nbsp;&nbsp;
+                                            <template v-if="!item.show_response">查看回复</template>
+                                            <template v-if="item.show_response">收起回复</template>
+                                        (<span>{{item.response | getCount}}</span>)</a>
                                     </p>
+                                </div>
+                                <div class="interactive-response" v-if="item.response && item.show_response">
+                                    <div class="interactive-detail" v-for="(response, key) in item.response">
+                                        <div class="user-face"><a href="javascript:;"><img :src="response.user.face"/></a></div>
+                                        <div class="interactive-word">
+                                            <p class="user-name">{{response.user.username}} #<span>{{item.user.username}}</span><span>{{response.created_at}}</span></p>
+                                            <p class="interactive-content" v-html="response.content"></p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <p style="clear:both;"></p>
@@ -90,7 +65,7 @@
                     </div>
                     <h2 class="sidebar-title">我要评论</h2>
                     <div class="interactive-now" id="response-box">
-                        <quill-edit class="interactive-now-content" ref="articleQuillEditor" v-model="comment_form.content" :options="editorOption"></quill-edit>
+                        <quill-edit class="interactive-now-content" ref="articleQuillEditor" v-model="comment_form.input_content" :options="editorOption"></quill-edit>
                         <div class="interactive-now-submit">
                             <el-button type="primary" @click="commentSubmit">提　交</el-button>
                         </div>
@@ -257,6 +232,7 @@ export default {
             currentPage1: 5,
             comment_form: {
                 comment_id: '',
+                input_content: '',
                 content: '',
                 response_demo: ''
             },
@@ -305,7 +281,9 @@ export default {
             let _this = this;
             if (_this.comment_form.comment_id) {
                 let regx = /<p>(.+?)<\/p>/;
-                let regx_content = regx.exec(_this.comment_form.content);
+                let regx_content = regx.exec(_this.comment_form.input_content);
+                _this.comment_form.content = _this.comment_form.input_content.replace(/<p>(.+?)<\/p>/, '');
+                console.log(_this.comment_form);
                 if (regx_content[0] != _this.comment_form.response_demo) {
                     _this.$confirm('回复格式错误，是否直接进行评论？', '提示', {
                         confirmButtonText: '确定',
@@ -391,7 +369,11 @@ export default {
                 }
             ]);
             this.comment_form.comment_id = comment_id;
-            this.comment_form.response_demo = this.comment_form.content;
+            this.comment_form.response_demo = this.comment_form.input_content;
+        },
+        showResponse(item) {
+            let flag = item.show_response ? false : true;
+            this.$set(item, 'show_response', flag);
         }
     }
 }

@@ -22,12 +22,12 @@ Route::group(['namespace' => 'Frontend'], function () {
     // 文章模块
     Route::get('/article/lists', 'ArticleController@lists');
     Route::get('/article/detail/{article_id}', 'ArticleController@detail');
-    Route::put('/article/comment/{article_id}', 'ArticleController@comment');
+
 
     // 需登录后操作的模块
     Route::group(['middleware' => 'auth'], function () {
         Route::put('/article/interactive/{article_id}', 'ArticleController@interactive');
-        Route::post('/article/comment', 'ArticleController@comment');
+        Route::put('/article/comment/{article_id}', 'ArticleController@comment');
     });
 });
 

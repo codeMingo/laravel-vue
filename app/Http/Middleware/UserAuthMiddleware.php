@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
-class AdminAuthMiddleware
+class UserAuthMiddleware
 {
     /**
      * Handle an incoming request.
@@ -16,8 +16,12 @@ class AdminAuthMiddleware
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if (!Auth::guard('admin')->check()) {
-            return redirect()->guest('/backend');
+        if (!Auth::guard('web')->check()) {
+            return response()->json([
+                'status'  => 0,
+                'data'    => [],
+                'message' => '请登陆后操作',
+            ]);
         }
         return $next($request);
     }
