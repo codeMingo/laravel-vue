@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "echarts": "^3.7.1",
+    "marked": "^0.3.6",
     "node-sass": "^4.5.3"
   }
 }

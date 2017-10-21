@@ -63,10 +63,13 @@ export function subString(content, start, length) {
     return content.substring(start, length) + '...';
 }
 
-export function getCount(Object) {
+export function getCount(targetLists) {
     let count = 0;
-    if (Object == undefined) {
+    if (targetLists == undefined) {
         return count;
     }
-    return Object.length;
+    if (Array.isArray(targetLists)) {
+        return targetLists.length;
+    }
+    return Object.keys(targetLists).length;
 }

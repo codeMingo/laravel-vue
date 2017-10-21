@@ -115,6 +115,8 @@
         margin-right: 10px;
         border-right: 1px solid #eee;
         .article-detail {
+            width: 100%;
+            box-sizing: border-box;
             padding: 5px 8px;
             border: 1px solid #eee;
             box-shadow: 3px 5px 3px #fafafa;

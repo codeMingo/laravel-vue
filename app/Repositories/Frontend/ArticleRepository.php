@@ -9,6 +9,7 @@ use App\Repositories\Frontend\CategoryRepository;
 use App\Repositories\Frontend\DictRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class ArticleRepository extends BaseRepository
 {
@@ -38,8 +39,8 @@ class ArticleRepository extends BaseRepository
     {
         $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
         $resultData['data'] = Article::find($article_id)->with(['comments' => function($query) use ($dictListsValue) {
-            $query->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1);
-        }, 'comments.user'])->where('status', $dictListsValue['article_is_show'])->first();
+            $query->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->paginate(50);
+        }, 'comments.user'])->where('status', $dictListsValue['article_is_show'])->first()->toArray();
         if (empty($resultData['data'])) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -48,21 +49,25 @@ class ArticleRepository extends BaseRepository
             ];
         }
         if (!empty($resultData['data']['comments'])) {
-            $comments_arr = [];
-            foreach($resultData['data']['comments'] as $index => $comment) {
-                if ($comment->parent_id) {
-                    foreach ($comments_arr as $key => $item) {
-                        if ($item->id == $comment->parent_id) {
-                            $temp[] = $comment;
-                            $comments_arr[$key]['response'] = $temp;
-                        }
-                    }
-                } else {
-                    $comments_arr[] = $comment;
+            $comment_ids = [];
+            foreach ($resultData['data']['comments'] as $index => $comment) {
+                $comment_ids[] = $comment['id'];
+            }
+        }
+
+        // 找出所有的回复
+        if (!empty($comment_ids)) {
+            $response_lists = ArticleComment::whereIn('parent_id', $comment_ids)->with('user')->get();
+            if (!empty($response_lists)) {
+                $response_temp = [];
+                foreach ($response_lists as $index => $response) {
+                    $response_temp[$response->parent_id][] = $response;
+                }
+
+                foreach ($resultData['data']['comments'] as $index => $comment) {
+                    $resultData['data']['comments'][$index]['response'] = isset($response_temp[$comment['id']]) ? $response_temp[$comment['id']] : [];
                 }
             }
-            unset($resultData['data']['comments']);
-            $resultData['data']['comments'] = $comments_arr;
         }
 
         $resultData['data']['like_count'] = ArticleInteract::where('article_id', $article_id)->where('like', 1)->count();
@@ -195,15 +200,15 @@ class ArticleRepository extends BaseRepository
             ];
         }
         // 评论成功
-
+        if (!$article_comment_audit) {
+            $comment_lists = ArticleComment::where('id', $createResult->id)->with('user')->first();
+            $comment_lists->response = [];
+            $comment_lists->show_response = true;
+        }
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => [
-                'data' => [
-                    'comment_id' => $createResult->parent_id,
-                    'content'    => $createResult->content,
-                    'create_at'  => $createResult->create_at,
-                ],
+                'list' => $article_comment_audit ? [] : $comment_lists,
             ],
             'message' => $comment_id ? '回复成功' : '评论成功',
         ];

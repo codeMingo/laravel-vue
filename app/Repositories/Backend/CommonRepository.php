@@ -39,6 +39,7 @@ class CommonRepository extends BaseRepository
 
         // 七牛上传图片
         $auth   = new Auth(config('blog.qiniuAccessKey'), config('blog.qiniuSecretKey'));
+
         $bucket = config('blog.qiniuImageBucket');
         // 生成上传Token
         $token = $auth->uploadToken($bucket);

@@ -70,13 +70,13 @@ export default {
             return { x: evt.clientX, y: evt.clientY };
         };
 
-        //获取X轴坐标  
+        //获取X轴坐标
         Vue.getX = function(evt) {
             evt = evt || window.event;
             return Vue.mousePosition(evt).x;
         };
 
-        //获取Y轴坐标  
+        //获取Y轴坐标
 
         Vue.getY = function(evt) {
             evt = evt || window.event;

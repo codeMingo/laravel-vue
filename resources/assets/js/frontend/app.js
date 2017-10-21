@@ -14,6 +14,7 @@ import 'nprogress/nprogress.css'; // Progress 进度条 样式
 import Vuex from 'vuex';
 import plugins from './plugins.js';
 import * as filters from './filters.js';
+
 Vue.use(VueRouter);
 Vue.use(ElementUI);
 Vue.use(Vuex);

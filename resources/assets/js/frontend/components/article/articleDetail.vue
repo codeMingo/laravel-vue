@@ -1,5 +1,5 @@
 <template>
-    <div class="content-container article-detail-container">
+    <div class="content-container article-detail-container ql-container ql-snow">
         <el-row :gutter="10">
             <el-col :xs="24" :sm="24" :md="16" :lg="16">
                 <div class="breadcrumb">
@@ -9,7 +9,7 @@
                         <el-breadcrumb-item>每周推送 Laravel 最新资讯</el-breadcrumb-item>
                     </el-breadcrumb>
                 </div>
-                <div class="content-box article-detail-box">
+                <div class="content-box article-detail-box ql-editor">
                     <h2 class="article-title">{{article_data.title}}</h2>
                     <p class="article-right">
                         <span>作者：<strong>{{article_data.auther}}</strong></span>
@@ -18,7 +18,9 @@
                         <span>评论：<strong>{{article_data.comments | getCount}}</strong></span>
                         <span>点赞：<strong>{{article_data.like_count}}</strong></span>
                     </p>
+                    <!-- <div class="article-content" v-html="article_data.content"></div> -->
                     <div class="article-content" v-html="article_data.content"></div>
+
                     <div class="article-interactive">
                         <div class="article-more">
                             <div class="article-prev">
@@ -33,17 +35,17 @@
                         <div class="article-advertise">
                         </div>
                     </div>
-                    <h2 class="sidebar-title">视频评论 （<span>56</span>条）</h2>
+                    <h2 class="sidebar-title">文章评论 （<span>{{article_data.comments | getCount}}</span>条）</h2>
                     <div class="interactive-box comment-list">
                         <div class="interactive-list">
                             <div class="interactive-detail" v-for="(item, index) in article_data.comments">
                                 <div class="user-face"><a href="javascript:;"><img :src="item.user.face" /></a></div>
                                 <div class="interactive-word">
-                                    <p class="user-name"><a href="javascript:;">{{item.user.username}}</a><span>{{item.created_at}}</span></p>
+                                    <p class="user-name"><a href="javascript:;">{{item.user.username}}</a><span>发表时间：{{item.created_at}}</span></p>
                                     <p class="interactive-content" v-html="item.content"></p>
                                     <p class="interactive-response-btn">
                                         <a href="javascript:;" @click="addResponse(item.user.username, item.id)">回复</a>
-                                        <a href="javascript:;" @click="showResponse(item)" v-show="item.response">
+                                        <a href="javascript:;" @click="showResponse(item)" v-show="item.response && item.response.length > 0">
                                             &nbsp;&nbsp;
                                             <template v-if="!item.show_response">查看回复</template>
                                             <template v-if="item.show_response">收起回复</template>
@@ -54,7 +56,7 @@
                                     <div class="interactive-detail" v-for="(response, key) in item.response">
                                         <div class="user-face"><a href="javascript:;"><img :src="response.user.face"/></a></div>
                                         <div class="interactive-word">
-                                            <p class="user-name">{{response.user.username}} #<span>{{item.user.username}}</span><span>{{response.created_at}}</span></p>
+                                            <p class="user-name">{{response.user.username}}<span>发表时间：{{response.created_at}}</span></p>
                                             <p class="interactive-content" v-html="response.content"></p>
                                         </div>
                                     </div>
@@ -65,7 +67,7 @@
                     </div>
                     <h2 class="sidebar-title">我要评论</h2>
                     <div class="interactive-now" id="response-box">
-                        <quill-edit class="interactive-now-content" ref="articleQuillEditor" v-model="comment_form.input_content" :options="editorOption"></quill-edit>
+                        <quill-edit class="interactive-now-content" ref="articleQuillEditor" v-model="comment_form.input_content" :options="editorOption" @change="onEditorChange($event)"></quill-edit>
                         <div class="interactive-now-submit">
                             <el-button type="primary" @click="commentSubmit">提　交</el-button>
                         </div>
@@ -135,6 +137,7 @@
     </div>
 </template>
 <style rel="stylesheet/scss" lang="scss" scoped>
+
 .article-detail-container {
     .article-detail-box {
         padding-right: 20px;
@@ -256,7 +259,8 @@ export default {
                         //['link', 'image', 'video']
                     ]
                 }
-            }
+            },
+
         };
     },
     mounted() {
@@ -277,13 +281,15 @@ export default {
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
         },
+        onEditorChange({ editor, html, text }) {
+            console.log('editor change!', editor, html, text)
+
+        },
         commentSubmit() {
             let _this = this;
             if (_this.comment_form.comment_id) {
                 let regx = /<p>(.+?)<\/p>/;
                 let regx_content = regx.exec(_this.comment_form.input_content);
-                _this.comment_form.content = _this.comment_form.input_content.replace(/<p>(.+?)<\/p>/, '');
-                console.log(_this.comment_form);
                 if (regx_content[0] != _this.comment_form.response_demo) {
                     _this.$confirm('回复格式错误，是否直接进行评论？', '提示', {
                         confirmButtonText: '确定',
@@ -291,6 +297,7 @@ export default {
                         type: 'warning'
                     }).then(() => {
                         _this.comment_form.comment_id = '';
+                        _this.comment_form.content = _this.comment_form.input_content;
                         axios.put('/article/comment/' + _this.article_id, { 'data': _this.comment_form }).then(response => {
                             let { data, message, status } = response.data;
                             if (!status) {
@@ -298,6 +305,7 @@ export default {
                                 return false;
                             }
                             _this.$message.success(message);
+                            Vue.resetForm(_this.comment_form);
                         }).catch(response => {
                             _this.$message({
                                 type: 'error',
@@ -312,6 +320,7 @@ export default {
                     });
                     return false;
                 } else {
+                    _this.comment_form.content = _this.comment_form.input_content.replace(/<p>(.+?)<\/p>/, '');
                     axios.put('/article/comment/' + _this.article_id, { 'data': _this.comment_form }).then(response => {
                         let { data, message, status } = response.data;
                         if (!status) {
@@ -319,6 +328,14 @@ export default {
                             return false;
                         }
                         _this.$message.success(message);
+                        if (data.list) {
+                            for (let i = 0; i < _this.article_data.comments.length; i++) {
+                                if (_this.article_data.comments[i].id === data.list.parent_id) {
+                                    _this.article_data.comments[i]['response'][_this.article_data.comments[i]['response'].length] = data.list;
+                                }
+                            }
+                        }
+                        Vue.resetForm(_this.comment_form);
                     }).catch(response => {
                         _this.$message({
                             type: 'error',
@@ -327,6 +344,7 @@ export default {
                     })
                 }
             } else {
+                _this.comment_form.content = _this.comment_form.input_content;
                 axios.put('/article/comment/' + _this.article_id, { 'data': _this.comment_form }).then(response => {
                     let { data, message, status } = response.data;
                     if (!status) {
@@ -334,6 +352,10 @@ export default {
                         return false;
                     }
                     _this.$message.success(message);
+                    if (data.list) {
+                        _this.article_data.comments[_this.article_data.comments.length] = data.list;
+                    }
+                    Vue.resetForm(_this.comment_form);
                 }).catch(response => {
                     _this.$message({
                         type: 'error',
