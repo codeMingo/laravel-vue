@@ -7,7 +7,6 @@ use App\Models\ArticleInteractive;
 use App\Models\Category;
 use App\Repositories\Backend\CategoryRepository;
 use App\Repositories\Backend\DictRepository;
-use Illuminate\Support\Facades\DB;
 
 class ArticleRepository extends BaseRepository
 {
@@ -380,50 +379,48 @@ class ArticleRepository extends BaseRepository
      */
     public function getArticleLists($search_form)
     {
-        $where_params['status'] = 1;
-        $page_size              = DB::table('dicts')->where('text_en', 'article_page_size')->value('value');
-
-        if (empty($searchForm)) {
+        $page_size    = 10;
+        $where_params = [];
+        if (empty($search_form)) {
             return Article::where($where_params)->paginate($page_size);
         }
 
-        if (isset($searchForm['status'])) {
-            $where_params['status'] = $searchForm['status'];
+        if (isset($search_form['status']) && $search_form['status'] !== '') {
+            $where_params['status'] = $search_form['status'];
         }
 
-        if (isset($searchForm['is_audit'])) {
-            $where_params['is_audit'] = $searchForm['is_audit'];
+        if (isset($search_form['is_audit'])) {
+            $where_params['is_audit'] = $search_form['is_audit'];
         }
 
-        if (isset($searchForm['recommend'])) {
-            $where_params['recommend'] = $searchForm['recommend'];
+        if (isset($search_form['recommend'])) {
+            $where_params['recommend'] = $search_form['recommend'];
         }
 
-        if (isset($searchForm['category_id']) && !empty($searchForm['category_id'])) {
-            $where_params['category_id'] = $searchForm['category_id'];
+        if (isset($search_form['category_id']) && !empty($search_form['category_id'])) {
+            $where_params['category_id'] = $search_form['category_id'];
         }
 
-        if (isset($searchForm['admin_id']) && !empty($searchForm['admin_id'])) {
-            $where_params['admin_id'] = $searchForm['admin_id'];
+        if (isset($search_form['admin_id']) && !empty($search_form['admin_id'])) {
+            $where_params['admin_id'] = $search_form['admin_id'];
         }
 
-        if (isset($searchForm['user_id']) && !empty($searchForm['user_id'])) {
-            $where_params['user_id'] = $searchForm['user_id'];
+        if (isset($search_form['user_id']) && !empty($search_form['user_id'])) {
+            $where_params['user_id'] = $search_form['user_id'];
         }
 
         $query = Article::where($where_params);
-        if (isset($searchForm['title']) && $searchForm['title'] !== '') {
-            $query->where('title', 'like', '%' . $searchForm['title'] . '%');
+        if (isset($search_form['title']) && $search_form['title'] !== '') {
+            $query->where('title', 'like', '%' . $search_form['title'] . '%');
         }
 
-        if (isset($searchForm['auther']) && $searchForm['auther'] !== '') {
-            $query->where('auther', 'like', '%' . $searchForm['auther'] . '%');
+        if (isset($search_form['auther']) && $search_form['auther'] !== '') {
+            $query->where('auther', 'like', '%' . $search_form['auther'] . '%');
         }
 
-        if (isset($searchForm['tag_include']) && is_array($searchForm['tag_include']) && !empty($searchForm['tag_include'])) {
-            $query->whereIn('tag_include', $searchForm['tag_include']);
+        if (isset($search_form['tag_include']) && is_array($search_form['tag_include']) && !empty($search_form['tag_include'])) {
+            $query->whereIn('tag_include', $search_form['tag_include']);
         }
-
         return $query->paginate($page_size);
     }
 }

@@ -1,5 +1,5 @@
 <template>
-    <div class="content-container article-detail-container ql-container ql-snow">
+    <div class="content-container article-detail-container">
         <el-row :gutter="10">
             <el-col :xs="24" :sm="24" :md="16" :lg="16">
                 <div class="breadcrumb">
@@ -9,7 +9,7 @@
                         <el-breadcrumb-item>每周推送 Laravel 最新资讯</el-breadcrumb-item>
                     </el-breadcrumb>
                 </div>
-                <div class="content-box article-detail-box ql-editor">
+                <div class="content-box article-detail-box">
                     <h2 class="article-title">{{article_data.title}}</h2>
                     <p class="article-right">
                         <span>作者：<strong>{{article_data.auther}}</strong></span>
@@ -18,18 +18,29 @@
                         <span>评论：<strong>{{article_data.comments | getCount}}</strong></span>
                         <span>点赞：<strong>{{article_data.like_count}}</strong></span>
                     </p>
-                    <!-- <div class="article-content" v-html="article_data.content"></div> -->
-                    <div class="article-content" v-html="article_data.content"></div>
+                    <div class=" ql-container ql-snow">
+                        <div class="article-content ql-editor" v-html="article_data.content"></div>
+                    </div>
 
                     <div class="article-interactive">
                         <div class="article-more">
                             <div class="article-prev">
-                                <p><a href="javascript:;"><i class="fa fa-chevron-left"></i>上一篇：Sobel算子边缘检测</a></p>
-                                <p>@2017-08-31 阅读(301) 赞(19) 评论(25)</p>
+                                <template v-if="prev_article">
+                                    <p><a href="javascript:;"><i class="fa fa-chevron-left"></i>上一篇：{{prev_article.title}}</a></p>
+                                    <p>@{{prev_article.created_at}} 阅读({{prev_article.read_count}}) 赞({{prev_article.like_count}}) 评论({{prev_article.comment_count}})</p>
+                                </template>
+                                <template v-else>
+                                    <p><a href="javascript:;"><i class="fa fa-chevron-left"></i>这是第一篇</a></p>
+                                </template>
                             </div>
                             <div class="article-next">
-                                <p><a href="javascript:;">下一篇：Laravel 5.4 中文文档<i class="fa fa-chevron-right"></i></a></p>
-                                <p>@2017-08-31 阅读(301) 赞(19) 评论(25)</p>
+                                <template v-if="next_article">
+                                    <p><a href="javascript:;">下一篇：{{next_article.title}}<i class="fa fa-chevron-right"></i></a></p>
+                                    <p>@{{next_article.created_at}} 阅读({{next_article.read_count}}) 赞({{next_article.like_count}}) 评论({{next_article.comment_count}})</p>
+                                </template>
+                                <template v-else>
+                                    <p><a href="javascript:;">已经是最后一篇<i class="fa fa-chevron-right"></i></a></p>
+                                </template>
                             </div>
                         </div>
                         <div class="article-advertise">
@@ -42,7 +53,9 @@
                                 <div class="user-face"><a href="javascript:;"><img :src="item.user.face" /></a></div>
                                 <div class="interactive-word">
                                     <p class="user-name"><a href="javascript:;">{{item.user.username}}</a><span>发表时间：{{item.created_at}}</span></p>
-                                    <p class="interactive-content" v-html="item.content"></p>
+                                    <div class=" ql-container ql-snow">
+                                        <p class="interactive-content ql-editor" v-html="item.content"></p>
+                                    </div>
                                     <p class="interactive-response-btn">
                                         <a href="javascript:;" @click="addResponse(item.user.username, item.id)">回复</a>
                                         <a href="javascript:;" @click="showResponse(item)" v-show="item.response && item.response.length > 0">
@@ -57,7 +70,9 @@
                                         <div class="user-face"><a href="javascript:;"><img :src="response.user.face"/></a></div>
                                         <div class="interactive-word">
                                             <p class="user-name">{{response.user.username}}<span>发表时间：{{response.created_at}}</span></p>
-                                            <p class="interactive-content" v-html="response.content"></p>
+                                            <div class=" ql-container ql-snow">
+                                                <p class="interactive-content ql-editor" v-html="response.content"></p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -232,6 +247,8 @@ export default {
         return {
             article_data: {},
             article_id: this.$route.params.id,
+            prev_article: '',
+            next_article: '',
             currentPage1: 5,
             comment_form: {
                 comment_id: '',
@@ -246,14 +263,14 @@ export default {
                         ['blockquote', 'code-block'],
                         [{ 'header': 1 }, { 'header': 2 }],
                         [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                        [{ 'script': 'sub' }, { 'script': 'super' }],
-                        [{ 'indent': '-1' }, { 'indent': '+1' }],
-                        [{ 'direction': 'rtl' }],
-                        //[{ 'size': ['small', false, 'large', 'huge'] }],
-                        //[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        // [{ 'script': 'sub' }, { 'script': 'super' }],
+                        // [{ 'indent': '-1' }, { 'indent': '+1' }],
+                        // [{ 'direction': 'rtl' }],
+                        // [{ 'size': ['small', false, 'large', 'huge'] }],
+                        // [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                         [{ 'color': [] }, { 'background': [] }],
                         //[{ 'font': [] }],
-                        //[{ 'align': [] }],
+                        [{ 'align': [] }],
                         ['clean'],
                         ['link']
                         //['link', 'image', 'video']
@@ -273,6 +290,8 @@ export default {
                 let { status, data, message } = response.data;
                 _this.article_data = data.data;
                 _this.article_options = data.options;
+                _this.prev_article = data.prev_article;
+                _this.next_article = data.next_article;
             });
         },
         handleSizeChange(val) {

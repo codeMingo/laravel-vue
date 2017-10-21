@@ -231,6 +231,16 @@ a {
     }
 }
 
+.quill-editor {
+    border: 1px solid #ccc;
+}
+.ql-container.ql-snow {
+    border: none !important;
+}
+.interactive-content {
+    padding: 0 !important;
+}
+
 @media (max-width: 768px) {
     .web-logo {
         margin-left: 10px;

@@ -38,8 +38,8 @@ class ArticleRepository extends BaseRepository
     public function detail($article_id)
     {
         $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $resultData['data'] = Article::find($article_id)->with(['comments' => function($query) use ($dictListsValue) {
-            $query->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->paginate(50);
+        $resultData['data'] = Article::where('id', $article_id)->with(['comments' => function($query) use ($dictListsValue) {
+            $query->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->paginate(10);
         }, 'comments.user'])->where('status', $dictListsValue['article_is_show'])->first()->toArray();
         if (empty($resultData['data'])) {
             return [
@@ -74,19 +74,25 @@ class ArticleRepository extends BaseRepository
         $resultData['data']['hate_count'] = ArticleInteract::where('article_id', $article_id)->where('hate', 1)->count();
         $resultData['data']['read_count'] = ArticleRead::where('article_id', $article_id)->count();
         // 上一篇文章
-        $resultData['prev_data'] = Article::where('id', '<', $article_id)->where('status', 1)->orderBy('id', 'desc')->first();
-        if (!empty($resultData['prev_data'])) {
-            $resultData['prev_data']['like_count'] = ArticleInteract::where('article_id', $resultData['prev_data']->id)->where('like', 1)->count();
-            $resultData['prev_data']['hate_count'] = ArticleInteract::where('article_id', $resultData['prev_data']->id)->where('hate', 1)->count();
-            $resultData['prev_data']['read_count'] = ArticleRead::where('article_id', $resultData['prev_data']->id)->count();
+        $prev_article = Article::where('id', '<', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'desc')->first();
+        if (!empty($prev_article)) {
+            $prev_article['like_count'] = ArticleInteract::where('article_id', $prev_article->id)->where('like', 1)->count();
+            $prev_article['hate_count'] = ArticleInteract::where('article_id', $prev_article->id)->where('hate', 1)->count();
+            $prev_article['read_count'] = ArticleRead::where('article_id', $prev_article->id)->count();
+            $prev_article['comment_count'] = ArticleComment::where('article_id', $prev_article->id)->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->count();
         }
         // 下一篇文章
-        $resultData['next_data'] = Article::where('id', '>', $article_id)->where('status', 1)->orderBy('id', 'asc')->first();
-        if (!empty($resultData['next_data'])) {
-            $resultData['next_data']['like_count'] = ArticleInteract::where('article_id', $resultData['next_data']->id)->where('like', 1)->count();
-            $resultData['next_data']['hate_count'] = ArticleInteract::where('article_id', $resultData['next_data']->id)->where('hate', 1)->count();
-            $resultData['next_data']['read_count'] = ArticleRead::where('article_id', $resultData['next_data']->id)->count();
+
+        $next_article = Article::where('id', '>', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'asc')->first();
+        if (!empty($next_article)) {
+            $next_article['like_count'] = ArticleInteract::where('article_id', $next_article->id)->where('like', 1)->count();
+            $next_article['hate_count'] = ArticleInteract::where('article_id', $next_article->id)->where('hate', 1)->count();
+            $next_article['read_count'] = ArticleRead::where('article_id', $next_article->id)->count();
+            $next_article['comment_count'] = ArticleComment::where('article_id', $next_article->id)->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->count();
         }
+
+        $resultData['prev_article'] = !empty($prev_article) ? $prev_article : '';
+        $resultData['next_article'] = !empty($next_article) ? $next_article : '';
 
         return [
             'status'  => Parent::SUCCESS_STATUS,

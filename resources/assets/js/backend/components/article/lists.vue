@@ -37,7 +37,7 @@
                     <router-link :to="{ path: '/article/show/' + scope.row.id }">
                         <el-button size="small" type="info">查看详情</el-button>
                     </router-link>
-                    <router-link to="{ path: '/article/update/' + scope.row.id }">
+                    <router-link :to="{ path: '/article/update/' + scope.row.id }">
                         <el-button size="small" type="warning">编辑</el-button>
                     </router-link>
                     <el-button size="small" type="danger" @click="trashed(scope.row.id)">删除</el-button>
