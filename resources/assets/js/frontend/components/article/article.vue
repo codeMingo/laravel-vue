@@ -33,9 +33,9 @@
                             </div>
                             <div class='article-interactive'>
                                 <p>
-                                    <a href="javascript:;"><i class='fa fa-thumbs-o-up'></i><span>{{item.likeCount}}</span></a>
-                                    <a href="javascript:;"><i class='fa fa-commenting-o'></i><span>{{item.commentCount}}</span></a>
-                                    <a href="javascript:;"><i class='fa fa-eye'></i><span>{{item.readCount}}</span></a>
+                                    <a href="javascript:;"><i class='fa fa-thumbs-o-up'></i><span>{{item.like_count}}</span></a>
+                                    <a href="javascript:;"><i class='fa fa-commenting-o'></i><span>{{item.comment_count}}</span></a>
+                                    <a href="javascript:;"><i class='fa fa-eye'></i><span>{{item.read_count}}</span></a>
                                 </p>
                             </div>
                         </div>

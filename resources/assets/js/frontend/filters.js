@@ -50,17 +50,17 @@ export function formatByOptions(val, options, objKey, objValue, text = '-') {
 
 /**
  * 截取字符串，过滤html标签
- * @param  {string} content 可能含html标签
+ * @param  {string} str 可能含html标签
  * @param  {int} start   开始截取位置
  * @param  {int} length  截取字符长度
  * @return {string}
  */
-export function subString(content, start, length) {
-    content = content.replace(/<\/?[^>]*>/g, ''); //去除HTML tag
-    content = content.replace(/[ | ]*\n/g, '\n'); //去除行尾空白
-    content = content.replace(/\n[\s| | ]*\r/g, '\n'); //去除多余空行
-    content = content.replace(/&nbsp;/ig, ''); //去掉&nbsp;
-    return content.substring(start, length) + '...';
+export function subString(str, sub_start, sub_length) {
+    str = str.replace(/<\/?[^>]*>/g, ''); //去除HTML tag
+    str = str.replace(/[ | ]*\n/g, '\n'); //去除行尾空白
+    str = str.replace(/\n[\s| | ]*\r/g, '\n'); //去除多余空行
+    str = str.replace(/&nbsp;/ig, ''); //去掉&nbsp;
+    return str.length > sub_length ? str.substring(sub_start, sub_length) + '...' : str;
 }
 
 export function getCount(targetLists) {

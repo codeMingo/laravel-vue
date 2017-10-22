@@ -22,6 +22,76 @@ class ArticleRepository extends BaseRepository
     public function lists($input)
     {
         $resultData['lists']                 = $this->getArticleLists($input['search_form']);
+        if (!empty($resultData['lists'])) {
+            $article_ids = [];
+            foreach ($resultData['lists'] as $index => $article) {
+                $article_ids[] = $article->id;
+            }
+
+            $like_key_value_lists = $hate_key_value_lists = $collect_key_value_lists = $comment_key_value_lists  = $read_key_value_lists = [];
+
+            // 获取点赞
+            $interactive_lists = ArticleInteract::whereIn('article_id', $article_ids)->get();
+            if (!empty($interactive_lists)) {
+                foreach ($interactive_lists as $index => $interactive) {
+                    if ($interactive->like) {
+                        if (isset($like_key_value_lists[$interactive->article_id])) {
+                            $like_key_value_lists[$interactive->article_id] ++;
+                        } else {
+                            $like_key_value_lists[$interactive->article_id] = 1;
+                        }
+                    }
+                    if ($interactive->hate) {
+                        if (isset($hate_key_value_lists[$interactive->article_id])) {
+                            $hate_key_value_lists[$interactive->article_id] ++;
+                        } else {
+                            $hate_key_value_lists[$interactive->article_id] = 1;
+                        }
+                    }
+                    if ($interactive->collect) {
+                        if (isset($collect_key_value_lists[$interactive->article_id])) {
+                            $collect_key_value_lists[$interactive->article_id] ++;
+                        } else {
+                            $collect_key_value_lists[$interactive->article_id] = 1;
+                        }
+                    }
+                }
+            }
+
+            // 获取评论总数
+            $comment_lists = ArticleComment::whereIn('article_id', $article_ids)->get();
+            if (!empty($comment_lists)) {
+                foreach ($comment_lists as $index => $comment) {
+                    if (isset($comment_key_value_lists[$comment->article_id])) {
+                        $comment_key_value_lists[$comment->article_id] ++;
+                    } else {
+                        $comment_key_value_lists[$comment->article_id] = 1;
+                    }
+                }
+            }
+
+            // 获取阅读总数
+            $read_lists = ArticleRead::whereIn('article_id', $article_ids)->get();
+            if (!empty($read_lists)) {
+                foreach ($read_lists as $index => $read) {
+                    if (isset($read_key_value_lists[$read->article_id])) {
+                        $read_key_value_lists[$read->article_id] ++;
+                    } else {
+                        $read_key_value_lists[$read->article_id] = 1;
+                    }
+                }
+            }
+
+            foreach ($resultData['lists'] as $index => $article) {
+                $article['like_count'] = isset($like_key_value_lists[$article->id]) ? $like_key_value_lists[$article->id] : 0;
+                $article['hate_count'] = isset($hate_key_value_lists[$article->id]) ? $hate_key_value_lists[$article->id] : 0;
+                $article['interactive_count'] = isset($interactive_key_value_lists[$article->id]) ? $interactive_key_value_lists[$article->id] : 0;
+                $article['comment_count'] = isset($comment_key_value_lists[$article->id]) ? $comment_key_value_lists[$article->id] : 0;
+                $article['read_count'] = isset($read_key_value_lists[$article->id]) ? $read_key_value_lists[$article->id] : 0;
+
+                $resultData['lists'][$index] = $article;
+            }
+        }
         $resultData['options']['categories'] = CategoryRepository::getInstance()->getListsByDictText('article_category');
         return [
             'status'  => Parent::SUCCESS_STATUS,
