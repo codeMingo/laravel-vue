@@ -15,7 +15,7 @@
                         <span>作者：<strong>{{article_data.auther}}</strong></span>
                         <span>发表时间：<strong>{{article_data.created_at}}</strong></span>
                         <span>阅读量：<strong>{{article_data.read_count}}</strong></span>
-                        <span>评论：<strong>{{article_data.comments | getCount}}</strong></span>
+                        <span>评论：<strong>{{article_comment_pagination.total}}</strong></span>
                         <span>点赞：<strong>{{article_data.like_count}}</strong></span>
                     </p>
                     <div class=" ql-container ql-snow">
@@ -46,10 +46,10 @@
                         <div class="article-advertise">
                         </div>
                     </div>
-                    <h2 class="sidebar-title">文章评论 （<span>{{article_data.comments | getCount}}</span>条）</h2>
+                    <h2 class="sidebar-title">文章评论 （<span>{{article_comment_pagination.total}}</span>条）</h2>
                     <div class="interactive-box comment-list">
                         <div class="interactive-list">
-                            <div class="interactive-detail" v-for="(item, index) in article_data.comments">
+                            <div class="interactive-detail" v-for="(item, index) in article_comments">
                                 <div class="user-face"><a href="javascript:;"><img :src="item.user.face" /></a></div>
                                 <div class="interactive-word">
                                     <p class="user-name"><a href="javascript:;">{{item.user.username}}</a><span>发表时间：{{item.created_at}}</span></p>
@@ -78,6 +78,10 @@
                                 </div>
                             </div>
                             <p style="clear:both;"></p>
+                        </div>
+                        <div class="page-box">
+                            <el-pagination @current-change="changeCurrentPage" :current-page.sync="article_comment_pagination.current_page" :page-size="article_comment_pagination.per_page" layout="total, prev, pager, next" :total="article_comment_pagination.total">
+                            </el-pagination>
                         </div>
                     </div>
                     <h2 class="sidebar-title">我要评论</h2>
@@ -246,6 +250,12 @@ export default {
     data() {
         return {
             article_data: {},
+            article_comments: {},
+            article_comment_pagination: {
+                per_page: 0,
+                total: 0,
+                current_page: 1
+            },
             article_id: this.$route.params.id,
             prev_article: '',
             next_article: '',
@@ -282,6 +292,7 @@ export default {
     },
     mounted() {
         this.getList();
+        this.getCommentLists();
     },
     methods: {
         getList() {
@@ -324,6 +335,9 @@ export default {
                                 return false;
                             }
                             _this.$message.success(message);
+                            if (data.list) {
+                                _this.article_comments[_this.article_comments.length] = data.list;
+                            }
                             Vue.resetForm(_this.comment_form);
                         }).catch(response => {
                             _this.$message({
@@ -348,9 +362,9 @@ export default {
                         }
                         _this.$message.success(message);
                         if (data.list) {
-                            for (let i = 0; i < _this.article_data.comments.length; i++) {
-                                if (_this.article_data.comments[i].id === data.list.parent_id) {
-                                    _this.article_data.comments[i]['response'][_this.article_data.comments[i]['response'].length] = data.list;
+                            for (let i = 0; i < _this.article_comments.length; i++) {
+                                if (_this.article_comments[i].id === data.list.parent_id) {
+                                    _this.article_comments[i]['response'][_this.article_comments[i]['response'].length] = data.list;
                                 }
                             }
                         }
@@ -372,7 +386,7 @@ export default {
                     }
                     _this.$message.success(message);
                     if (data.list) {
-                        _this.article_data.comments[_this.article_data.comments.length] = data.list;
+                        _this.article_comments[_this.article_comments.length] = data.list;
                     }
                     Vue.resetForm(_this.comment_form);
                 }).catch(response => {
@@ -415,6 +429,20 @@ export default {
         showResponse(item) {
             let flag = item.show_response ? false : true;
             this.$set(item, 'show_response', flag);
+        },
+        getCommentLists() {
+            let _this = this;
+            axios.get('/article/comment-lists/' + _this.article_id + '?page=' + _this.article_comment_pagination.current_page).then(response => {
+                let { status, data, message } = response.data;
+                _this.article_comments = data.lists.data;
+                _this.article_comment_pagination.per_page = parseInt(data.lists.per_page);
+                _this.article_comment_pagination.current_page = parseInt(data.lists.current_page);
+                _this.article_comment_pagination.total = parseInt(data.lists.total);
+            });
+        },
+        changeCurrentPage(val) {
+            this.article_comment_pagination.current_page = val;
+            this.getCommentLists();
         }
     }
 }

@@ -21,7 +21,7 @@ class CreateAdminsTable extends Migration
             $table->string('password', 100)->comment('密码');
             $table->integer('permission_id')->comment('权限id');
             $table->text('permission_include')->nullable()->comment('权限节点,空表示未自定义权限');
-            $table->char('last_login_ip', 15)->default(0)->comment('最后登录ip');
+            $table->string('last_login_ip', 15)->default('')->comment('最后登录ip');
             $table->timestamp('last_login_time')->nullable()->comment('最后登录时间');
             $table->tinyInteger('status')->default(1)->comment('状态(0|1)');
             $table->rememberToken();

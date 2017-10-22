@@ -22,6 +22,7 @@ Route::group(['namespace' => 'Frontend'], function () {
     // 文章模块
     Route::get('/article/lists', 'ArticleController@lists');
     Route::get('/article/detail/{article_id}', 'ArticleController@detail');
+    Route::get('/article/comment-lists/{article_id}', 'ArticleController@commentLists');
 
 
     // 需登录后操作的模块

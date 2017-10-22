@@ -16,17 +16,24 @@ class ArticleController extends BaseController
     }
 
     // 文章详情
-    public function detail($id)
+    public function detail($article_id)
     {
-        $result = ArticleRepository::getInstance()->detail($id);
+        $result = ArticleRepository::getInstance()->detail($article_id);
+        return response()->json($result);
+    }
+
+    // 获取评论列表
+    public function commentLists($article_id)
+    {
+        $result = ArticleRepository::getInstance()->commentLists($article_id);
         return response()->json($result);
     }
 
     // 点赞 or 反对 or 收藏
-    public function interactive(Request $request, $id)
+    public function interactive(Request $request, $article_id)
     {
         $input = $request->input('data');
-        $result = ArticleRepository::getInstance()->interactive($input, $id);
+        $result = ArticleRepository::getInstance()->interactive($input, $article_id);
         return response()->json($result);
     }
 
