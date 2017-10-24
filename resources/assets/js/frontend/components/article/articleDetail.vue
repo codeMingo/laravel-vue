@@ -6,7 +6,8 @@
                     <el-breadcrumb separator="/">
                         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
                         <el-breadcrumb-item :to="{ path: '/article/index' }">技术篇</el-breadcrumb-item>
-                        <el-breadcrumb-item>每周推送 Laravel 最新资讯</el-breadcrumb-item>
+                        <el-breadcrumb-item v-if="article_data.category" :to="{ path: '/article/index/' + article_data.category.id }">{{article_data.category.category_name}}</el-breadcrumb-item>
+                        <el-breadcrumb-item>{{article_data.title}}</el-breadcrumb-item>
                     </el-breadcrumb>
                 </div>
                 <div class="content-box article-detail-box">
@@ -18,10 +19,15 @@
                         <span>评论：<strong>{{article_comment_pagination.total}}</strong></span>
                         <span>点赞：<strong>{{article_data.like_count}}</strong></span>
                     </p>
-                    <div class=" ql-container ql-snow">
-                        <div class="article-content ql-editor" v-html="article_data.content"></div>
+                    <div class="ql-container ql-snow">
+                        <div class="article-content ql-editor" v-html="article_data.content" style="padding: 0;"></div>
                     </div>
-
+                    <div class="article-label">
+                        <p>
+                            <strong>标签：</strong>
+                            <a href="javascript:;" v-for="item in article_data.tag_lists">{{item.tag_name}}</a>
+                        </p>
+                    </div>
                     <div class="article-interactive">
                         <div class="article-more">
                             <div class="article-prev">
@@ -156,7 +162,6 @@
     </div>
 </template>
 <style rel="stylesheet/scss" lang="scss" scoped>
-
 .article-detail-container {
     .article-detail-box {
         padding-right: 20px;
@@ -185,6 +190,24 @@
             word-wrap: break-word;
             img {
                 max-width: 100%;
+            }
+        }
+        .article-label {
+            font-size: 13px;
+            p {
+                strong {}
+                a {
+                    display: inline-block;
+                    padding: 0.3em 0.9em;
+                    margin: 0 0.5em 0.5em 0;
+                    white-space: nowrap;
+                    background-color: #f1f8ff;
+                    border-radius: 3px;
+                    color: #0366d6;
+                }
+                a:hover {
+                    background-color: #ddeeff;
+                }
             }
         }
         .article-interactive {
@@ -299,7 +322,7 @@ export default {
             let _this = this;
             axios.get('/article/detail/' + _this.article_id).then(response => {
                 let { status, data, message } = response.data;
-                _this.article_data = data.data;
+                _this.article_data = data.list;
                 _this.article_options = data.options;
                 _this.prev_article = data.prev_article;
                 _this.next_article = data.next_article;

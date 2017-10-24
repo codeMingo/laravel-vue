@@ -25,6 +25,12 @@ class Article extends Model
         return $this->hasMany('App\Models\ArticleInteractive');
     }
 
+    // 关联菜单表
+    public function category()
+    {
+        return $this->hasOne('App\Models\Category', 'id', 'category_id');
+    }
+
     /**
      * 文章列表
      * @param  Array $searchForm [catetory_id, title]

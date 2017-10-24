@@ -21,6 +21,7 @@ html,
 body {
     height: 100%;
     background: #F9FAFC;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 li {
@@ -150,7 +151,6 @@ a {
                     a {
                         color: #406599;
                         font-size: 13px;
-
                     }
                 }
             }
@@ -234,9 +234,11 @@ a {
 .quill-editor {
     border: 1px solid #ccc;
 }
+
 .ql-container.ql-snow {
     border: none !important;
 }
+
 .interactive-content {
     padding: 0 !important;
 }

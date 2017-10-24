@@ -23,7 +23,7 @@ class CreateArticlesTable extends Migration
             $table->string('thumbnail')->default('')->comment('缩略图');
             $table->string('auther', 20)->default('')->comment('作者');
             $table->mediumText('content')->comment('内容');
-            $table->string('tag_include')->default('')->comment('标签');
+            $table->string('tag_ids')->default('')->comment('标签');
             $table->string('source')->default('')->comment('来源');
             $table->tinyInteger('recommend')->default(0)->comment('推荐(0|1)');
             $table->integer('is_audit')->default(0)->comment('审核(select)');
