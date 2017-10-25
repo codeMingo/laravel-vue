@@ -23,17 +23,17 @@ class ArticleRepository extends BaseRepository
     {
         $resultData['lists']                 = $this->getArticleLists($input['search_form']);
         if (!empty($resultData['lists'])) {
-            $article_ids = [];
+            $article_id_arr = [];
             foreach ($resultData['lists'] as $index => $article) {
-                $article_ids[] = $article->id;
+                $article_id_arr[] = $article->id;
             }
 
             // 获取 like hate collect 各自的总数
-            $interactive_key_count = $this->interactiveCount(['like', 'hate', 'collect'], $article_ids);
+            $interactive_key_count = $this->interactiveCount(['like', 'hate', 'collect'], $article_id_arr);
 
             $comment_key_value_lists  = $read_key_value_lists = [];
             // 获取评论总数
-            $comment_lists = ArticleComment::whereIn('article_id', $article_ids)->get();
+            $comment_lists = ArticleComment::whereIn('article_id', $article_id_arr)->get();
             if (!empty($comment_lists)) {
                 foreach ($comment_lists as $index => $comment) {
                     if (isset($comment_key_value_lists[$comment->article_id])) {
@@ -45,21 +45,12 @@ class ArticleRepository extends BaseRepository
             }
 
             // 获取阅读总数
-            $read_lists = ArticleRead::whereIn('article_id', $article_ids)->get();
-            if (!empty($read_lists)) {
-                foreach ($read_lists as $index => $read) {
-                    if (isset($read_key_value_lists[$read->article_id])) {
-                        $read_key_value_lists[$read->article_id] ++;
-                    } else {
-                        $read_key_value_lists[$read->article_id] = 1;
-                    }
-                }
-            }
+            $read_count_lists = $this->readCount($article_id_arr);
 
             foreach ($resultData['lists'] as $index => $article) {
                 $article[] = isset($interactive_key_count[$article->id]) ? $interactive_key_count[$article->id] : [];
                 $article['comment_count'] = isset($comment_key_value_lists[$article->id]) ? $comment_key_value_lists[$article->id] : 0;
-                $article['read_count'] = isset($read_key_value_lists[$article->id]) ? $read_key_value_lists[$article->id] : 0;
+                $article['read_count'] = isset($read_count_lists[$article->id]) ? $read_count_lists[$article->id] : 0;
                 $resultData['lists'][$index] = $article;
             }
         }
@@ -96,27 +87,41 @@ class ArticleRepository extends BaseRepository
             'ip_address' => getClientIp(),
         ]);
 
-        // 互动
-        $resultData['list']['like_count'] = ArticleInteract::where('article_id', $article_id)->where('like', 1)->count();
-        $resultData['list']['hate_count'] = ArticleInteract::where('article_id', $article_id)->where('hate', 1)->count();
-        $resultData['list']['read_count'] = ArticleRead::where('article_id', $article_id)->count();
-
         // 上一篇文章
         $prev_article = Article::where('id', '<', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'desc')->first();
-        if (!empty($prev_article)) {
-            $prev_article['like_count']    = ArticleInteract::where('article_id', $prev_article->id)->where('like', 1)->count();
-            $prev_article['hate_count']    = ArticleInteract::where('article_id', $prev_article->id)->where('hate', 1)->count();
-            $prev_article['read_count']    = ArticleRead::where('article_id', $prev_article->id)->count();
-            $prev_article['comment_count'] = ArticleComment::where('article_id', $prev_article->id)->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->count();
-        }
-
         // 下一篇文章
         $next_article = Article::where('id', '>', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'asc')->first();
+
+        $article_id_arr = [];
+        if (!empty($prev_article) {
+            $article_id_arr[] = $prev_article->id;
+        }
+        if (!empty($next_article) {
+            $article_id_arr[] = $next_article->id;
+        }
+        $article_id_arr[] = $article_id;
+        // 获取各自互动总数
+        $interactive_count_lists = $this->interactiveCount(['like', 'hate', 'collect'], $article_id_arr);
+        // 获取各自阅读总数
+        $read_count_lists = $this->readCount($article_id_arr);
+        // 获取各自评论总数
+        $comment_count_lists = $this->commentCount($article_id_arr);
+
+        // 该篇文章的 hate like collect read 总数
+        $resultData['list'][] = (!empty($interactive_count_lists) && isset($interactive_count_lists[$article_id])) ? $interactive_count_lists[$prev_article->id] : [];
+        $resultData['list']['read_count'] = (!empty($read_count_lists) && isset($read_count_lists[$article_id])) ? $read_count_lists[$article_id] : 0;
+
+        if (!empty($prev_article)) {
+            $prev_article[]    = (!empty($interactive_count_lists) && isset($interactive_count_lists[$prev_article->id])) ? $interactive_count_lists[$prev_article->id] : [];
+            $prev_article['read_count']    = (!empty($read_count_lists) && isset($read_count_lists[$prev_article->id])) ? $read_count_lists[$prev_article->id] : 0;
+            $prev_article['comment_count'] = (!empty($comment_count_lists) && isset($comment_count_lists[$prev_article->id])) ? $comment_count_lists[$prev_article->id] : 0;
+        }
+
+
         if (!empty($next_article)) {
-            $next_article['like_count']    = ArticleInteract::where('article_id', $next_article->id)->where('like', 1)->count();
-            $next_article['hate_count']    = ArticleInteract::where('article_id', $next_article->id)->where('hate', 1)->count();
-            $next_article['read_count']    = ArticleRead::where('article_id', $next_article->id)->count();
-            $next_article['comment_count'] = ArticleComment::where('article_id', $next_article->id)->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->count();
+            $next_article[]    = (!empty($interactive_count_lists) && isset($interactive_count_lists[$next_article->id])) ? $interactive_count_lists[$next_article->id] : [];
+            $next_article['read_count']    = (!empty($read_count_lists) && isset($read_count_lists[$next_article->id])) ? $read_count_lists[$next_article->id] : 0;
+            $next_article['comment_count'] = (!empty($comment_count_lists) && isset($comment_count_lists[$next_article->id])) ? $comment_count_lists[$next_article->id] : 0;
         }
 
         $resultData['prev_article'] = !empty($prev_article) ? $prev_article : '';
@@ -337,28 +342,91 @@ class ArticleRepository extends BaseRepository
     /**
      * 获取 like hate collect 分别的总数
      * @param  Array $type_arr       [like, hate, collect] 获取类别
-     * @param  Array $article_id_arr
+     * @param  Array OR String $article_ids 文章id，数组或字符串
      * @return Array                 [article_id => [like => ,hate=> ,collect=>]]
      */
-    public function interactiveCount($type_arr, $article_id_arr)
+    public function interactiveCount($type_arr, $article_ids)
     {
         $result = [];
-        $interactive_lists = ArticleInteract::select('id')->whereIn('article_id', $article_id_arr)->where('status', 1)->get();
-        if (empty($interactive_lists)) {
+        $type_arr[] = 'article_id';
+        $query = ArticleInteract::select($type_arr)->where('status', 1);
+        if (is_array($article_ids)) {
+            $query = $query->whereIn('article_id', $article_ids);
+        } else {
+            $query = $query->where('article_id', $article_ids)
+        }
+        $count_lists = $query->get();
+        if (empty($count_lists)) {
             return $result;
         }
-        foreach ($interactive_lists as $index => $interactive) {
+        foreach ($count_lists as $index => $item) {
             foreach ($type_arr as $type) {
-                if ($interactive->$type) {
-                    if (!isset($result[$interactive->article_id])) {
-                        $result[$interactive->article_id] = [];
+                if ($item->$type) {
+                    if (!isset($result[$item->article_id])) {
+                        $result[$item->article_id] = [];
                     }
-                    if (isset($result[$interactive->article_id][$type . '_count'])) {
-                        $result[$interactive->article_id][$type . '_count'] += 1;
+                    if (isset($result[$item->article_id][$type . '_count'])) {
+                        $result[$item->article_id][$type . '_count'] += 1;
                     } else {
-                        $result[$interactive->article_id][$type . '_count'] = 1;
+                        $result[$item->article_id][$type . '_count'] = 1;
                     }
                 }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 文章阅读总数
+     * @param  Array OR String $article_ids 文章的id，可传数组或字符串
+     * @return Array              [[article_id => count], [], []]
+     */
+    public function readCount($article_ids)
+    {
+        $result = [];
+        $query = ArticleRead::select(['article_id']);
+        if (is_array($article_ids)) {
+            $query = $query->whereIn('article_id', $article_ids);
+        } else {
+            $query = $query->where('article_id', $article_ids)
+        }
+        $count_lists = $query->get();
+        if (empty($count_lists)) {
+            return $result;
+        }
+        foreach ($count_lists as $index => $item) {
+            if (isset($result[$item->article_id])) {
+                $result[$item->article_id] += 1;
+            } else {
+                $result[$item->article_id] = 1;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 文章评论总数
+     * @param  Array OR String $article_ids 文章的id，可传数组或字符串
+     * @return Array              [[article_id => count], [], []]
+     */
+    public function commentCount($article_ids)
+    {
+        $result = [];
+        $query = ArticleComment::select(['article_id'])->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0);
+        if (is_array($article_ids)) {
+            $query = $query->whereIn('article_id', $article_ids);
+        } else {
+            $query = $query->where('article_id', $article_ids)
+        }
+        $count_lists = $query->get();
+        if (empty($count_lists)) {
+            return $result;
+        }
+        foreach ($count_lists as $index => $item) {
+            if (isset($result[$item->article_id])) {
+                $result[$item->article_id] += 1;
+            } else {
+                $result[$item->article_id] = 1;
             }
         }
         return $result;
