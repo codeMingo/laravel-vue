@@ -21,23 +21,23 @@ class ArticleRepository extends BaseRepository
      */
     public function lists($input)
     {
-        $resultData['lists']                 = $this->getArticleLists($input['search_form']);
+        $resultData['lists'] = $this->getArticleLists($input['search_form']);
         if (!empty($resultData['lists'])) {
             $article_id_arr = [];
-            foreach ($resultData['lists'] as $index => $article) {
-                $article_id_arr[] = $article->id;
+            foreach ($resultData['lists']['data'] as $index => $article) {
+                $article_id_arr[] = $article['id'];
             }
 
             // 获取 like hate collect 各自的总数
             $interactive_key_count = $this->interactiveCount(['like', 'hate', 'collect'], $article_id_arr);
 
-            $comment_key_value_lists  = $read_key_value_lists = [];
+            $comment_key_value_lists = $read_key_value_lists = [];
             // 获取评论总数
             $comment_lists = ArticleComment::whereIn('article_id', $article_id_arr)->get();
             if (!empty($comment_lists)) {
                 foreach ($comment_lists as $index => $comment) {
                     if (isset($comment_key_value_lists[$comment->article_id])) {
-                        $comment_key_value_lists[$comment->article_id] ++;
+                        $comment_key_value_lists[$comment->article_id]++;
                     } else {
                         $comment_key_value_lists[$comment->article_id] = 1;
                     }
@@ -47,11 +47,13 @@ class ArticleRepository extends BaseRepository
             // 获取阅读总数
             $read_count_lists = $this->readCount($article_id_arr);
 
-            foreach ($resultData['lists'] as $index => $article) {
-                $article[] = isset($interactive_key_count[$article->id]) ? $interactive_key_count[$article->id] : [];
-                $article['comment_count'] = isset($comment_key_value_lists[$article->id]) ? $comment_key_value_lists[$article->id] : 0;
-                $article['read_count'] = isset($read_count_lists[$article->id]) ? $read_count_lists[$article->id] : 0;
-                $resultData['lists'][$index] = $article;
+            foreach ($resultData['lists']['data'] as $index => $article) {
+                $article['like_count']                           = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['like_count']) ? $interactive_key_count[$article['id']]['like_count'] : 0;
+                $article['hate_count']                           = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['hate_count']) ? $interactive_key_count[$article['id']]['hate_count'] : 0;
+                $article['collect_count']                           = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['collect_count']) ? $interactive_key_count[$article['id']]['collect_count'] : 0;
+                $article['comment_count']            = isset($comment_key_value_lists[$article['id']]) ? $comment_key_value_lists[$article['id']] : 0;
+                $article['read_count']               = isset($read_count_lists[$article['id']]) ? $read_count_lists[$article['id']] : 0;
+                $resultData['lists']['data'][$index] = $article;
             }
         }
         $resultData['options']['categories'] = CategoryRepository::getInstance()->getListsByDictText('article_category');
@@ -70,7 +72,7 @@ class ArticleRepository extends BaseRepository
     public function detail($article_id)
     {
         $dictListsValue     = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $resultData['list'] = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->with('category')->first()->toArray();
+        $resultData['list'] = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->with('category')->first();
         if (empty($resultData['list'])) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -93,10 +95,10 @@ class ArticleRepository extends BaseRepository
         $next_article = Article::where('id', '>', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'asc')->first();
 
         $article_id_arr = [];
-        if (!empty($prev_article) {
+        if (!empty($prev_article)) {
             $article_id_arr[] = $prev_article->id;
         }
-        if (!empty($next_article) {
+        if (!empty($next_article)) {
             $article_id_arr[] = $next_article->id;
         }
         $article_id_arr[] = $article_id;
@@ -106,40 +108,47 @@ class ArticleRepository extends BaseRepository
         $read_count_lists = $this->readCount($article_id_arr);
         // 获取各自评论总数
         $comment_count_lists = $this->commentCount($article_id_arr);
-
         // 该篇文章的 hate like collect read 总数
-        $resultData['list'][] = (!empty($interactive_count_lists) && isset($interactive_count_lists[$article_id])) ? $interactive_count_lists[$prev_article->id] : [];
-        $resultData['list']['read_count'] = (!empty($read_count_lists) && isset($read_count_lists[$article_id])) ? $read_count_lists[$article_id] : 0;
+        if (isset($interactive_count_lists[$article_id])) {
+            $resultData['list']->like_count = isset($interactive_count_lists[$article_id]['like_count']) ? $interactive_count_lists[$article_id]['like_count'] : 0;
+            $resultData['list']->hate_count = isset($interactive_count_lists[$article_id]['hate_count']) ? $interactive_count_lists[$article_id]['hate_count'] : 0;
+        }
+        $resultData['list']->read_count = (!empty($read_count_lists) && isset($read_count_lists[$article_id])) ? $read_count_lists[$article_id] : 0;
 
         if (!empty($prev_article)) {
-            $prev_article[]    = (!empty($interactive_count_lists) && isset($interactive_count_lists[$prev_article->id])) ? $interactive_count_lists[$prev_article->id] : [];
-            $prev_article['read_count']    = (!empty($read_count_lists) && isset($read_count_lists[$prev_article->id])) ? $read_count_lists[$prev_article->id] : 0;
-            $prev_article['comment_count'] = (!empty($comment_count_lists) && isset($comment_count_lists[$prev_article->id])) ? $comment_count_lists[$prev_article->id] : 0;
+            if (isset($interactive_count_lists[$prev_article->id])) {
+                $prev_article->like_count = isset($interactive_count_lists[$prev_article->id]['like_count']) ? $interactive_count_lists[$prev_article->id]['like_count'] : 0;
+                $prev_article->hate_count = isset($interactive_count_lists[$prev_article->id]['hate_count']) ? $interactive_count_lists[$prev_article->id]['hate_count'] : 0;
+            }
+            $prev_article->read_count    = (!empty($read_count_lists) && isset($read_count_lists[$prev_article->id])) ? $read_count_lists[$prev_article->id] : 0;
+            $prev_article->comment_count = (!empty($comment_count_lists) && isset($comment_count_lists[$prev_article->id])) ? $comment_count_lists[$prev_article->id] : 0;
         }
 
-
         if (!empty($next_article)) {
-            $next_article[]    = (!empty($interactive_count_lists) && isset($interactive_count_lists[$next_article->id])) ? $interactive_count_lists[$next_article->id] : [];
-            $next_article['read_count']    = (!empty($read_count_lists) && isset($read_count_lists[$next_article->id])) ? $read_count_lists[$next_article->id] : 0;
-            $next_article['comment_count'] = (!empty($comment_count_lists) && isset($comment_count_lists[$next_article->id])) ? $comment_count_lists[$next_article->id] : 0;
+            if (isset($interactive_count_lists[$next_article->id])) {
+                $next_article->like_count = isset($interactive_count_lists[$next_article->id]['like_count']) ? $interactive_count_lists[$next_article->id]['like_count'] : 0;
+                $next_article->hate_count = isset($interactive_count_lists[$next_article->id]['hate_count']) ? $interactive_count_lists[$next_article->id]['hate_count'] : 0;
+            }
+            $next_article->read_count    = (!empty($read_count_lists) && isset($read_count_lists[$next_article->id])) ? $read_count_lists[$next_article->id] : 0;
+            $next_article->comment_count = (!empty($comment_count_lists) && isset($comment_count_lists[$next_article->id])) ? $comment_count_lists[$next_article->id] : 0;
         }
 
         $resultData['prev_article'] = !empty($prev_article) ? $prev_article : '';
         $resultData['next_article'] = !empty($next_article) ? $next_article : '';
 
         // 文章标签
-        if ($resultData['list']['tag_ids']) {
-            $tag_id_arr = explode(',', $resultData['list']['tag_ids']);
-            $tag_lists = DB::table('tags')->whereIn('id', $tag_id_arr)->where('status', 1)->get();
+        if (!empty($resultData['list']->tag_ids)) {
+            $tag_id_arr   = explode(',', $resultData['list']->tag_ids);
+            $tag_lists    = DB::table('tags')->whereIn('id', $tag_id_arr)->where('status', 1)->get();
             $temp_tag_arr = [];
             if (!empty($tag_lists)) {
                 foreach ($tag_lists as $key => $item) {
                     $temp_tag_arr[] = [
-                        'id' => $item->id,
-                        'tag_name' => $item->tag_name
+                        'id'       => $item->id,
+                        'tag_name' => $item->tag_name,
                     ];
                 }
-                $resultData['list']['tag_lists'] = $temp_tag_arr;
+                $resultData['list']->tag_lists = $temp_tag_arr;
             }
         }
 
@@ -157,8 +166,8 @@ class ArticleRepository extends BaseRepository
      */
     public function commentLists($article_id)
     {
-        $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $resultData['lists'] =  ArticleComment::where('article_id', $article_id)->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
+        $dictListsValue      = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
+        $resultData['lists'] = ArticleComment::where('article_id', $article_id)->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
 
         if (!empty($resultData['lists'])) {
             $comment_ids = [];
@@ -200,28 +209,32 @@ class ArticleRepository extends BaseRepository
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '发生未知错误',
+                'message' => '操作失败，发生未知错误',
             ];
         }
-        $articleList = Article::where('id', $article_id)->where('status', 1)->first();
+        $dictListsValue      = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
+        $articleList = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->first();
         if (empty($articleList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '不存在这篇文章',
+                'message' => '操作失败，不存在这篇文章',
             ];
         }
-        $dataList = ArticleInteract::where('article_id', $article_id)->where($type, 1)->first();
-        if (empty($dataList)) {
-            $user_id = Auth::guard('web')->id();
-            $result  = ArticleInteract::create([
-                'user_id'    => $user_id,
-                'article_id' => $article_id,
-                $type        => 1,
-            ]);
-        } else {
-            $result = ArticleInteract::where('article_id', $article_id)->update($type, 0);
+        $user_id = Auth::guard('web')->id();
+        $dataList = ArticleInteract::where('article_id', $article_id)->where('user_id', $user_id)->where($type, 1)->first();
+        if (!empty($dataList)) {
+            return [
+                'status'  => Parent::ERROR_STATUS,
+                'data'    => [],
+                'message' => '操作失败，已经点过赞了',
+            ];
         }
+        $result  = ArticleInteract::create([
+            'user_id'    => $user_id,
+            'article_id' => $article_id,
+            $type        => 1,
+        ]);
         if (!$result) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -347,13 +360,13 @@ class ArticleRepository extends BaseRepository
      */
     public function interactiveCount($type_arr, $article_ids)
     {
-        $result = [];
+        $result     = [];
         $type_arr[] = 'article_id';
-        $query = ArticleInteract::select($type_arr)->where('status', 1);
+        $query      = ArticleInteract::select($type_arr);
         if (is_array($article_ids)) {
             $query = $query->whereIn('article_id', $article_ids);
         } else {
-            $query = $query->where('article_id', $article_ids)
+            $query = $query->where('article_id', $article_ids);
         }
         $count_lists = $query->get();
         if (empty($count_lists)) {
@@ -370,6 +383,7 @@ class ArticleRepository extends BaseRepository
                     } else {
                         $result[$item->article_id][$type . '_count'] = 1;
                     }
+                    break;
                 }
             }
         }
@@ -384,11 +398,11 @@ class ArticleRepository extends BaseRepository
     public function readCount($article_ids)
     {
         $result = [];
-        $query = ArticleRead::select(['article_id']);
+        $query  = ArticleRead::select(['article_id']);
         if (is_array($article_ids)) {
             $query = $query->whereIn('article_id', $article_ids);
         } else {
-            $query = $query->where('article_id', $article_ids)
+            $query = $query->where('article_id', $article_ids);
         }
         $count_lists = $query->get();
         if (empty($count_lists)) {
@@ -411,12 +425,13 @@ class ArticleRepository extends BaseRepository
      */
     public function commentCount($article_ids)
     {
-        $result = [];
-        $query = ArticleComment::select(['article_id'])->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0);
+        $result         = [];
+        $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['audit_pass']);
+        $query          = ArticleComment::select(['article_id'])->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0);
         if (is_array($article_ids)) {
             $query = $query->whereIn('article_id', $article_ids);
         } else {
-            $query = $query->where('article_id', $article_ids)
+            $query = $query->where('article_id', $article_ids);
         }
         $count_lists = $query->get();
         if (empty($count_lists)) {
@@ -624,7 +639,7 @@ class ArticleRepository extends BaseRepository
         if (isset($search_form['tag_include']) && is_array($search_form['tag_include']) && !empty($search_form['tag_include'])) {
             $query->whereIn('tag_include', $search_form['tag_include']);
         }
-        return $query->paginate($page_size);
+        return $query->paginate($page_size)->toArray();
     }
 
     /**

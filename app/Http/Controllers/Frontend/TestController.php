@@ -11,6 +11,13 @@ class TestController extends Controller
     // 测试
     public function index()
     {
+        $arr = [
+            'key1' => 'value1',
+            'key2' => 'value2',
+        ];
+        object($arr, ['key3' => 'value3']);
+        print_r($arr);
+        exit();
         $auth   = new Auth(config('blog.qiniuAccessKey'), config('blog.qiniuSecretKey'));
         $bucket = 'linlm1994';
         // 生成上传Token

@@ -20,7 +20,7 @@
                         <div class="article-word">
                             <h2 class='article-title'>
                                 <el-tag type="primary">{{item.category_id | formatByOptions(article_options.categories, 'id', 'category_name')}}</el-tag>
-                                <router-link :to="{ path: '/article/detail/' + item.id }" target="_blank">{{item.title}}</router-link>
+                                <router-link :to="{ path: '/article/detail/' + item.id }">{{item.title}}</router-link>
                             </h2>
                             <div class='article-right'>
                                 <p>
@@ -33,9 +33,9 @@
                             </div>
                             <div class='article-interactive'>
                                 <p>
-                                    <a href="javascript:;"><i class='fa fa-thumbs-o-up'></i><span>{{item.like_count}}</span></a>
-                                    <a href="javascript:;"><i class='fa fa-commenting-o'></i><span>{{item.comment_count}}</span></a>
-                                    <a href="javascript:;"><i class='fa fa-eye'></i><span>{{item.read_count}}</span></a>
+                                    <a  href="javascript:;" @click="like(item.id, 'like')">赞：<span>{{item.like_count}}</span></a>
+                                    <router-link :to="{ path: '/article/detail/' + item.id }">评论：<span>{{item.comment_count}}</span></router-link>
+                                    <router-link :to="{ path: '/article/detail/' + item.id }">阅读：<span>{{item.read_count}}</span></router-link>
                                 </p>
                             </div>
                         </div>
@@ -122,6 +122,7 @@
             box-shadow: 3px 5px 3px #fafafa;
             border-radius: 3px;
             float: left;
+            position: relative;
             margin-bottom: 20px;
             .article-picture {
                 width: 20%;
@@ -162,10 +163,16 @@
                 }
                 .article-interactive {
                     text-align: right;
+                    position: absolute;
+                    bottom: 5px;
+                    right: 10px;
                     a {
-                        color: #999;
                         font-size: 13px;
                         margin-right: 10px;
+                        color: #4371BB;
+                    }
+                    a:hover {
+                        text-decoration: underline;
                     }
                 }
             }
@@ -216,6 +223,30 @@ export default {
         changeCurrentPage(val) {
             this.article_pagination.current_page = val;
             this.getLists();
+        },
+        like(article_id, type) {
+            let _this = this;
+            axios.put('/article/interactive/' + article_id, {'data': {'type': type}}).then(response => {
+                let { status, data, message } = response.data;
+                if (!status) {
+                    _this.$message.error(message);
+                    return false;
+                }
+                _this.$message.success(message);
+                _this.article_data.forEach(function(item) {
+                    if (item.id == article_id) {
+                        if (type == 'like') {
+                            item.like_count ++;
+                        } else if (type == 'hate') {
+                            item.hate_count ++;
+                        } else if (type == 'collect') {
+                            item.collect_count ++;
+                        }
+                        return false;
+                    }
+                    console.log(1);
+                });
+            });
         }
     }
 }
