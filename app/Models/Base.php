@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Base extends Model
 {
+
     /**
      * 查询
      * @param  \Illuminate\Database\Eloquent\Builder $query
@@ -26,6 +27,10 @@ class Base extends Model
             'not_in'      => 'whereNotIn',
         ];
         foreach ($where_arr as $key => $item) {
+            if (is_string($item)) {
+                $query->where($key, $item);
+                continue;
+            }
             if (!isset($item['value'])) {
                 continue;
             }

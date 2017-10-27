@@ -2,15 +2,29 @@
 namespace App\Repositories\Frontend;
 
 use App\Models\Dict;
-use Illuminate\Support\Facades\Log;
 use App\Models\UserOperateRecord;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 abstract class BaseRepository
 {
     protected static $instance;
-    protected $dicts     = []; //字典
-    const ERROR_STATUS   = 0; //失败状态
-    const SUCCESS_STATUS = 1; //成功状态
+    const ERROR_STATUS   = 0; // 失败状态
+    const SUCCESS_STATUS = 1; // 成功状态
+    protected $current_model; // Model类
+
+    /**
+     * Create a new __construct
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     *
+     * @return void
+     */
+    public function __construct(Model $model)
+    {
+        $this->current_model = $model;
+    }
 
     //获取实例化
     public static function getInstance()
@@ -20,6 +34,27 @@ abstract class BaseRepository
             self::$instance[$class] = new $class;
         }
         return self::$instance[$class];
+    }
+
+
+    /**
+     * 过滤参数
+     * @param  Array $params
+     * @return Array
+     */
+    public function parseParams($params)
+    {
+        if (empty($params)) {
+            return [];
+        }
+        $table_name = $this->current_model->->getTable();
+        $field_lists = Schema::getColumnListing($table_name);
+        foreach ($params as $key => $value) {
+            if (!in_array($key, $field_lists)) {
+                unset($params[$key]);
+            }
+        }
+        return $params;
     }
 
     /**
@@ -48,13 +83,13 @@ abstract class BaseRepository
     {
         try {
             UserOperateRecord::create([
-            'admin_id'   => Auth::guard('web')->id(),
-            'action'     => $input['action'],
-            'params'     => json_encode($input['params']),
-            'text'       => $input['text'],
-            'ip_address' => getClientIp(),
-            'status'     => $input['status']
-        ]);
+                'admin_id'   => Auth::guard('web')->id(),
+                'action'     => $input['action'],
+                'params'     => json_encode($input['params']),
+                'text'       => $input['text'],
+                'ip_address' => getClientIp(),
+                'status'     => $input['status'],
+            ]);
         } catch (Exception $e) {
             Log::info('RECORD FAIL：saveUserOperateRecord is error，params :' . json_encode($input));
         }

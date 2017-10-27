@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\DB;
 class ArticleRepository extends BaseRepository
 {
 
+    public function __construct(Article $article_model)
+    {
+        parent::__construct($article_model);
+    }
+
     /**
      * 文章列表
      * @param  Array $input [search_form]
@@ -72,7 +77,7 @@ class ArticleRepository extends BaseRepository
     public function detail($article_id)
     {
         $dictListsValue     = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $resultData['list'] = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->with('category')->first();
+        $resultData['list'] = $this->current_model->where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->with('category')->first();
         if (empty($resultData['list'])) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -90,9 +95,9 @@ class ArticleRepository extends BaseRepository
         ]);
 
         // 上一篇文章
-        $prev_article = Article::where('id', '<', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'desc')->first();
+        $prev_article = $this->current_model->where('id', '<', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'desc')->first();
         // 下一篇文章
-        $next_article = Article::where('id', '>', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'asc')->first();
+        $next_article = $this->current_model->where('id', '>', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'asc')->first();
 
         $article_id_arr = [];
         if (!empty($prev_article)) {
@@ -213,7 +218,7 @@ class ArticleRepository extends BaseRepository
             ];
         }
         $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $articleList    = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->first();
+        $articleList    = $this->current_model->where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->first();
         if (empty($articleList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -268,7 +273,7 @@ class ArticleRepository extends BaseRepository
             ];
         }
         $article_show_status_value = DB::table('dicts')->where('code', 'article_status')->where('text_en', 'article_is_show')->value('value');
-        $articleList               = Article::where('id', $article_id)->where('status', $article_show_status_value)->first();
+        $articleList               = $this->current_model->where('id', $article_id)->where('status', $article_show_status_value)->first();
         if (empty($articleList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -346,7 +351,7 @@ class ArticleRepository extends BaseRepository
                 'message' => '发生未知错误',
             ];
         }
-        $articleList = Article::where('id', $article_id)->where('status', 1)->first();
+        $articleList = $this->current_model->where('id', $article_id)->where('status', 1)->first();
         if (empty($articleList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -466,7 +471,7 @@ class ArticleRepository extends BaseRepository
     {
         $resultData = [];
         if (empty($input)) {
-            $resultData['lists'] = Article::where('recommend', 1)->where('status', 1)->get();
+            $resultData['lists'] = $this->current_model->where('recommend', 1)->where('status', 1)->get();
         } else {
             $type = isset($input['type']) ? strval($input['type']) : '';
             switch ($type) {
@@ -503,7 +508,7 @@ class ArticleRepository extends BaseRepository
      */
     public function hotLists($page_size)
     {
-        $articleLists = Article::withCount('interactives', function ($query) {
+        $articleLists = $this->current_model->withCount('interactives', function ($query) {
             $query->where('status', 1);
         })->sortBy('interactives_count')->paginate($page_size);
         return $articleLists;
@@ -515,7 +520,7 @@ class ArticleRepository extends BaseRepository
      */
     public function mostLikeLists()
     {
-        $articleLists = Article::withCount('interactives', function ($query) {
+        $articleLists = $this->current_model->withCount('interactives', function ($query) {
             $query->where('like', 1)->where('status', 1);
         })->sortBy('interactives_count')->paginate($page_size);
         return $articleLists;
@@ -527,7 +532,7 @@ class ArticleRepository extends BaseRepository
      */
     public function mostCollectLists()
     {
-        $articleLists = Article::withCount('interactives', function ($query) {
+        $articleLists = $this->current_model->withCount('interactives', function ($query) {
             $query->where('collect', 1)->where('status', 1);
         })->sortBy('interactives_count')->paginate($page_size);
         return $articleLists;
@@ -539,7 +544,7 @@ class ArticleRepository extends BaseRepository
      */
     public function mostCommentLists()
     {
-        $articleLists = Article::withCount('comments', function ($query) {
+        $articleLists = $this->current_model->withCount('comments', function ($query) {
             $query->where('status', 1);
         })->sortBy('comments_count')->paginate($page_size);
         return $articleLists;
@@ -551,7 +556,7 @@ class ArticleRepository extends BaseRepository
      */
     public function mostReadLists()
     {
-        $articleLists = Article::withCount('reads', function ($query) {
+        $articleLists = $this->current_model->withCount('reads', function ($query) {
             $query->where('status', 1);
         })->sortBy('reads_count')->paginate($page_size);
         return $articleLists;
@@ -610,7 +615,7 @@ class ArticleRepository extends BaseRepository
         $page_size              = $dictKeyValue['article_page_size'];
 
         if (empty($search_form)) {
-            return Article::where($where_params)->paginate($page_size);
+            return $this->current_model->where($where_params)->paginate($page_size);
         }
 
         if (isset($search_form['status'])) {
@@ -637,7 +642,7 @@ class ArticleRepository extends BaseRepository
             $where_params['user_id'] = $search_form['user_id'];
         }
 
-        $query = Article::where($where_params);
+        $query = $this->current_model->where($where_params);
         if (isset($search_form['title']) && $search_form['title'] !== '') {
             $query->where('title', 'like', '%' . $search_form['title'] . '%');
         }
@@ -646,9 +651,6 @@ class ArticleRepository extends BaseRepository
             $query->where('auther', 'like', '%' . $search_form['auther'] . '%');
         }
 
-        if (isset($search_form['tag_include']) && is_array($search_form['tag_include']) && !empty($search_form['tag_include'])) {
-            $query->whereIn('tag_include', $search_form['tag_include']);
-        }
         return $query->paginate($page_size)->toArray();
     }
 

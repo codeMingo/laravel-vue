@@ -30,21 +30,4 @@ class Article extends Base
         return $this->hasOne('App\Models\Category', 'id', 'category_id');
     }
 
-    /**
-     * 文章列表
-     * @param  Array $searchForm [catetory_id, title]
-     * @return Object
-     */
-    public static function lists($searchForm)
-    {
-        $whereParams = [];
-        if (isset($searchForm['category_id']) && !empty($searchForm['category_id'])) {
-            $whereParams['category_id'] = $searchForm['category_id'];
-        }
-        $query = Article::where($whereParams);
-        if (isset($searchForm['title']) && $searchForm['title'] !== '') {
-            $query->where('title', 'like', '%' . $searchForm['title'] . '%');
-        }
-        return $query->paginate(config('blog.pageSize'));
-    }
 }
