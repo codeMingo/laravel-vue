@@ -300,6 +300,14 @@ class ArticleRepository extends BaseRepository
             'status'     => 1,
         ]);
 
+        // 记录操作日志
+        Parent::saveUserOperateRecord([
+            'action' => 'Article/comment',
+            'params' => $input,
+            'text'   => $createResult ? ($comment_id ? '回复成功' : '评论成功') : ($comment_id ? '回复失败，未知错误' : '评论失败，未知错误'),
+            'status' => !!$createResult,
+        ]);
+
         if (!$createResult) {
             return [
                 'status'  => Parent::ERROR_STATUS,
