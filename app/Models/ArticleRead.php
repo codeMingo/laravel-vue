@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class ArticleRead extends Model
+class ArticleRead extends Base
 {
 
     protected $fillable = [
-        'user_id', 'article_id', 'ip_address'
+        'user_id', 'article_id', 'ip_address',
     ];
 
     // 关联用户表

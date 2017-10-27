@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class UserBuyVideo extends Model
+class UserBuyVideo extends Base
 {
     //
 }

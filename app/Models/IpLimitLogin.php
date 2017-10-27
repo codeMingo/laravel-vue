@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class IpLimitLogin extends Model
+class IpLimitLogin extends Base
 {
     //
 }

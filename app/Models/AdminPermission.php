@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\AdminPermission;
 
-class AdminPermission extends Model
+class AdminPermission extends Base
 {
     public static function lists()
     {

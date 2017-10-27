@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Leave extends Model
+class Leave extends Base
 {
     //
 }

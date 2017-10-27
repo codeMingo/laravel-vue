@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Dict extends Model
+class Dict extends Base
 {
 
 }

@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class AdminLoginRecord extends Model
+class AdminLoginRecord extends Base
 {
     protected $fillable = [
         'admin_id', 'params', 'text', 'ip_address', 'status',

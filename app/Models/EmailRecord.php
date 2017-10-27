@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class EmailRecord extends Model
+class EmailRecord extends Base
 {
     protected $fillable = [
         'type_id', 'admin_id', 'user_id', 'email_title', 'text', 'status',

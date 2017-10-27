@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class AdminOperateRecord extends Model
+class AdminOperateRecord extends Base
 {
     protected $fillable = [
         'admin_id', 'action', 'params', 'text', 'ip_address', 'status',

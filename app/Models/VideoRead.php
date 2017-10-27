@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class VideoRead extends Model
+class VideoRead extends Base
 {
     //
 }

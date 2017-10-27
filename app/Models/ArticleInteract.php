@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class ArticleInteract extends Model
+class ArticleInteract extends Base
 {
 
     protected $fillable = [
-        'article_id', 'user_id', 'like', 'hate', 'collect'
+        'article_id', 'user_id', 'like', 'hate', 'collect',
     ];
 
     // 关联用户表
