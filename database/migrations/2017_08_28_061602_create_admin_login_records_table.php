@@ -19,7 +19,7 @@ class CreateAdminLoginRecordsTable extends Migration
             $table->integer('admin_id')->comment('管理员id');
             $table->string('params')->comment('参数');
             $table->string('text')->default('')->comment('说明');
-            $table->string('ip_address', 20)->default('')->comment('ip地址');
+            $table->string('ip_address', 15)->default('')->comment('ip地址');
             $table->tinyInteger('status')->default(1)->comment('结果(0|1)');
             $table->timestamps();
         });

@@ -2,6 +2,8 @@
 namespace App\Repositories\Frontend;
 
 use App\Models\Dict;
+use Illuminate\Support\Facades\Log;
+use App\Models\UserOperateRecord;
 
 abstract class BaseRepository
 {
@@ -35,5 +37,26 @@ abstract class BaseRepository
             }
         }
         return $result;
+    }
+
+    /**
+     * 记录操作日志
+     * @param  Array  $input [action, params, text, status]
+     * @return Array
+     */
+    public function saveUserOperateRecord($input)
+    {
+        try {
+            UserOperateRecord::create([
+            'admin_id'   => Auth::guard('web')->id(),
+            'action'     => $input['action'],
+            'params'     => json_encode($input['params']),
+            'text'       => $input['text'],
+            'ip_address' => getClientIp(),
+            'status'     => $input['status']
+        ]);
+        } catch (Exception $e) {
+            Log::info('RECORD FAIL：saveUserOperateRecord is error，params :' . json_encode($input));
+        }
     }
 }

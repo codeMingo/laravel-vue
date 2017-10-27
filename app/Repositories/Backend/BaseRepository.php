@@ -42,7 +42,6 @@ abstract class BaseRepository
 
     /**
      * 记录操作日志
-     * @param  Reuqest $request
      * @param  Array  $input [action, params, text, status]
      * @return Array
      */
@@ -60,6 +59,5 @@ abstract class BaseRepository
         } catch (Exception $e) {
             Log::info('RECORD FAIL：saveAdminOperateRecord is error，params :' . json_encode($input));
         }
-
     }
 }

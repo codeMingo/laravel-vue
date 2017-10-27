@@ -48,9 +48,9 @@ class ArticleRepository extends BaseRepository
             $read_count_lists = $this->readCount($article_id_arr);
 
             foreach ($resultData['lists']['data'] as $index => $article) {
-                $article['like_count']                           = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['like_count']) ? $interactive_key_count[$article['id']]['like_count'] : 0;
-                $article['hate_count']                           = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['hate_count']) ? $interactive_key_count[$article['id']]['hate_count'] : 0;
-                $article['collect_count']                           = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['collect_count']) ? $interactive_key_count[$article['id']]['collect_count'] : 0;
+                $article['like_count']               = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['like_count']) ? $interactive_key_count[$article['id']]['like_count'] : 0;
+                $article['hate_count']               = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['hate_count']) ? $interactive_key_count[$article['id']]['hate_count'] : 0;
+                $article['collect_count']            = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['collect_count']) ? $interactive_key_count[$article['id']]['collect_count'] : 0;
                 $article['comment_count']            = isset($comment_key_value_lists[$article['id']]) ? $comment_key_value_lists[$article['id']] : 0;
                 $article['read_count']               = isset($read_count_lists[$article['id']]) ? $read_count_lists[$article['id']] : 0;
                 $resultData['lists']['data'][$index] = $article;
@@ -212,8 +212,8 @@ class ArticleRepository extends BaseRepository
                 'message' => '操作失败，发生未知错误',
             ];
         }
-        $dictListsValue      = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $articleList = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->first();
+        $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
+        $articleList    = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->first();
         if (empty($articleList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -221,31 +221,33 @@ class ArticleRepository extends BaseRepository
                 'message' => '操作失败，不存在这篇文章',
             ];
         }
-        $user_id = Auth::guard('web')->id();
+        $user_id  = Auth::guard('web')->id();
         $dataList = ArticleInteract::where('article_id', $article_id)->where('user_id', $user_id)->where($type, 1)->first();
         if (!empty($dataList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '操作失败，已经点过赞了',
+                'message' => '操作失败，不可重复操作',
             ];
         }
-        $result  = ArticleInteract::create([
+        $result = ArticleInteract::create([
             'user_id'    => $user_id,
             'article_id' => $article_id,
             $type        => 1,
         ]);
-        if (!$result) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '操作失败',
-            ];
-        }
+
+        // 记录操作日志
+        Parent::saveUserOperateRecord([
+            'action' => 'Article/interactive',
+            'params' => $input,
+            'text'   => $result ? '操作成功' : '操作失败',
+            'status' => !!$result,
+        ]);
+
         return [
-            'status'  => Parent::SUCCESS_STATUS,
+            'status'  => $result ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
             'data'    => [],
-            'message' => '操作成功',
+            'message' => $result ? '操作成功' : '操作失败，发生未知错误',
         ];
     }
 

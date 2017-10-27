@@ -20,6 +20,7 @@ class CreateVideoInteractsTable extends Migration
             $table->integer('video_list_id')->comment('视频id');
             $table->tinyInteger('like')->default(0)->comment('点赞');
             $table->tinyInteger('hate')->default(0)->comment('反对');
+            $table->string('ip_address', 15)->default('')->comment('ip地址');
             $table->timestamps();
         });
     }
