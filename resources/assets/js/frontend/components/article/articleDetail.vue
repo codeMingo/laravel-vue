@@ -92,7 +92,7 @@
                     </div>
                     <h2 class="sidebar-title">我要评论</h2>
                     <div class="interactive-now" id="response-box">
-                        <quill-edit class="interactive-now-content" ref="articleQuillEditor" v-model="comment_form.input_content" :options="editorOption" @change="onEditorChange($event)"></quill-edit>
+                        <quill-edit class="interactive-now-content" ref="articleQuillEditor" v-model="comment_form.input_content" :options="editorOption"></quill-edit>
                         <div class="interactive-now-submit">
                             <el-button type="primary" @click="commentSubmit">提　交</el-button>
                         </div>
@@ -294,19 +294,9 @@ export default {
                     toolbar: [
                         ['bold', 'italic', 'underline', 'strike'],
                         ['blockquote', 'code-block'],
-                        [{ 'header': 1 }, { 'header': 2 }],
-                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                        // [{ 'script': 'sub' }, { 'script': 'super' }],
-                        // [{ 'indent': '-1' }, { 'indent': '+1' }],
-                        // [{ 'direction': 'rtl' }],
-                        // [{ 'size': ['small', false, 'large', 'huge'] }],
-                        // [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                         [{ 'color': [] }, { 'background': [] }],
-                        //[{ 'font': [] }],
-                        [{ 'align': [] }],
                         ['clean'],
                         ['link']
-                        //['link', 'image', 'video']
                     ]
                 }
             },
@@ -328,22 +318,22 @@ export default {
                 _this.next_article = data.next_article;
             });
         },
-        handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
-        },
-        handleCurrentChange(val) {
-            console.log(`当前页: ${val}`);
-        },
-        onEditorChange({ editor, html, text }) {
-            console.log('editor change!', editor, html, text)
-
-        },
         commentSubmit() {
             let _this = this;
+            let regx = /<p>(.+?)<\/p>/;
+
+            if (!_this.comment_form.input_content) {
+                _this.$message.error('操作失败，内容不可为空');
+                return false;
+            }
+            let reg_text = _this.comment_form.input_content.replace(/\s/g, "");
+            if (!reg_text) {
+                _this.$message.error('操作失败，内容不可为空');
+                return false;
+            }
+            let regx_content = regx.exec(_this.comment_form.input_content);
             if (_this.comment_form.comment_id) {
-                let regx = /<p>(.+?)<\/p>/;
-                let regx_content = regx.exec(_this.comment_form.input_content);
-                if (regx_content[0] != _this.comment_form.response_demo) {
+                if (!regx_content || regx_content[0] != _this.comment_form.response_demo) {
                     _this.$confirm('回复格式错误，是否直接进行评论？', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
@@ -363,16 +353,10 @@ export default {
                             }
                             Vue.resetForm(_this.comment_form);
                         }).catch(response => {
-                            _this.$message({
-                                type: 'error',
-                                message: '操作失败，未知错误'
-                            });
+                            _this.$message.error('操作失败，未知错误');
                         })
                     }).catch(() => {
-                        _this.$message({
-                            type: 'info',
-                            message: '操作失败，未知错误'
-                        });
+                        _this.$message.error('操作失败，未知错误');
                     });
                     return false;
                 } else {
@@ -393,10 +377,7 @@ export default {
                         }
                         Vue.resetForm(_this.comment_form);
                     }).catch(response => {
-                        _this.$message({
-                            type: 'error',
-                            message: '操作失败，未知错误'
-                        });
+                        _this.$message.error('操作失败，未知错误');
                     })
                 }
             } else {
@@ -413,10 +394,7 @@ export default {
                     }
                     Vue.resetForm(_this.comment_form);
                 }).catch(response => {
-                    _this.$message({
-                        type: 'error',
-                        message: '操作失败，未知错误'
-                    });
+                    _this.$message.error('操作失败，未知错误');
                 })
             }
         },

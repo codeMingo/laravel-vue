@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Base
 {
     use Notifiable;
     use SoftDeletes;
@@ -28,23 +28,4 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-
-    /**
-     *
-     */
-    public static function lists($searchForm)
-    {
-        $whereParams = [];
-        $query       = User::where($whereParams);
-        if (isset($searchForm['status']) && $searchForm['status'] !== '') {
-            $query->where('status', $searchForm['status']);
-        }
-        if (isset($searchForm['username']) && $searchForm['username'] !== '') {
-            $query->where('username', 'like', '%' . $searchForm['username'] . '%');
-        }
-        if (isset($searchForm['email']) && $searchForm['email'] !== '') {
-            $query->where('email', 'like', '%' . $searchForm['email'] . '%');
-        }
-        return $query->paginate(config('app.pageSize'));
-    }
 }

@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use Qiniu\Auth;
 use Qiniu\Storage\UploadManager;
+use App\Models\Article;
 
 class TestController extends Controller
 {
     // 测试
     public function index()
     {
+        $article = new Article();
+        echo $article->getTable();exit();
+
         $arr = [
             'key1' => 'value1',
             'key2' => 'value2',

@@ -3,7 +3,7 @@ namespace App\Repositories\Frontend;
 
 use App\Models\Dict;
 use App\Models\UserOperateRecord;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
@@ -13,18 +13,6 @@ abstract class BaseRepository
     const ERROR_STATUS   = 0; // 失败状态
     const SUCCESS_STATUS = 1; // 成功状态
     protected $current_model; // Model类
-
-    /**
-     * Create a new __construct
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     *
-     * @return void
-     */
-    public function __construct(Model $model)
-    {
-        $this->current_model = $model;
-    }
 
     //获取实例化
     public static function getInstance()
@@ -36,7 +24,6 @@ abstract class BaseRepository
         return self::$instance[$class];
     }
 
-
     /**
      * 过滤参数
      * @param  Array $params
@@ -47,8 +34,7 @@ abstract class BaseRepository
         if (empty($params)) {
             return [];
         }
-        $table_name = $this->current_model->->getTable();
-        $field_lists = Schema::getColumnListing($table_name);
+        $field_lists = Schema::getColumnListing($this->table_name);
         foreach ($params as $key => $value) {
             if (!in_array($key, $field_lists)) {
                 unset($params[$key]);
