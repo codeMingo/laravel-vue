@@ -3,17 +3,24 @@ import Main from './components/common/main.vue';
 import Register from './components/common/register.vue';
 import RegisterActive from './components/common/registerActive.vue';
 import Login from './components/common/login.vue';
+
 // 首页
 import Index from './components/index/index.vue';
+
 // 视频列表
 import Video from './components/video/video.vue';
 import VideoDetail from './components/video/videoDetail.vue';
 import VideoPlay from './components/video/videoPlay.vue';
+
 // 技术篇
 import Article from './components/article/article.vue';
 import ArticleDetail from './components/article/articleDetail.vue';
+
 // 留言
 import Leave from './components/leave/leave.vue';
+
+// 用户模块
+import UserIndex from './components/user/index.vue';
 export default [{
     path: '/',
     component: Main,
@@ -56,5 +63,14 @@ export default [{
     noDropdown: true,
     children: [
         { path: 'index', component: Leave, name: '留言板', iconCls: '' },
+    ]
+}, {
+    path: '/user',
+    component: Main,
+    name: '用户中心',
+    iconCls: '', //图标样式class
+    noDropdown: true,
+    children: [
+        { path: 'index', component: UserIndex, name: '个人中心', iconCls: '' },
     ]
 }]

@@ -30,7 +30,7 @@
                             <router-link to="/leave/index" class='menu-link'>留言板</router-link>
                         </el-menu-item>
                         <template v-if="this.$store.state.user_data.username">
-                            <el-submenu index="6">
+                            <el-submenu index="6" class="user-menu">
                                 <template slot="title"><img :src="this.$store.state.user_data.face" class="user-face">{{this.$store.state.user_data.username}}</template>
                                 <el-menu-item index="6-1">
                                     <router-link to="/user/index">个人中心</router-link>
@@ -65,6 +65,9 @@
 </template>
 <style rel="stylesheet/scss" lang="scss" scoped>
 .web-header {
+    .user-menu.el-submenu .el-menu-item {
+        min-width: 0px !important;
+    }
     background-color: #324157;
     .el-menu {
         .el-menu-item {
@@ -95,6 +98,7 @@
     }
     .web-logo {
         margin-left: 30px;
+        font-size: 20px;
         a {
             height: 60px;
             line-height: 60px;
