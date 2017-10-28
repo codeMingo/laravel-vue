@@ -24,11 +24,14 @@ Route::group(['namespace' => 'Frontend'], function () {
     Route::get('/article/detail/{article_id}', 'ArticleController@detail');
     Route::get('/article/comment-lists/{article_id}', 'ArticleController@commentLists');
 
+    // 留言板模块
+    Route::get('/leave/lists', 'LeaveController@lists');
 
     // 需登录后操作的模块
     Route::group(['middleware' => 'auth'], function () {
         Route::put('/article/interactive/{article_id}', 'ArticleController@interactive');
         Route::put('/article/comment/{article_id}', 'ArticleController@comment');
+        Route::put('/leave/publish', 'LeaveController@publish');
     });
 });
 

@@ -170,12 +170,16 @@ class ArticleRepository extends BaseRepository
     {
         $dictListsValue      = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
         $resultData['lists'] = ArticleComment::where('article_id', $article_id)->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
-
-        if (!empty($resultData['lists'])) {
-            $comment_ids = [];
-            foreach ($resultData['lists'] as $index => $comment) {
-                $comment_ids[] = $comment->id;
-            }
+        if ($resultData['lists']->isEmpty()) {
+            return [
+                'status'  => Parent::SUCCESS_STATUS,
+                'data'    => $resultData,
+                'message' => '数据获取成功',
+            ];
+        }
+        $comment_ids = [];
+        foreach ($resultData['lists'] as $index => $comment) {
+            $comment_ids[] = $comment->id;
         }
 
         // 找出所有的回复

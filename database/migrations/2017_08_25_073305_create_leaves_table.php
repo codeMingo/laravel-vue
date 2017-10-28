@@ -20,6 +20,7 @@ class CreateLeavesTable extends Migration
             $table->integer('user_id')->comment('用户id');
             $table->string('content')->comment('内容');
             $table->string('ip_address', 15)->default('')->comment('ip地址');
+            $table->integer('is_audit')->default(0)->comment('审核(select)');
             $table->tinyInteger('status')->default(1)->comment('状态(0|1)');
             $table->timestamps();
             $table->softDeletes();

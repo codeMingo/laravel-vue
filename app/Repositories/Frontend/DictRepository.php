@@ -23,4 +23,14 @@ class DictRepository extends BaseRepository
         }
         return $resultData;
     }
+
+    /**
+     * 根据 text_en 获取value
+     * @param  String $textEn text_en
+     * @return Int
+     */
+    public function getDictValueByTextEn($text_en)
+    {
+        return Dict::where('text_en', $text_en)->value('value');
+    }
 }

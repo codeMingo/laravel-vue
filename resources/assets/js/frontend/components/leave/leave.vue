@@ -5,65 +5,55 @@
                 <div class="breadcrumb">
                     <el-breadcrumb separator="/">
                         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-                        <el-breadcrumb-item>技术篇</el-breadcrumb-item>
+                        <el-breadcrumb-item>留言板</el-breadcrumb-item>
                     </el-breadcrumb>
                 </div>
-                <div class="content-box leave-box">
+                <div id="leave-box" class="content-box leave-box">
                     <div class="interactive-now">
-                        <quill-edit class="interactive-now-content" v-model="leave.content" :options="editorOption"></quill-edit>
+                        <quill-edit class="interactive-now-content" ref="leaveQuillEditor" v-model="leave_form.input_content" :options="editorOption"></quill-edit>
                         <div class="interactive-now-submit">
                             <el-button type="primary" @click="leaveSubmit">提　交</el-button>
                         </div>
                     </div>
                     <div class="interactive-box leavel-list">
-                        <h2 class="sidebar-title">视频评论 （<span>56</span>条）</h2>
-                        <div class="interactive-list">
-                            <div class="interactive-detail">
-                                <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
-                                <div class="interactive-word">
-                                    <p class="user-name">高山流水<span>2017-07-12 16:12:31</span></p>
-                                    <p class="interactive-content">运用laravel+vue+elementui，从零搭建一个技术博客！</p>
-                                </div>
-                                <div class="interactive-response">
-                                    <div class="interactive-detail">
-                                        <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
-                                        <div class="interactive-word">
-                                            <p class="user-name">高山流水 #<span>amgogo先生</span><span>2017-07-12 16:12:31</span></p>
-                                            <p class="interactive-content">老哥，稳！</p>
+                        <h2 class="sidebar-title">留言列表 （<span>{{leave_pagination.total}}</span>条）</h2>
+                        <div class="interactive-box">
+                            <div class="interactive-list">
+                                <div class="interactive-detail" v-for="(item, index) in leave_data">
+                                    <div class="user-face"><a href="javascript:;"><img :src="item.user.face" /></a></div>
+                                    <div class="interactive-word">
+                                        <p class="user-name"><a href="javascript:;">{{item.user.username}}</a><span>发表时间：{{item.created_at}}</span></p>
+                                        <div class=" ql-container ql-snow">
+                                            <p class="interactive-content ql-editor" v-html="item.content"></p>
+                                        </div>
+                                        <p class="interactive-response-btn">
+                                            <a href="javascript:;" @click="addResponse(item.user.username, item.id)">回复</a>
+                                            <a href="javascript:;" @click="showResponse(item)" v-show="item.response && item.response.length > 0">
+                                                &nbsp;&nbsp;
+                                                <template v-if="!item.show_response">查看回复</template>
+                                                <template v-if="item.show_response">收起回复</template>
+                                            (<span>{{item.response | getCount}}</span>)</a>
+                                        </p>
+                                    </div>
+                                    <div class="interactive-response" v-if="item.response && item.show_response">
+                                        <div class="interactive-detail" v-for="(response, key) in item.response">
+                                            <div class="user-face"><a href="javascript:;"><img :src="response.user.face"/></a></div>
+                                            <div class="interactive-word">
+                                                <p class="user-name">{{response.user.username}}<span>发表时间：{{response.created_at}}</span></p>
+                                                <div class=" ql-container ql-snow">
+                                                    <p class="interactive-content ql-editor" v-html="response.content"></p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="interactive-response">
-                                    <div class="interactive-detail">
-                                        <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
-                                        <div class="interactive-word">
-                                            <p class="user-name">amgogo先生 #<span>高山流水</span><span>2017-07-12 16:12:31</span></p>
-                                            <p class="interactive-content">本人从事php开发工作，一直奋战在一线，处于水深火热之中，工作之余看看知乎、逛逛github、打打游戏！</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="interactive-response">
-                                    <div class="interactive-detail">
-                                        <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
-                                        <div class="interactive-word">
-                                            <p class="user-name">高山流水 #<span>amgogo先生</span><span>2017-07-12 16:12:31</span></p>
-                                            <p class="interactive-content">老哥，稳！</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                <p style="clear:both;"></p>
                             </div>
-                            <div class="interactive-detail">
-                                <div class="user-face"><a href="javascript:;"><img src="/images/focus_weixin.png" /></a></div>
-                                <div class="interactive-word">
-                                    <p class="user-name">高山流水<span>2017-07-12 16:12:31</span></p>
-                                    <p class="interactive-content">老哥，稳！</p>
-                                </div>
+                            <div class="page-box">
+                                <el-pagination @current-change="changeCurrentPage" :current-page.sync="leave_pagination.current_page" :page-size="leave_pagination.per_page" layout="total, prev, pager, next" :total="leave_pagination.total">
+                                </el-pagination>
                             </div>
                         </div>
-                    </div>
-                    <div class="page-box">
-                        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="currentPage1" :page-size="100" layout="total, prev, pager, next" :total="1000">
-                        </el-pagination>
                     </div>
                 </div>
             </el-col>
@@ -153,45 +143,166 @@ export default {
     },
     data() {
         return {
-            currentPage1: 5,
-            leave: {
-                content: ''
+            leave_data: {},
+            leave_form: {
+                leave_id: '',
+                input_content: '',
+                content: '',
+                response_demo: ''
+            },
+            leave_pagination: {
+                per_page: 0,
+                total: 0,
+                current_page: 1
             },
             editorOption: {
                 modules: {
                     toolbar: [
                         ['bold', 'italic', 'underline', 'strike'],
                         ['blockquote', 'code-block'],
-                        [{ 'header': 1 }, { 'header': 2 }],
-                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                        [{ 'script': 'sub' }, { 'script': 'super' }],
-                        [{ 'indent': '-1' }, { 'indent': '+1' }],
-                        [{ 'direction': 'rtl' }],
-                        //[{ 'size': ['small', false, 'large', 'huge'] }],
-                        //[{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                         [{ 'color': [] }, { 'background': [] }],
-                        //[{ 'font': [] }],
-                        //[{ 'align': [] }],
                         ['clean'],
                         ['link']
-                        //['link', 'image', 'video']
                     ]
                 }
             }
         };
     },
     mounted() {
-
+        this.getLeaveLists();
     },
     methods: {
-        handleSizeChange(val) {
-            console.log(`每页 ${val} 条`);
-        },
-        handleCurrentChange(val) {
-            console.log(`当前页: ${val}`);
-        },
         leaveSubmit() {
+            let _this = this;
+            let regx = /<p>(.+?)<\/p>/;
 
+            if (!_this.leave_form.input_content) {
+                _this.$message.error('操作失败，内容不可为空');
+                return false;
+            }
+            let reg_text = _this.leave_form.input_content.replace(/\s/g, "");
+            if (!reg_text) {
+                _this.$message.error('操作失败，内容不可为空');
+                return false;
+            }
+            let regx_content = regx.exec(_this.leave_form.input_content);
+            if (_this.leave_form.leave_id) {
+                if (!regx_content || regx_content[0] != _this.leave_form.response_demo) {
+                    _this.$confirm('回复格式错误，是否直接进行评论？', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        _this.leave_form.leave_id = '';
+                        _this.leave_form.content = _this.leave_form.input_content;
+                        axios.put('/leave/publish', { 'data': _this.leave_form }).then(response => {
+                            let { data, message, status } = response.data;
+                            if (!status) {
+                                _this.$message.error(message);
+                                return false;
+                            }
+                            _this.$message.success(message);
+                            if (data.list) {
+                                _this.leave_data[_this.leave_data.length] = data.list;
+                            }
+                            Vue.resetForm(_this.leave_form);
+                        }).catch(response => {
+                            _this.$message.error('操作失败，未知错误');
+                        })
+                    }).catch(() => {
+                        _this.$message.error('操作失败，未知错误');
+                    });
+                    return false;
+                } else {
+                    if (_this.leave_form.input_content == regx_content[0]) {
+                        _this.$message.error('回复内容不得为空');
+                        return false;
+                    }
+                    _this.leave_form.content = _this.leave_form.input_content.replace(/<p>(.+?)<\/p>/, '');
+                    axios.put('/leave/publish', { 'data': _this.leave_form }).then(response => {
+                        let { data, message, status } = response.data;
+                        if (!status) {
+                            _this.$message.error(message);
+                            return false;
+                        }
+                        _this.$message.success(message);
+                        if (data.list) {
+                            for (let i = 0; i < _this.leave_data.length; i++) {
+                                if (_this.leave_data[i].id === data.list.parent_id) {
+                                    _this.leave_data[i]['response'][_this.leave_data[i]['response'].length] = data.list;
+                                    _this.leave_data[i]['show_response'] = data.list.show_response;
+                                }
+                            }
+                        }
+                        Vue.resetForm(_this.leave_form);
+                    }).catch(response => {
+                        _this.$message.error('操作失败，未知错误');
+                    })
+                }
+            } else {
+                _this.leave_form.content = _this.leave_form.input_content;
+                axios.put('/leave/publish', { 'data': _this.leave_form }).then(response => {
+                    let { data, message, status } = response.data;
+                    if (!status) {
+                        _this.$message.error(message);
+                        return false;
+                    }
+                    _this.$message.success(message);
+                    if (data.list) {
+                        _this.leave_data[_this.leave_data.length] = data.list;
+                    }
+                    Vue.resetForm(_this.leave_form);
+                }).catch(response => {
+                    _this.$message.error('操作失败，未知错误');
+                })
+            }
+        },
+        addResponse(username, leave_id) {
+            /*console.log(document.getElementById('response-box').offsetTop);
+            window.scrollTo(0, document.body.scrollHeight);*/
+            window.scrollTo(0, document.getElementById('leave-box').offsetTop);
+            this.$refs.leaveQuillEditor.quill.setContents([{
+                    insert: '回复：' + username + '：',
+                    attributes: {
+                        italic: true,
+                        underline: true,
+                    }
+                },
+                {
+                    insert: '(此行不可编辑，请点击空格至下一行输入内容，否则回复无效)',
+                    attributes: {
+                        italic: false,
+                        underline: false,
+                    }
+                },
+                {
+                    insert: ' ',
+                    attributes: {
+                        italic: false,
+                        underline: false,
+                    }
+                }
+            ]);
+            this.leave_form.leave_id = leave_id;
+            this.leave_form.response_demo = this.leave_form.input_content;
+        },
+        showResponse(item) {
+            let flag = item.show_response ? false : true;
+            this.$set(item, 'show_response', flag);
+        },
+        getLeaveLists() {
+            let _this = this;
+            axios.get('/leave/lists?page=' + _this.leave_pagination.current_page).then(response => {
+                let { status, data, message } = response.data;
+                _this.leave_data = data.lists.data;
+                _this.leave_pagination.per_page = parseInt(data.lists.per_page);
+                _this.leave_pagination.current_page = parseInt(data.lists.current_page);
+                _this.leave_pagination.total = parseInt(data.lists.total);
+            });
+        },
+        changeCurrentPage(val) {
+            this.leave_pagination.current_page = val;
+            this.getLeaveLists();
         }
     }
 }
