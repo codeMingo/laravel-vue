@@ -360,6 +360,10 @@ export default {
                     });
                     return false;
                 } else {
+                    if (_this.comment_form.input_content == regx_content[0]) {
+                        _this.$message.error('回复内容不得为空');
+                        return false;
+                    }
                     _this.comment_form.content = _this.comment_form.input_content.replace(/<p>(.+?)<\/p>/, '');
                     axios.put('/article/comment/' + _this.article_id, { 'data': _this.comment_form }).then(response => {
                         let { data, message, status } = response.data;

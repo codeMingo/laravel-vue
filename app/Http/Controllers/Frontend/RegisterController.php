@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use App\Http\Controllers\Controller;
 use App\Repositories\Frontend\RegisterRepository;
 use Illuminate\Http\Request;
 
-class RegisterController extends Controller
+class RegisterController extends BaseController
 {
 
     // 创建用户

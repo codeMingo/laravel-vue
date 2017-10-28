@@ -7,6 +7,11 @@ use App\Repositories\Frontend\ArticleRepository;
 class ArticleController extends BaseController
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     // 文章列表
     public function lists(Request $request)
     {

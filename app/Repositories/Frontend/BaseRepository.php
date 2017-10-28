@@ -6,6 +6,8 @@ use App\Models\UserOperateRecord;
 use Illuminate\Database\Eloquent\Model as Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Auth;
 
 abstract class BaseRepository
 {
@@ -38,6 +40,10 @@ abstract class BaseRepository
         foreach ($params as $key => $value) {
             if (!in_array($key, $field_lists)) {
                 unset($params[$key]);
+                break;
+            }
+            if (empty($value) && !($value === '0' || $value === 0)) {
+                unset($params[$key]);
             }
         }
         return $params;
@@ -69,7 +75,7 @@ abstract class BaseRepository
     {
         try {
             UserOperateRecord::create([
-                'admin_id'   => Auth::guard('web')->id(),
+                'user_id'   => Auth::guard('web')->id(),
                 'action'     => $input['action'],
                 'params'     => json_encode($input['params']),
                 'text'       => $input['text'],
@@ -79,5 +85,28 @@ abstract class BaseRepository
         } catch (Exception $e) {
             Log::info('RECORD FAIL：saveUserOperateRecord is error，params :' . json_encode($input));
         }
+    }
+
+    public function repeatOperation($action)
+    {
+        if (Redis::exists('limit_time_arr')) {
+            $limit_arr = Redis::hgetAll('limit_time_arr');
+        } else {
+            $limit_arr = DictRepository::getInstance()->getDictListsByTextEnArr(['repeat_limit_time', 'repeat_limit_times']);
+            foreach ($limit_arr as $key => $value) {
+                Redis:: hset('limit_time_arr', $key, $value);
+            }
+        }
+        $redisLimitKey   = 'limit_time:' . getClientIp() . ':' . $action;
+        $redisLimitExist = Redis::exists($redisLimitKey);
+        if ($redisLimitExist && Redis::get($redisLimitKey) > $limit_arr['repeat_limit_times']) {
+            return false;
+        }
+        if ($redisLimitExist) {
+            Redis::incr($redisLimitKey);
+        } else {
+            Redis::set($redisLimitKey, 1);
+        }
+        Redis::expire($redisLimitKey, $limit_arr['repeat_limit_time']);
     }
 }

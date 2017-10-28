@@ -214,6 +214,7 @@ class ArticleRepository extends BaseRepository
                 'message' => '操作失败，发生未知错误',
             ];
         }
+
         $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
         $articleList    = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->first();
         if (empty($articleList)) {
@@ -606,12 +607,10 @@ class ArticleRepository extends BaseRepository
      */
     public function getArticleLists($search_form)
     {
-        $dictKeyValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'article_page_size']);
-
-        $where_params = $this->parseParams($search_form);
-        $where_params['status'] = $dictKeyValue['article_is_show'];
-        $page_size              = $dictKeyValue['article_page_size'];
-
+        $dictKeyValue          = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'article_page_size']);
+        $search_form['status'] = $dictKeyValue['article_is_show'];
+        $where_params          = $this->parseParams($search_form);
+        $page_size             = $dictKeyValue['article_page_size'];
         return Article::parseWheres($where_params)->paginate($page_size)->toArray();
     }
 

@@ -51,11 +51,7 @@ class DictRepository extends BaseRepository
      */
     public function getDictValueByTextEn($text_en)
     {
-        $dictList = Dict::where('text_en', $text_en)->first();
-        if (empty($dictList)) {
-            return '';
-        }
-        return $dictList->value;
+        return Dict::where('text_en', $text_en)->value('value');
     }
 
     /**
