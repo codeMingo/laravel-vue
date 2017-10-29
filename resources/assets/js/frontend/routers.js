@@ -20,7 +20,10 @@ import ArticleDetail from './components/article/articleDetail.vue';
 import Leave from './components/leave/leave.vue';
 
 // 用户模块
+import User from './components/common/user.vue';
 import UserIndex from './components/user/index.vue';
+import UserCollect from './components/user/collect.vue';
+
 export default [{
     path: '/',
     component: Main,
@@ -66,11 +69,12 @@ export default [{
     ]
 }, {
     path: '/user',
-    component: Main,
+    component: User,
     name: '用户中心',
     iconCls: '', //图标样式class
     noDropdown: true,
     children: [
         { path: 'index', component: UserIndex, name: '个人中心', iconCls: '' },
+        { path: 'collect', component: UserCollect, name: '我的收藏', iconCls: '' },
     ]
 }]

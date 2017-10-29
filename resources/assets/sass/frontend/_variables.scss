@@ -244,6 +244,15 @@ a {
     padding: 0 !important;
 }
 
+.user-title {
+    font-weight: normal;
+    font-size: 20px;
+    color: #838181;
+    border-bottom: 1px solid #DAD7D7;
+    margin-bottom: 20px;
+    padding-bottom: 5px;
+}
+
 @media (max-width: 768px) {
     .web-logo {
         margin-left: 10px;

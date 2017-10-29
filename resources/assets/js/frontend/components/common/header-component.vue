@@ -31,7 +31,7 @@
                         </el-menu-item>
                         <template v-if="this.$store.state.user_data.username">
                             <el-submenu index="6" class="user-menu">
-                                <template slot="title"><img :src="this.$store.state.user_data.face" class="user-face">{{this.$store.state.user_data.username}}</template>
+                                <template slot="title"><img :src="this.$store.state.user_data.face" class="user-face">{{this.$store.state.user_data.username | subString(0, 5)}}</template>
                                 <el-menu-item index="6-1">
                                     <router-link to="/user/index">个人中心</router-link>
                                 </el-menu-item>
