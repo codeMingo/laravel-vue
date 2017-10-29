@@ -20,6 +20,8 @@ class CreateUsersTable extends Migration
             $table->string('email', 30)->comment('邮箱');
             $table->string('face')->default('')->comment('头像');
             $table->string('password', 100)->comment('密码');
+            $table->string('sign', 100)->default('')->comment('个性签名');
+            $table->string('web_url', 100)->default('')->comment('网站地址');
             $table->string('last_login_ip', 15)->default(0);
             $table->timestamp('last_login_time')->nullable();
             $table->tinyInteger('active')->default(0)->comment('激活(0|1)');

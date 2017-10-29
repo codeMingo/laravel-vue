@@ -32,6 +32,8 @@ Route::group(['namespace' => 'Frontend'], function () {
         Route::put('/article/interactive/{article_id}', 'ArticleController@interactive');
         Route::put('/article/comment/{article_id}', 'ArticleController@comment');
         Route::put('/leave/publish', 'LeaveController@publish');
+        Route::get('/user/user-data', 'UserController@userData');
+        Route::put('/user/update-user/{user_id}', 'UserController@updateUser');
     });
 });
 
