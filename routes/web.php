@@ -29,15 +29,18 @@ Route::group(['namespace' => 'Frontend'], function () {
 
     // 需登录后操作的模块
     Route::group(['middleware' => 'auth'], function () {
+        // 文章模块
         Route::put('/article/interactive/{article_id}', 'ArticleController@interactive');
         Route::put('/article/comment/{article_id}', 'ArticleController@comment');
+
+        // 留言
         Route::put('/leave/publish', 'LeaveController@publish');
-        Route::get('/user/user-data', 'UserController@userData');
+
+        // 用户模块
+        Route::get('/user/index', 'UserController@index');
         Route::put('/user/update-user/{user_id}', 'UserController@updateUser');
     });
 });
-
-
 
 /**
  * 后台

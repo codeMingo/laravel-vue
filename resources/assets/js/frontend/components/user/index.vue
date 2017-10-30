@@ -89,12 +89,12 @@ export default {
         };
     },
     mounted() {
-        this.getUserData();
+        this.getIndex();
     },
     methods: {
-        getUserData() {
+        getIndex() {
             let _this = this;
-            axios.get('/user/user-data').then(response => {
+            axios.get('/user/index').then(response => {
                 let { status, data, message } = response.data;
                 _this.user_data = data.list;
             }).catch(response => {

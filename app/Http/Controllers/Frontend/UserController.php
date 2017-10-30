@@ -12,9 +12,9 @@ class UserController extends BaseController
         parent::__construct();
     }
 
-    public function userData()
+    public function index()
     {
-        $result = UserRepository::getInstance()->userData();
+        $result = UserRepository::getInstance()->index();
         return response()->json($result);
     }
 

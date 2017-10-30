@@ -9,7 +9,11 @@ class UserRepository extends BaseRepository
 
     public $table_name = 'users';
 
-    public function userData()
+    /**
+     * 个人中心页面
+     * @return Array
+     */
+    public function index()
     {
         $user_id        = Auth::guard('web')->id();
         $result['list'] = $this->getUserList($user_id);
@@ -20,11 +24,22 @@ class UserRepository extends BaseRepository
         ];
     }
 
+    /**
+     * 根据user_id获取用户
+     * @param  Int $user_id 用户id
+     * @return Object
+     */
     public function getUserList($user_id)
     {
         return User::select(['id', 'username', 'email', 'sign', 'web_url'])->where('id', $user_id)->where('status', 1)->where('active', 1)->first();
     }
 
+    /**
+     * 更新用户资料
+     * @param  Array $input   用户资料
+     * @param  Int $user_id 用户id
+     * @return Array
+     */
     public function updateUser($input, $user_id)
     {
         $username = isset($input['username']) ? strval($input['username']) : '';
