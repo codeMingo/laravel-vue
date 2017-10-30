@@ -23,6 +23,7 @@ import Leave from './components/leave/leave.vue';
 import User from './components/common/user.vue';
 import UserIndex from './components/user/index.vue';
 import UserCollect from './components/user/collect.vue';
+import UserInteractive from './components/user/interactive.vue';
 
 export default [{
     path: '/',
@@ -76,5 +77,6 @@ export default [{
     children: [
         { path: 'index', component: UserIndex, name: '个人中心', iconCls: '' },
         { path: 'collect', component: UserCollect, name: '我的收藏', iconCls: '' },
+        { path: 'interactive', component: UserInteractive, name: '我的动态', iconCls: '' },
     ]
 }]

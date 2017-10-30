@@ -109,12 +109,14 @@
         h3 {
             margin-bottom: 3px;
             color: #78CAF0;
+            font-weight: normal;
         }
         p {
             color: #C1BDBD;
             font-size: 13px;
             .text-lable {
                 color: #D8D1D1;
+                font-size: 13px;
             }
         }
     }

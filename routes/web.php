@@ -32,6 +32,7 @@ Route::group(['namespace' => 'Frontend'], function () {
         // 文章模块
         Route::put('/article/interactive/{article_id}', 'ArticleController@interactive');
         Route::put('/article/comment/{article_id}', 'ArticleController@comment');
+        Route::put('/article/collect/{article_id}', 'ArticleController@collect');
 
         // 留言
         Route::put('/leave/publish', 'LeaveController@publish');
@@ -39,6 +40,7 @@ Route::group(['namespace' => 'Frontend'], function () {
         // 用户模块
         Route::get('/user/index', 'UserController@index');
         Route::put('/user/update-user/{user_id}', 'UserController@updateUser');
+        Route::get('/user/collect/lists', 'UserController@collectLists');
     });
 });
 

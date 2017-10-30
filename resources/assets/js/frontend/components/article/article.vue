@@ -33,8 +33,9 @@
                             </div>
                             <div class='article-interactive'>
                                 <p>
-                                    <a  href="javascript:;" @click="like(item.id, 'like')">赞：<span>{{item.like_count}}</span></a>
+                                    <a href="javascript:;" @click="interactive(item.id, 'like')">赞：<span>{{item.like_count}}</span></a>
                                     <router-link :to="{ path: '/article/detail/' + item.id }">评论：<span>{{item.comment_count}}</span></router-link>
+                                    <a href="javascript:;" @click="interactive(item.id, 'collect')">收藏：<span>{{item.collect_count}}</span></a>
                                     <router-link :to="{ path: '/article/detail/' + item.id }">阅读：<span>{{item.read_count}}</span></router-link>
                                 </p>
                             </div>
@@ -224,7 +225,7 @@ export default {
             this.article_pagination.current_page = val;
             this.getLists();
         },
-        like(article_id, type) {
+        interactive(article_id, type) {
             let _this = this;
             axios.put('/article/interactive/' + article_id, {'data': {'type': type}}).then(response => {
                 let { status, data, message } = response.data;
@@ -244,7 +245,6 @@ export default {
                         }
                         return false;
                     }
-                    console.log(1);
                 });
             });
         }

@@ -3,7 +3,7 @@ namespace App\Repositories\Frontend;
 
 use App\Models\Article;
 use App\Models\ArticleComment;
-use App\Models\ArticleInteract;
+use App\Models\Interact;
 use App\Models\ArticleRead;
 use App\Models\User;
 use App\Repositories\Frontend\CategoryRepository;
@@ -229,7 +229,7 @@ class ArticleRepository extends BaseRepository
             ];
         }
         $user_id  = Auth::guard('web')->id();
-        $dataList = ArticleInteract::where('article_id', $article_id)->where('user_id', $user_id)->where($type, 1)->first();
+        $dataList = Interact::where('article_id', $article_id)->where('user_id', $user_id)->where($type, 1)->first();
         if (!empty($dataList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -237,7 +237,7 @@ class ArticleRepository extends BaseRepository
                 'message' => '操作失败，不可重复操作',
             ];
         }
-        $result = ArticleInteract::create([
+        $result = Interact::create([
             'user_id'    => $user_id,
             'article_id' => $article_id,
             $type        => 1,
@@ -361,7 +361,7 @@ class ArticleRepository extends BaseRepository
                 'message' => '不存在这篇文章',
             ];
         }
-        $resultData['lists'] = ArticleInteract::where('article_id', $article_id)->where($type, 1)->where('status', 1)->user()->get();
+        $resultData['lists'] = Interact::where('article_id', $article_id)->where($type, 1)->where('status', 1)->user()->get();
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
@@ -379,7 +379,7 @@ class ArticleRepository extends BaseRepository
     {
         $result     = [];
         $type_arr[] = 'article_id';
-        $query      = ArticleInteract::select($type_arr);
+        $query      = Interact::select($type_arr);
         if (is_array($article_ids)) {
             $query = $query->whereIn('article_id', $article_ids);
         } else {
@@ -580,7 +580,7 @@ class ArticleRepository extends BaseRepository
             ];
         }
         $user_id = Auth::guard('web')->id();
-        $query   = ArticleInteract::where('user_id', $user_id)->where('status', 1);
+        $query   = Interact::where('user_id', $user_id)->where('status', 1);
 
         if (isset($interactive_type_arr['like'])) {
             $query = $query->orwhere('like', 1);
