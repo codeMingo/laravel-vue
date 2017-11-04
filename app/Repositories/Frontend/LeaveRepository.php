@@ -29,7 +29,7 @@ class LeaveRepository extends BaseRepository
         $audit_pass_value      = DictRepository::getInstance()->getDictValueByTextEn('audit_pass');
         $leave_lists = Leave::where('is_audit', $audit_pass_value)->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
         if ($leave_lists->isEmpty()) {
-            return [];
+            return $leave_lists;
         }
         $leave_ids = [];
         foreach ($leave_lists as $index => $leave) {

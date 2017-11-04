@@ -2,60 +2,19 @@
     <div class="user-detail">
         <el-row :gutter="60">
             <el-col :sm="14" :md="14" :lg="14">
-                <h2 class="user-title">我的收藏(18)</h2>
+                <h2 class="user-title">我的收藏({{collect_data | getCount}})</h2>
                 <div class="collect-box">
-                    <div class="collect-detail">
-                        <p>
-                            <span>2017-09-17 15:21</span> 收藏了文章
-                            <a href="javascript:;">《Laravel基础语法解析》</a>
+                    <div class="collect-detail" v-for="item in collect_data">
+                        <p v-if="item.article">
+                            <span>{{item.created_at}}</span> 收藏了文章
+                            <router-link :to="{ path: '/article/detail/' + item.article.id }">《{{item.article.title}}》</router-link>
+                        </p>
+                        <p v-else>
+                            <span>{{item.created_at}}</span> 收藏了视频
+                            <a href="javascript:;">《item.video.title》</a>
                         </p>
                         <p>
-                            <i class="fa fa-paper-plane-o"></i>福建-大田(198.168.21.202)
-                        </p>
-                    </div>
-                    <div class="collect-detail">
-                        <p>
-                            <span>2017-09-17 15:21</span> 收藏了文章
-                            <a href="javascript:;">《pull-left 可以轻易构造出引用的特殊效果》</a>
-                        </p>
-                        <p>
-                            <i class="fa fa-paper-plane-o"></i>福建-大田(198.168.21.202)
-                        </p>
-                    </div>
-                    <div class="collect-detail">
-                        <p>
-                            <span>2017-09-17 15:21</span> 收藏了视频
-                            <a href="javascript:;">《Yii基础视频教程》</a>
-                        </p>
-                        <p>
-                            <i class="fa fa-paper-plane-o"></i>上海-闵行区(198.168.21.202)
-                        </p>
-                    </div>
-                    <div class="collect-detail">
-                        <p>
-                            <span>2017-09-17 15:21</span> 收藏了视频
-                            <a href="javascript:;">《pull-left 可以轻易构造出引用的特殊效果》</a>
-                        </p>
-                        <p>
-                            <i class="fa fa-paper-plane-o"></i>福建-龙岩(198.168.21.202)
-                        </p>
-                    </div>
-                    <div class="collect-detail">
-                        <p>
-                            <span>2017-09-17 15:21</span> 收藏了
-                            <a href="javascript:;">《pull-left 可以轻易构造出引用的特殊效果》</a>
-                        </p>
-                        <p>
-                            <i class="fa fa-paper-plane-o"></i>福建-大田(198.168.21.202)
-                        </p>
-                    </div>
-                    <div class="collect-detail">
-                        <p>
-                            <span>2017-09-17 15:21</span> 收藏了
-                            <a href="javascript:;">《pull-left 可以轻易构造出引用的特殊效果》</a>
-                        </p>
-                        <p>
-                            <i class="fa fa-paper-plane-o"></i>福建-大田(198.168.21.202)
+                            <i class="fa fa-paper-plane-o"></i>福建-大田({{item.ip_address}})
                         </p>
                     </div>
                     <div class="page-box">
@@ -106,8 +65,7 @@ export default {
             let paramsData = { 'data': { 'search_form': _this.search_form } };
             axios.get('/user/collect/lists?page=' + _this.collect_pagination.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
-                _this.article_data = data.lists.data;
-                _this.article_options = data.options;
+                _this.collect_data = data.lists.data;
                 _this.collect_pagination.per_page = parseInt(data.lists.per_page);
                 _this.collect_pagination.current_page = parseInt(data.lists.current_page);
                 _this.collect_pagination.total = parseInt(data.lists.total);

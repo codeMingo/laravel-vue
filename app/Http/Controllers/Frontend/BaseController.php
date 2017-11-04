@@ -13,12 +13,14 @@ class BaseController extends Controller
     {
         $this->middleware(function ($request, $next) {
             // 请求频繁直接返回
-            if (!$this->repeatOperation($request->path())) {
-                return response()->json([
-                    'status' => 0,
-                    'data' => [],
-                    'message' => '请求过于频繁，请不要重复操作'
-                ]);
+            if (!$request->isMethod('get')) {
+                if (!$this->repeatOperation($request->path())) {
+                    return response()->json([
+                        'status' => 0,
+                        'data' => [],
+                        'message' => '请求过于频繁，请不要重复操作'
+                    ]);
+                }
             }
             return $next($request);
         });

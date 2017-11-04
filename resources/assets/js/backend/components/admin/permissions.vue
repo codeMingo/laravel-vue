@@ -9,7 +9,7 @@
             <el-table-column prop="include_menus" label="权限节点数" width="180" :formatter="formatMenus"></el-table-column>
             <el-table-column prop="status" label="状态" width="180" :formatter="formatStatus"></el-table-column>
             <el-table-column align="center" label="操作">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <el-button size="small" type="info" @click="toLink('/admin/permissions/detail/' + scope.row.id)">查看详情</el-button>
                     <el-button size="small" type="success" @click="changeStatus(scope.row.id, 0)" v-if="scope.row.status == 1">禁用</el-button>
                     <el-button size="small" type="warning" @click="changeStatus(scope.row.id, 1)" v-else>启用</el-button>

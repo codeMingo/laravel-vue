@@ -3,15 +3,26 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Article;
+use App\Repositories\Frontend\CommonRepository;
 use Qiniu\Auth;
 use Qiniu\Storage\UploadManager;
-use App\Models\Article;
 
 class TestController extends Controller
 {
     // 测试
     public function index()
     {
+        $mailData = [
+            'view'  => 'register',
+            'to'    => '292304400@qq.com',
+            'from'  => '"From:" linlm1994@ububs.com',
+            'title' => '账户激活邮件',
+            'name'  => '林联敏先生',
+            'url'   => env('APP_URL') . '/active?mail_id=' . 00001 . '&user_id=' . base64_encode(00001),
+        ];
+        CommonRepository::getInstance()->sendEmail($mailData);
+        exit;
         $article = new Article();
         echo $article->getTable();exit();
 

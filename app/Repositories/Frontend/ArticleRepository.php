@@ -110,6 +110,7 @@ class ArticleRepository extends BaseRepository
         $read_count_lists = $this->readCount($article_id_arr);
         // 获取各自评论总数
         $comment_count_lists = $this->commentCount($article_id_arr);
+        
         // 该篇文章的 hate like collect read 总数
         if (isset($interactive_count_lists[$article_id])) {
             $resultData['list']->like_count = isset($interactive_count_lists[$article_id]['like_count']) ? $interactive_count_lists[$article_id]['like_count'] : 0;

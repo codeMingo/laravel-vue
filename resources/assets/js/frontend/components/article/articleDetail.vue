@@ -17,7 +17,7 @@
                         <span>发表时间：<strong>{{article_data.created_at}}</strong></span>
                         <span>阅读量：<strong>{{article_data.read_count}}</strong></span>
                         <span>评论：<strong>{{article_comment_pagination.total}}</strong></span>
-                        <span>点赞：<strong>{{article_data.like_count}}</strong></span>
+                        <span>点赞：<strong>{{article_data.like_count | defaultValue(0)}}</strong></span>
                     </p>
                     <div class="ql-container ql-snow">
                         <div class="article-content ql-editor" v-html="article_data.content" style="padding: 0;"></div>

@@ -63,20 +63,18 @@ class CommonRepository extends BaseRepository
 
     /**
      * 发送邮件
-     * @param  Array $input [view, to, ...]
+     * @param  Array $mailData [view, to, ...]
      * @return null
      */
-    public function sendEmail($input)
+    public function sendEmail($mailData)
     {
-        return true;
-        switch ($input['view']) {
+        switch ($mailData['view']) {
             case 'register':
                 $mailMessage = (new RegisterOrder($mailData));
                 break;
             default:
                 $mailMessage = (new RegisterOrder($mailData));
         }
-
-        Mail::to($input['to'])->queue($mailMessage);
+        Mail::to($mailData['to'])->queue($mailMessage);
     }
 }

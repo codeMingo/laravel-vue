@@ -30,7 +30,7 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 新增文章
-     * @param  Array $input [category_id, title, auther, content, tag_include, source, is_audit, recommend, status]
+     * @param  Array $input [category_id, title, auther, content, tag_ids, source, is_audit, recommend, status]
      * @return array
      */
     public function store($input)
@@ -40,7 +40,7 @@ class ArticleRepository extends BaseRepository
         $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
         $auther      = isset($input['auther']) ? strval($input['auther']) : '';
         $content     = isset($input['content']) ? strval($input['content']) : '';
-        $tag_include = isset($input['tag_include']) ? implode(',', $input['tag_include']) : '';
+        $tag_ids = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
         $source      = isset($input['source']) ? strval($input['source']) : '';
         $is_audit    = isset($input['is_audit']) ? intval($input['is_audit']) : 0;
         $recommend   = isset($input['recommend']) && !empty($input['recommend']) ? 1 : 0;
@@ -70,7 +70,7 @@ class ArticleRepository extends BaseRepository
             'thumbnail'   => $thumbnail,
             'auther'      => $auther,
             'content'     => $content,
-            'tag_include' => $tag_include,
+            'tag_ids'     => $tag_ids,
             'source'      => $source,
             'is_audit'    => $is_audit,
             'recommend'   => $recommend,
@@ -97,7 +97,7 @@ class ArticleRepository extends BaseRepository
     /**
      * 编辑文章
      * @param Int $article_id
-     * @param  Array $input [category_id, title, auther, content, tag_include, source, is_audit, recommend, status]
+     * @param  Array $input [category_id, title, auther, content, tag_ids, source, is_audit, recommend, status]
      * @return array
      */
     public function update($article_id, $input)
@@ -115,7 +115,7 @@ class ArticleRepository extends BaseRepository
         $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
         $auther      = isset($input['auther']) ? strval($input['auther']) : '';
         $content     = isset($input['content']) ? strval($input['content']) : '';
-        $tag_include = isset($input['tag_include']) ? implode(',', $input['tag_include']) : '';
+        $tag_ids = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
         $source      = isset($input['source']) ? strval($input['source']) : '';
         $is_audit    = isset($input['is_audit']) ? intval($input['is_audit']) : 0;
         $recommend   = isset($input['recommend']) && !empty($input['recommend']) ? 1 : 0;
@@ -145,7 +145,7 @@ class ArticleRepository extends BaseRepository
             'thumbnail'   => $thumbnail,
             'auther'      => $auther,
             'content'     => $content,
-            'tag_include' => $tag_include,
+            'tag_ids' => $tag_ids,
             'source'      => $source,
             'is_audit'    => $is_audit,
             'recommend'   => $recommend,
@@ -418,8 +418,8 @@ class ArticleRepository extends BaseRepository
             $query->where('auther', 'like', '%' . $search_form['auther'] . '%');
         }
 
-        if (isset($search_form['tag_include']) && is_array($search_form['tag_include']) && !empty($search_form['tag_include'])) {
-            $query->whereIn('tag_include', $search_form['tag_include']);
+        if (isset($search_form['tag_ids']) && is_array($search_form['tag_ids']) && !empty($search_form['tag_ids'])) {
+            $query->whereIn('tag_ids', $search_form['tag_ids']);
         }
         return $query->paginate($page_size);
     }

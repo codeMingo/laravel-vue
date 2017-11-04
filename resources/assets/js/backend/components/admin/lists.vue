@@ -11,26 +11,26 @@
         <shortcut-component ref="describtion"></shortcut-component>
         <el-table :data="tableData" border style="width: 100%">
             <el-table-column label="用户名" class-name="am-link-target-td">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <a href="javascript:;" @click="getLinkDescribe(scope.row.id)">{{scope.row.username}}</a>
                 </template>
             </el-table-column>
             <el-table-column prop="email" label="电子邮件"></el-table-column>
             <el-table-column label="管理员等级">
-                <template scope="scope">
+                <template slot-scope="scope">
                     {{scope.row.permission_id | formatByOptions(options.permission, 'id', 'text')}}
                 </template>
             </el-table-column>
             <el-table-column prop="last_login_ip" label="最后登录ip"></el-table-column>
             <el-table-column prop="last_login_time" label="最后登录时间"></el-table-column>
             <el-table-column align="center" label="状态">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <el-tag type="gray" v-show="!scope.row.status" @click.native="changeFieldValue('status', scope.row.id, 1)">冻结</el-tag>
                     <el-tag type="primary" v-show="scope.row.status" @click.native="changeFieldValue('status', scope.row.id, 0)">正常</el-tag>
                 </template>
             </el-table-column>
             <el-table-column align="center" label="操作" width="190">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <router-link to="/home">
                         <el-button size="mini" type="info">查看详情</el-button>
                     </router-link>

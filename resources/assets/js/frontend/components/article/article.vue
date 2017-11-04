@@ -16,8 +16,8 @@
                 </div>
                 <div class="content-box article-box">
                     <div class="article-detail" v-for="(item, index) in article_data">
-                        <div class='article-picture'><img :src="item.thumbnail"></div>
-                        <div class="article-word">
+                        <div class='article-picture' v-show="item.thumbnail"><img :src="item.thumbnail"></div>
+                        <div class="article-word" :class="item.thumbnail ? '' : 'article-all'">
                             <h2 class='article-title'>
                                 <el-tag type="primary">{{item.category_id | formatByOptions(article_options.categories, 'id', 'category_name')}}</el-tag>
                                 <router-link :to="{ path: '/article/detail/' + item.id }">{{item.title}}</router-link>
@@ -29,7 +29,7 @@
                                 </p>
                             </div>
                             <div class='article-intro'>
-                                <p>{{item.content | subString(0, 200)}}</p>
+                                <p>{{item.content | subString(0, 150)}}</p>
                             </div>
                             <div class='article-interactive'>
                                 <p>
@@ -176,6 +176,11 @@
                         text-decoration: underline;
                     }
                 }
+            }
+            .article-all {
+                float: none;
+                width: 100%;
+                padding-left: 0;
             }
         }
     }

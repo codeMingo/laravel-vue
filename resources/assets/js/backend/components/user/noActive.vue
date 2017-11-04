@@ -16,7 +16,7 @@
             <el-table-column prop="active" label="是否激活" :formatter="formatActive"></el-table-column>
             <el-table-column prop="status" label="状态" :formatter="formatStatus"></el-table-column>
             <el-table-column align="center" label="操作" width="250">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <el-button size="small" type="info" @click="toLink('/user/detail/' + scope.row.id)">查看详情</el-button>
                     <el-button size="small" type="success" @click="modify(scope.row.id)">编辑</el-button>
                     <el-button size="small" type="danger" @click="trashed(scope.row.id)">删除</el-button>

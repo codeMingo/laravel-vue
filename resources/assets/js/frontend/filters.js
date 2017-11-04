@@ -63,6 +63,11 @@ export function subString(str, sub_start, sub_length) {
     return str.length > sub_length ? str.substring(sub_start, sub_length) + '...' : str;
 }
 
+/**
+ * 获取总数
+ * @param  {array} targetLists 
+ * @return {string}
+ */
 export function getCount(targetLists) {
     let count = 0;
     if (targetLists == undefined) {
@@ -72,4 +77,17 @@ export function getCount(targetLists) {
         return targetLists.length;
     }
     return Object.keys(targetLists).length;
+}
+
+/**
+ * 默认值
+ * @param  {string} value 
+ * @param  {string} default 
+ * @return {string}
+ */
+export function defaultValue(value, defaultString) {
+    if (value == undefined) {
+        return defaultString;
+    }
+    return value;
 }

@@ -107,7 +107,7 @@ class UserRepository extends BaseRepository
             $query->where('status', $dictListsValue['article_is_show']);
         }])->with(['videoList' => function($query) {
             $query->where('status', 1);
-        }])->get();
+        }])->orderby('created_at', 'desc')->paginate();
         return $collect_lists;
     }
 }

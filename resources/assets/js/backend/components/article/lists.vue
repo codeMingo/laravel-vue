@@ -15,25 +15,25 @@
         <el-table :data="tableData" border style="width: 100%">
             <el-table-column prop="title" label="标题"></el-table-column>
             <el-table-column label="类别">
-                <template scope="scope">
+                <template slot-scope="scope">
                     {{scope.row.category_id | formatByOptions(options.categories, 'id', 'category_name')}}
                 </template>
             </el-table-column>
             <el-table-column prop="auther" label="作者"></el-table-column>
             <el-table-column prop="created_at" label="发表时间"></el-table-column>
             <el-table-column label="是否推荐">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <el-tag type="gray" v-show="!scope.row.recommend" @click.native="changeFieldValue('recommend', scope.row.id, 1)">否</el-tag>
                     <el-tag type="primary" v-show="scope.row.recommend" @click.native="changeFieldValue('recommend', scope.row.id, 0)">是</el-tag>
                 </template>
             </el-table-column>
             <el-table-column label="状态">
-                <template scope="scope">
+                <template slot-scope="scope">
                     {{scope.row.status | formatByOptions(options.status, 'value', 'text')}}
                 </template>
             </el-table-column>
             <el-table-column align="center" label="操作" width="250">
-                <template scope="scope">
+                <template slot-scope="scope">
                     <router-link :to="{ path: '/article/show/' + scope.row.id }">
                         <el-button size="small" type="info">查看详情</el-button>
                     </router-link>
