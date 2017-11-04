@@ -1,14 +1,25 @@
 <?php
 namespace App\Repositories\Frontend;
 
+use App\Models\Interact;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Interact;
 
 class UserRepository extends BaseRepository
 {
 
     public $table_name = 'users';
+
+    public function mainShow()
+    {
+        $user_id = Auth::guard('web')->id();
+        $result['list'] = User::select(['username', 'last_login_time', 'sign', 'face'])->where('id', $user_id)->where('status', 1)->first();
+        return [
+            'status'  => Parent::ERROR_STATUS,
+            'data'    => $result,
+            'message' => '数据获取成功',
+        ];
+    }
 
     /**
      * 个人中心页面
@@ -90,22 +101,22 @@ class UserRepository extends BaseRepository
 
     public function collectLists($input)
     {
-        $user_id = Auth::guard('web')->id();
+        $user_id             = Auth::guard('web')->id();
         $resultData['lists'] = $this->getCollectLists($user_id);
         return [
-            'status' => Parent::SUCCESS_STATUS,
-            'data' => $resultData,
-            'message' => '获取收藏列表成功'
+            'status'  => Parent::SUCCESS_STATUS,
+            'data'    => $resultData,
+            'message' => '获取收藏列表成功',
         ];
     }
 
     public function getCollectLists($user_id)
     {
-        $user_id = Auth::guard('web')->id();
+        $user_id        = Auth::guard('web')->id();
         $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $collect_lists = Interact::where('user_id', $user_id)->where('collect', 1)->with(['article' => function($query) use ($dictListsValue) {
+        $collect_lists  = Interact::where('user_id', $user_id)->where('collect', 1)->with(['article' => function ($query) use ($dictListsValue) {
             $query->where('status', $dictListsValue['article_is_show']);
-        }])->with(['videoList' => function($query) {
+        }])->with(['videoList' => function ($query) {
             $query->where('status', 1);
         }])->orderby('created_at', 'desc')->paginate();
         return $collect_lists;

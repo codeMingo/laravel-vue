@@ -12,6 +12,12 @@ class UserController extends BaseController
         parent::__construct();
     }
 
+    public function mainShow()
+    {
+        $result = UserRepository::getInstance()->mainShow();
+        return response()->json($result);
+    }
+
     // 个人中心
     public function index()
     {

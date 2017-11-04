@@ -13,7 +13,7 @@
                         <p class="intro-tip">用来登录或找回密码等验证，<a href="javascript:;">修改</a></p>
                     </el-form-item>
                     <el-form-item label="个性签名" prop="sign">
-                        <el-input type="textarea" v-model="user_data.sign" placeholder="展示个性的一句短语"></el-input>
+                        <el-input class="sign-textarea" type="textarea" v-model="user_data.sign" placeholder="展示个性的一句短语"></el-input>
                         <p class="intro-tip">展示个性的一句短语</p>
                     </el-form-item>
                     <el-form-item label="网站地址" prop="web_url">
@@ -63,6 +63,13 @@
     width: 178px;
     height: 178px;
     display: block;
+}
+
+.sign-textarea {
+    textarea {
+        font-size: 12px !important;
+        color: #A3A1A1 !important;
+    }
 }
 </style>
 <script type="text/javascript">

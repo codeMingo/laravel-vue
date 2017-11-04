@@ -38,6 +38,7 @@ Route::group(['namespace' => 'Frontend'], function () {
         Route::put('/leave/publish', 'LeaveController@publish');
 
         // 用户模块
+        Route::get('/user/main-show', 'UserController@mainShow');
         Route::get('/user/index', 'UserController@index');
         Route::put('/user/update-user/{user_id}', 'UserController@updateUser');
         Route::get('/user/collect/lists', 'UserController@collectLists');

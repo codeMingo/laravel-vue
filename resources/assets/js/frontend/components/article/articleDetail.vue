@@ -23,17 +23,27 @@
                         <div class="article-content ql-editor" v-html="article_data.content" style="padding: 0;"></div>
                     </div>
                     <div class="article-label">
-                        <p>
+                        <p v-show="article_data.tag_lists">
                             <strong>标签：</strong>
                             <a href="javascript:;" v-for="item in article_data.tag_lists">{{item.tag_name}}</a>
                         </p>
+                    </div>
+                    <div class="user-tip" v-show="!this.$store.state.user_data.username">
+                        <div id="commentsbmitarear">
+                            <div class="guest_link">
+                                <span class="log_ico"><i class="fa fa-user-o"></i></span>
+                                <span class="txt">目前您尚未登录，请 <router-link to="/login">登录</router-link> 或 <router-link to="/register">注册</router-link> 后进行评论</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="article-interactive">
                         <div class="article-more">
                             <div class="article-prev">
                                 <template v-if="prev_article">
-                                    <p><a href="javascript:;"><i class="fa fa-chevron-left"></i>上一篇：{{prev_article.title}}</a></p>
-                                    <p>@{{prev_article.created_at}} 阅读({{prev_article.read_count}}) 赞({{prev_article.like_count}}) 评论({{prev_article.comment_count}})</p>
+                                    <p>
+                                        <router-link :to="{ path: '/article/detail/' + prev_article.id }"><i class="fa fa-chevron-left"></i>上一篇：{{prev_article.title}}</router-link>
+                                    </p>
+                                    <p>@{{prev_article.created_at}} 阅读({{prev_article.read_count}}) 赞({{prev_article.like_count | defaultValue(0)}}) 评论({{prev_article.comment_count}})</p>
                                 </template>
                                 <template v-else>
                                     <p><a href="javascript:;"><i class="fa fa-chevron-left"></i>这是第一篇</a></p>
@@ -41,8 +51,10 @@
                             </div>
                             <div class="article-next">
                                 <template v-if="next_article">
-                                    <p><a href="javascript:;">下一篇：{{next_article.title}}<i class="fa fa-chevron-right"></i></a></p>
-                                    <p>@{{next_article.created_at}} 阅读({{next_article.read_count}}) 赞({{next_article.like_count}}) 评论({{next_article.comment_count}})</p>
+                                    <p>
+                                        <router-link :to="{ path: '/article/detail/' + next_article.id }">下一篇：{{next_article.title}}<i class="fa fa-chevron-right"></i></router-link>
+                                    </p>
+                                    <p>@{{next_article.created_at}} 阅读({{next_article.read_count}}) 赞({{next_article.like_count | defaultValue(0)}}) 评论({{next_article.comment_count}})</p>
                                 </template>
                                 <template v-else>
                                     <p><a href="javascript:;">已经是最后一篇<i class="fa fa-chevron-right"></i></a></p>
@@ -180,6 +192,9 @@
             margin-bottom: 10px;
             span {
                 margin: 0 5px;
+                strong {
+                    font-weight: normal;
+                }
             }
         }
         .article-content {
@@ -194,8 +209,24 @@
         }
         .article-label {
             font-size: 13px;
+            margin-top: 10px;
+            strong {
+                display: inline-block;
+                padding: 0 8px;
+                color: #017E66;
+                background-color: rgba(1, 126, 102, 0.08);
+                height: 24px;
+                line-height: 24px;
+                font-weight: normal;
+                font-size: 13px;
+                text-align: center;
+            }
+            strong:hover {
+                background-color: #017E66;
+                color: #fff;
+                text-decoration: none;
+            }
             p {
-                strong {}
                 a {
                     display: inline-block;
                     padding: 0.3em 0.9em;
@@ -207,6 +238,43 @@
                 }
                 a:hover {
                     background-color: #ddeeff;
+                }
+            }
+        }
+        .user-tip {
+            .guest_link {
+                margin-bottom: 20px;
+                clear: both;
+                overflow: hidden;
+                height: 80px;
+                font-family: MicrosoftYaHei;
+                font-size: 14px;
+                color: #4f4f4f;
+                text-align: center;
+                background: #e7ecf0;
+                .log_ico {
+                    display: inline-block;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 20px;
+                    line-height: 40px;
+                    margin-top: 20px;
+                    margin-right: 20px;
+                    text-align: center;
+                    vertical-align: top;
+                    background: #afbac3;
+                    i {
+                        color: #e2e9ef;
+                    }
+                }
+                .txt {
+                    display: inline-block;
+                    vertical-align: top;
+                    margin-top: 28px;
+                    a {
+                        color: #e73131;
+                        text-decoration: underline;
+                    }
                 }
             }
         }
@@ -302,6 +370,13 @@ export default {
             },
 
         };
+    },
+    watch: {
+        '$route' (to, from) {
+            this.article_id = this.$route.params.id;
+            this.getList();
+            this.getCommentLists();
+        }
     },
     mounted() {
         this.getList();

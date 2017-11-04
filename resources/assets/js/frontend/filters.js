@@ -65,7 +65,7 @@ export function subString(str, sub_start, sub_length) {
 
 /**
  * 获取总数
- * @param  {array} targetLists 
+ * @param  {array} targetLists
  * @return {string}
  */
 export function getCount(targetLists) {
@@ -81,12 +81,12 @@ export function getCount(targetLists) {
 
 /**
  * 默认值
- * @param  {string} value 
- * @param  {string} default 
+ * @param  {string} value
+ * @param  {string} default
  * @return {string}
  */
 export function defaultValue(value, defaultString) {
-    if (value == undefined) {
+    if (value == undefined || value === '') {
         return defaultString;
     }
     return value;

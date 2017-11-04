@@ -8,15 +8,16 @@
                         <div class="user-box">
                             <div class="user-tab list-image-text">
                                 <el-row :gutter="10">
-                                    <el-col :xs="6" :sm="6" :md="4" :lg="4">
+                                    <el-col :sm="8" :md="5">
                                         <div class="list-image">
-                                            <img src="/images/focus_weixin.png">
+                                            <img v-if="!this.$store.state.user_data.face" src="/images/focus_weixin.png">
+                                            <img v-else :src="this.$store.state.user_data.face">
                                         </div>
                                     </el-col>
-                                    <el-col :xs="18" :sm="18" :md="20" :lg="20">
+                                    <el-col :sm="16" :md="19">
                                         <div class="list-text">
-                                            <h3>ububs阿敏</h3>
-                                            <p><span class="text-lable">个性签名：</span>不会做清蒸鱼的PHP工程师不是好的厨师！</p>
+                                            <h3>用户名：{{user_main.username}}</h3>
+                                            <p>个性签名：{{user_main.sign | defaultValue('未设置')}}</p>
                                         </div>
                                     </el-col>
                                 </el-row>
@@ -41,7 +42,7 @@
                                 </ul>
                             </div>
                             <div class="user-tab shortcuts-box">
-                                <p>上次登录：<span>2017-08-19 15:12:17</span></p>
+                                <p>上次登录：<span>{{user_main.last_login_time | defaultValue('首次登录')}}</span></p>
                             </div>
                         </div>
                     </el-col>
@@ -108,16 +109,13 @@
     .list-text {
         h3 {
             margin-bottom: 3px;
-            color: #78CAF0;
+            color: #6B6B6B;
             font-weight: normal;
+            font-size: 13px;
         }
         p {
-            color: #C1BDBD;
-            font-size: 13px;
-            .text-lable {
-                color: #D8D1D1;
-                font-size: 13px;
-            }
+            color: #6B6B6B;
+            font-size: 12px;
         }
     }
 }
@@ -132,17 +130,31 @@ export default {
     },
     data() {
         return {
-            menu_active: this.$route.path
+            menu_active: this.$route.path,
+            user_main: {
+                face: '',
+                username: '',
+                sign: '',
+                last_login_time: ''
+            }
         };
     },
-    mounted() {},
+    mounted() {
+        this.getOriginData();
+    },
     watch: {
         '$route' (to, from) {
             this.menu_active = this.$route.path;
         }
     },
     methods: {
-
+        getOriginData() {
+            let _this = this;
+            axios.get('/user/main-show').then(response => {
+                let {status, data, message} = response.data;
+                _this.user_main = data.list;
+            });
+        }
     }
 }
 </script>

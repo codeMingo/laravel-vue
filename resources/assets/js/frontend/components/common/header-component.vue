@@ -111,6 +111,7 @@
         height: 60px;
         line-height: 60px;
         float: right;
+        margin-right: 10px;
     }
     .web-menu {
         float: right;
