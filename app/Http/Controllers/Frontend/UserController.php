@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Frontend;
 
-use App\Repositories\Frontend\userRepository;
+use App\Repositories\Frontend\UserRepository;
 use Illuminate\Http\Request;
 
 class UserController extends BaseController
