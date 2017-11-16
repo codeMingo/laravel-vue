@@ -3,9 +3,9 @@ namespace App\Repositories\Backend;
 
 use App\Models\AdminOperateRecord;
 use App\Models\Dict;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 abstract class BaseRepository
 {
@@ -21,6 +21,29 @@ abstract class BaseRepository
             self::$instance[$class] = new $class;
         }
         return self::$instance[$class];
+    }
+
+    /**
+     * 过滤参数
+     * @param  Array $params
+     * @return Array
+     */
+    public function parseParams($params)
+    {
+        if (empty($params)) {
+            return [];
+        }
+        $field_lists = Schema::getColumnListing($this->table_name);
+        foreach ($params as $key => $value) {
+            if (!in_array($key, $field_lists)) {
+                unset($params[$key]);
+                break;
+            }
+            if (empty($value) && !($value === '0' || $value === 0)) {
+                unset($params[$key]);
+            }
+        }
+        return $params;
     }
 
     /**
@@ -49,13 +72,13 @@ abstract class BaseRepository
     {
         try {
             AdminOperateRecord::create([
-            'admin_id'   => Auth::guard('admin')->id(),
-            'action'     => $input['action'],
-            'params'     => json_encode($input['params']),
-            'text'       => $input['text'],
-            'ip_address' => getClientIp(),
-            'status'     => $input['status']
-        ]);
+                'admin_id'   => Auth::guard('admin')->id(),
+                'action'     => $input['action'],
+                'params'     => json_encode($input['params']),
+                'text'       => $input['text'],
+                'ip_address' => getClientIp(),
+                'status'     => $input['status'],
+            ]);
         } catch (Exception $e) {
             Log::info('RECORD FAIL：saveAdminOperateRecord is error，params :' . json_encode($input));
         }

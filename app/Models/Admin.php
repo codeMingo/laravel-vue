@@ -30,22 +30,6 @@ class Admin extends Authenticatable
     ];
 
     /**
-     *
-     */
-    public static function lists($searchForm)
-    {
-        $whereParams = [];
-        if (isset($searchForm['permission_id']) && !empty($searchForm['permission_id'])) {
-            $whereParams['permission_id'] = $searchForm['permission_id'];
-        }
-        $query = Admin::where($whereParams);
-        if (isset($searchForm['username']) && $searchForm['username'] !== '') {
-            $query->where('username', 'like', '%' . $searchForm['username'] . '%');
-        }
-        return $query->paginate(config('blog.pageSize'));
-    }
-
-    /**
      * 获取权限对应的人数
      */
     public static function getNumLists($permissionIds)

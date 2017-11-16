@@ -10,7 +10,7 @@ class Base extends Model
     /**
      * 查询
      * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  Array $where_arr 查询条件[key, value, condition]
+     * @param  Array $where_arr 查询条件[key, value]
      * @return \Illuminate\Database\Eloquent\Builder  $query
      */
     public function scopeParseWheres($query, $where_arr)
@@ -26,6 +26,10 @@ class Base extends Model
             'or'          => 'orWhere',
             'not_in'      => 'whereNotIn',
         ];
+
+        // 获取where解析条件
+
+
         foreach ($where_arr as $key => $item) {
             if (is_string($item)) {
                 $query->where($key, $item);

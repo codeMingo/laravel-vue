@@ -3,7 +3,6 @@ namespace App\Repositories\Backend;
 
 use App\Models\Admin;
 use App\Models\AdminLoginRecord;
-use App\Repositories\Backend\DictRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 
@@ -56,12 +55,11 @@ class LoginRepository extends BaseRepository
             } else {
                 Redis::set($redisKey, 1);
             }
-            Redis::expire($redisKey, DictRepository::getInstance()->getDictValueByTextEn('backend_login_limit_time'));
+            Redis::expire($redisKey, 10);
 
             AdminLoginRecord::create([
-                'admin_id'   => '',
                 'params'     => json_encode($input),
-                'text'       => '登录失败，用户名或密码错误',
+                'text'       => '登录失败，帐号被限制',
                 'ip_address' => $ip_address,
                 'status'     => 0,
             ]);

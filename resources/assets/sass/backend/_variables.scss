@@ -5,6 +5,9 @@ html, body, div, p, ul, li, ol, table, tr, td, h1, h2, h3, h4, h5 {
 html, body {
     height: 100%;
 }
+a {
+    text-decoration: none;
+}
 .sidebar-wrapper::-webkit-scrollbar/*整体部分*/
 {
     width: 6px;
@@ -54,4 +57,16 @@ html, body {
             transition: all .28s ease-out;
         }
     }
+}
+.normal {
+    color: #070707;
+}
+.highlight-link {
+    color: #409EFF;
+}
+.disabled {
+    color: #B0AEAE;
+}
+.search-input {
+    width: 200px !important;;
 }

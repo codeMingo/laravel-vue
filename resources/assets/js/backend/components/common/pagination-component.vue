@@ -28,7 +28,7 @@
         methods: {
             currentPageChange(val) {
                 this.pageData.current_page = val;
-                this.$emit('getList');
+                this.$emit('getLists');
             },
         }
     }

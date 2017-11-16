@@ -14,7 +14,7 @@ class AdminController extends BaseController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = AdminRepository::getInstance()->lists($input);
+        $result = AdminRepository::getInstance()->index($input);
         return response()->json($result);
     }
 

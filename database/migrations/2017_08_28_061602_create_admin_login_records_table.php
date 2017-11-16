@@ -16,7 +16,7 @@ class CreateAdminLoginRecordsTable extends Migration
         Schema::create('admin_login_records', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer('admin_id')->comment('管理员id');
+            $table->integer('admin_id')->default(0)->comment('管理员id');
             $table->string('params')->comment('参数');
             $table->string('text')->default('')->comment('说明');
             $table->string('ip_address', 15)->default('')->comment('ip地址');

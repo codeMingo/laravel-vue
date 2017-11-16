@@ -8,14 +8,16 @@ use Illuminate\Support\Facades\Hash;
 class AdminRepository extends BaseRepository
 {
 
+    public $table_name = 'admins';
+
     /**
      * 管理员列表
-     * @param  Array $input [searchForm]
+     * @param  Array $input [search_form]
      * @return Array
      */
-    public function lists($input)
+    public function index($input)
     {
-        $resultData['lists']             = Admin::lists($input['searchForm']);
+        $resultData['lists']             = $this->getAdminLists($input['search_form']);
         $resultData['permissionOptions'] = AdminPermission::where('status', 1)->get();
         return [
             'status'  => Parent::SUCCESS_STATUS,
@@ -221,5 +223,18 @@ class AdminRepository extends BaseRepository
             'data'    => [],
             'message' => !$updateResult ? '操作失败，未知错误' : '操作成功',
         ];
+    }
+
+    public function getAdminLists($search_form)
+    {
+        $where_params = [];
+        if (isset($search_form['permission_id']) && !empty($search_form['permission_id'])) {
+            $where_params['permission_id'] = $search_form['permission_id'];
+        }
+        $query = Admin::where($where_params);
+        if (isset($search_form['username']) && $search_form['username'] !== '') {
+            $query->where('username', 'like', '%' . $search_form['username'] . '%');
+        }
+        return $query->paginate();
     }
 }
