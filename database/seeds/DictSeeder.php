@@ -47,6 +47,11 @@ class DictSeeder extends Seeder
             ['code' => 'article_status', 'code_name' => '文章状态', 'value' => -10, 'text_en' => 'article_out', 'text' => '下架'],
             ['code' => 'article_status', 'code_name' => '文章状态', 'value' => 10, 'text_en' => 'article_is_audit', 'text' => '审核中'],
             ['code' => 'article_status', 'code_name' => '文章状态', 'value' => 20, 'text_en' => 'article_is_show', 'text' => '正常'],
+            // 文章状态
+            ['code' => 'video_status', 'code_name' => '视频状态', 'value' => 0, 'text_en' => 'video_not_show', 'text' => '未显示'],
+            ['code' => 'video_status', 'code_name' => '视频状态', 'value' => -10, 'text_en' => 'video_out', 'text' => '下架'],
+            ['code' => 'video_status', 'code_name' => '视频状态', 'value' => 10, 'text_en' => 'video_is_audit', 'text' => '审核中'],
+            ['code' => 'video_status', 'code_name' => '视频状态', 'value' => 20, 'text_en' => 'video_is_show', 'text' => '正常'],
         ];
         \App\Models\Dict::insert($data);
     }
