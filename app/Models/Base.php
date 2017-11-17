@@ -36,7 +36,6 @@ class Base extends Model
                 $query->$condition($key, $item['value']);
             }
         }
-
         return $query;
     }
 }

@@ -86,6 +86,21 @@ class AdminRepository extends BaseRepository
     }
 
     /**
+     * 详情
+     * @param  Int $admin_id
+     * @return Array
+     */
+    public function show($admin_id)
+    {
+        $result['list'] = Admin::where('id', $admin_id)->with('adminPermission')->with('adminLoginReocrd')->with('adminOperateRecord')->first();
+        return [
+            'status' => Parent::SUCCESS_STATUS,
+            'data' => $result,
+            'message' => '数据获取成功'
+        ];
+    }
+
+    /**
      * 编辑
      * @param  Array $input [username, email, password, permission_id, status]
      * @param  Int $admin_id

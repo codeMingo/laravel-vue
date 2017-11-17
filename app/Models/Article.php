@@ -29,5 +29,4 @@ class Article extends Base
     {
         return $this->hasOne('App\Models\Category', 'id', 'category_id');
     }
-
 }

@@ -17,7 +17,7 @@ class CreateAdminPermissionsTable extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->string('text', 15);
-            $table->text('permission_include')->comment('权限节点');
+            $table->text('permission_includes')->comment('权限节点');
             $table->tinyInteger('status')->default(1)->comment('状态(0|1)');
             $table->timestamps();
             $table->softDeletes();

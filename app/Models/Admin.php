@@ -29,20 +29,21 @@ class Admin extends Base implements Authenticatable
         'password', 'remember_token',
     ];
 
-    /**
-     * 获取权限对应的人数
-     */
-    public static function getNumLists($permissionIds)
+    // 关联菜单表
+    public function adminPermission()
     {
-        $lists  = Admin::whereIn('id', $permissionIds)->get();
-        $result = [];
-        foreach ($lists as $key => $value) {
-            if (isset($result[$value['permission_id']])) {
-                $result[$value['permission_id']] += 1;
-            } else {
-                $result[$value['permission_id']] = 0;
-            }
-        }
-        return $result;
+        return $this->hasOne('App\Models\AdminPermission', 'id', 'admin_id');
+    }
+
+    // 关联登录日志表
+    public function adminLoginRecord()
+    {
+        return $this->hasMany('App\Models\AdminLoginRecord', 'id', 'admin_id');
+    }
+
+    // 关联操作日志表
+    public function adminOperateRecord()
+    {
+        return $this->hasMany('App\Models\AdminOperateRecord', 'id', 'admin_id');
     }
 }
