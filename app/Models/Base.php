@@ -10,16 +10,17 @@ class Base extends Model
     /**
      * 查询
      * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  Array $where_arr 查询条件[key, value]
+     * @param  Array $param_rules 查询条件[key, value]
      * @return \Illuminate\Database\Eloquent\Builder  $query
      */
-    public function scopeParseWheres($query, $where_arr)
+    public function scopeParseWheres($query, $param_rules)
     {
-        if (empty($where_arr)) {
+        if (empty($param_rules)) {
             return $query;
         }
 
         $condition_arr = [
+            '='           => 'where',
             'between'     => 'whereBetween',
             'not_between' => 'whereNotBetween',
             'in'          => 'whereIn',
@@ -27,27 +28,12 @@ class Base extends Model
             'not_in'      => 'whereNotIn',
         ];
 
-        // 获取where解析条件
-
-
-        foreach ($where_arr as $key => $item) {
-            if (is_string($item)) {
-                $query->where($key, $item);
-                continue;
-            }
-            if (!isset($item['value'])) {
-                continue;
-            }
-            if (!isset($item['condition'])) {
-                $query->where($key, $item['value']);
-                continue;
-            }
-            if (isset($condition_arr[$item['condition']])) {
-                $where_condition = $condition_arr[$item['condition']];
-                $query->$where_condition($key, $item['value']);
-            }else {
-                $where_value = $item['condition'] == 'like' ? '%' . $item['value'] . '%' : $item['value'];
-                $query->where($key, $item['condition'], $where_value);
+        foreach ($param_rules as $key => $item) {
+            $condition = isset($condition_arr[$item['condition']]) ? $condition_arr[$item['condition']] : 'where';
+            if ($item['condition'] == 'like') {
+                $query->where($key, $item['condition'], '%' . $item['value'] . '%');
+            } else {
+                $query->$condition($key, $item['value']);
             }
         }
 

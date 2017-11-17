@@ -104,7 +104,7 @@ function getIpLookup($ip)
     return $json;
 }
 
-// 判断是手机登录还是pc登录
+// 判断是手机登录
 function isMobile()
 {
     if (isset($_SERVER['HTTP_VIA'])) {
@@ -134,8 +134,6 @@ function isMobile()
         }
     }
 }
-
-// 判断手机访问， pc访问
 function checkSubstrs($list, $str)
 {
     $flag = false;
@@ -146,4 +144,17 @@ function checkSubstrs($list, $str)
         }
     }
     return $flag;
+}
+
+/**
+ * 验证，并且返回
+ * @param  String OR Int $value     目标
+ * @param  string $type string 或int
+ * @param  string OR Int $default 默认值
+ * @return String OR Int
+ */
+function validateValue($value, $type = 'string', $default = '')
+{
+
+    return (isset($value) && !empty($value)) ? ($type == 'string' ? strval($value) : intval($value)) : $default;
 }

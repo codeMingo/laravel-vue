@@ -24,26 +24,30 @@ abstract class BaseRepository
     }
 
     /**
-     * 过滤参数
+     * 过滤，重组查询参数
      * @param  Array $params
-     * @return Array
+     * @return Array [key => [condition=>'', value=>'']]
      */
     public function parseParams($params)
     {
         if (empty($params)) {
             return [];
         }
-        $field_lists = Schema::getColumnListing($this->table_name);
+        $field_lists = Schema::getColumnListing($this->table_name); // 数据表所有字段
+        $param_rules = $this->params_rules; // 过滤规则
+        $result = [];
         foreach ($params as $key => $value) {
-            if (!in_array($key, $field_lists)) {
-                unset($params[$key]);
-                break;
+            // 参数不在表内直接过滤
+            if (!in_array($key, $field_lists) || $value === '' || $value === []) {
+                continue;
             }
-            if (empty($value) && !($value === '0' || $value === 0)) {
-                unset($params[$key]);
-            }
+            // 参数过滤方式
+            $result[$key] = [
+                'condition' => (!empty($param_rules) && isset($param_rules[$key])) ? $param_rules[$key] : '=',
+                'value' => $value
+            ];
         }
-        return $params;
+        return $result;
     }
 
     /**

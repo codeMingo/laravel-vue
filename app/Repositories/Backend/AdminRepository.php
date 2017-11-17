@@ -9,6 +9,13 @@ class AdminRepository extends BaseRepository
 {
 
     public $table_name = 'admins';
+    public $params_rules = [
+        'id' => '=',
+        'username' => 'like',
+        'email' => 'like',
+        'permission_id' => '=',
+        'status' => '='
+    ];
 
     /**
      * 管理员列表
@@ -18,7 +25,7 @@ class AdminRepository extends BaseRepository
     public function index($input)
     {
         $resultData['lists']             = $this->getAdminLists($input['search_form']);
-        $resultData['permissionOptions'] = AdminPermission::where('status', 1)->get();
+        $resultData['permissionOptions'] = DB::table('admin_permissions')->where('status', 1)->get();
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
@@ -33,11 +40,11 @@ class AdminRepository extends BaseRepository
      */
     public function store($input)
     {
-        $username      = isset($input['username']) ? strval($input['username']) : '';
-        $email         = isset($input['email']) ? strval($input['email']) : '';
+        $username      = validateValue($input['username']);
+        $email         = validateValue($input['email']);
         $password      = isset($input['password']) ? Hash::make(strval($input['password'])) : '';
-        $permission_id = isset($input['permission_id']) ? intval($input['permission_id']) : '';
-        $status        = isset($input['status']) ? intval($input['status']) : '';
+        $permission_id = validateValue($input['permission_id'], 'int');
+        $status        = validateValue($input['status'], 'int');
 
         if (!$username || !$email || $password || !$permission_id) {
             return [
@@ -46,23 +53,15 @@ class AdminRepository extends BaseRepository
                 'message' => '必填字段不得为空',
             ];
         }
-        $usernameList = Admin::where('username', $username)->first();
-        if (!empty($usernameList)) {
+        $unique_list = Admin::where('username', $username)->whereOr('email', $email)->first();
+        if (!empty($unique_list)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '用户名已经存在',
+                'message' => $unique_list->username == $username ? '用户名被注册' : '邮箱被注册',
             ];
         }
-        $emailList = Admin::where('email', $email)->first();
-        if (!empty($emailList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '邮箱已经存在',
-            ];
-        }
-        $insertResult = Admin::create([
+        $result = Admin::create([
             'username'      => $username,
             'email'         => $email,
             'password'      => $password,
@@ -76,29 +75,29 @@ class AdminRepository extends BaseRepository
             'params' => [
                 'input' => $input,
             ],
-            'text'   => !$insertResult ? '新增管理员失败，未知错误' : '新增管理员成功',
-            'status' => !!$insertResult,
+            'text'   => !$result ? '新增管理员失败，未知错误' : '新增管理员成功',
+            'status' => !!$result,
         ]);
         return [
-            'status'  => !$insertResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => [],
-            'message' => !$insertResult ? '新增管理员失败，未知错误' : '新增管理员成功',
+            'status'  => !$result ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
+            'data'    => $result,
+            'message' => !$result ? '新增管理员失败，未知错误' : '新增管理员成功',
         ];
     }
 
     /**
-     * 编辑管理员
+     * 编辑
      * @param  Array $input [username, email, password, permission_id, status]
      * @param  Int $admin_id
      * @return Array
      */
     public function update($input, $admin_id)
     {
-        $username      = isset($input['username']) ? strval($input['username']) : '';
-        $email         = isset($input['email']) ? strval($input['email']) : '';
+        $username      = validateValue($input['username']);
+        $email         = validateValue($input['email']);
         $password      = isset($input['password']) && !empty($input['password']) ? Hash::make(strval($input['password'])) : '';
-        $permission_id = isset($input['permission_id']) ? intval($input['permission_id']) : '';
-        $status        = isset($input['status']) ? intval($input['status']) : '';
+        $permission_id = validateValue($input['permission_id'], 'int');
+        $status        = validateValue($input['status'], 'int');
 
         if (!$username || !$email || !$permission_id) {
             return [
@@ -108,40 +107,32 @@ class AdminRepository extends BaseRepository
             ];
         }
 
-        $adminData = Admin::where('id', $admin_id)->first();
-        if (empty($adminData)) {
+        $admin_list = Admin::where('id', $admin_id)->first();
+        if (empty($admin_list)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
                 'message' => '管理员不存在',
             ];
         }
-        $usernameList = Admin::where('id', '!=', $admin_id)->where('username', $username)->first();
-        if (!empty($usernameList)) {
+        $unique_list = Admin::where('username', $username)->whereOr('email', $email)->where('id', '!=', $admin_id)->first();
+        if (!empty($unique_list)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
-                'message' => '用户名已经存在',
+                'message' => $unique_list->username == $username ? '用户名被注册' : '邮箱被注册',
             ];
         }
-        $emailList = Admin::where('id', '!=', $admin_id)->where('email', $email)->first();
-        if (!empty($emailList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '邮箱已经存在',
-            ];
-        };
         $updateData = [
-            'username'      => $input['username'],
-            'email'         => $input['email'],
-            'permission_id' => $input['permission_id'],
-            'status'        => $input['status'],
+            'username'      => $username,
+            'email'         => $email,
+            'permission_id' => $permission_id,
+            'status'        => $status,
         ];
         if ($password) {
             $updateData['password'] = $password;
         };
-        $updateResult = Admin::where('id', $admin_id)->update($updateData);
+        $result = Admin::where('id', $admin_id)->update($updateData);
 
         // 记录操作日志
         Parent::saveOperateRecord([
@@ -149,14 +140,14 @@ class AdminRepository extends BaseRepository
             'params' => [
                 'input' => $input,
             ],
-            'text'   => !$updateResult ? '更新管理员失败，未知错误' : '更新管理员成功',
-            'status' => !!$updateResult,
+            'text'   => !$result ? '更新管理员失败，未知错误' : '更新管理员成功',
+            'status' => !!$result,
         ]);
 
         return [
-            'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => [],
-            'message' => !$updateResult ? '更新管理员失败，未知错误' : '更新管理员成功',
+            'status'  => !$result ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
+            'data'    => $result,
+            'message' => !$result ? '更新管理员失败，未知错误' : '更新管理员成功',
         ];
     }
 
@@ -167,7 +158,7 @@ class AdminRepository extends BaseRepository
      */
     public function destroy($admin_id)
     {
-        $deleteResult = Admin::where('id', $admin_id)->delete();
+        $result = Admin::where('id', $admin_id)->delete();
 
         // 记录操作日志
         Parent::saveOperateRecord([
@@ -175,66 +166,25 @@ class AdminRepository extends BaseRepository
             'params' => [
                 'admin_id' => $admin_id,
             ],
-            'text'   => !$deleteResult ? '删除管理员失败，未知错误' : '删除管理员成功',
-            'status' => !!$deleteResult,
+            'text'   => !$result ? '删除管理员失败，未知错误' : '删除管理员成功',
+            'status' => !!$result,
         ]);
 
         return [
-            'status'  => !$deleteResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => [],
-            'message' => !$deleteResult ? '删除管理员失败，未知错误' : '删除管理员成功',
+            'status'  => !$result ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
+            'data'    => $result,
+            'message' => !$result ? '删除管理员失败，未知错误' : '删除管理员成功',
         ];
     }
 
     /**
-     * 改变某一个字段的值
-     * @param  Int $admin_id
-     * @param  Array $data [field, value]
-     * @return Array
+     * 列表
+     * @param  Array $search_form [permission_id, status, username]
+     * @return Object              结果集
      */
-    public function changeFieldValue($admin_id, $input)
-    {
-        $field = isset($input['field']) ? strval($input['field']) : '';
-        $value = isset($input['value']) ? strval($input['value']) : '';
-
-        if (!$field) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '参数错误，请刷新页面重试',
-            ];
-        }
-
-        $updateResult = Admin::where('id', $admin_id)->update([$field => $value]);
-
-        // 记录操作日志
-        Parent::saveOperateRecord([
-            'action' => 'Admin/changeFieldValue',
-            'params' => [
-                'admin_id' => $admin_id,
-                'input'    => $input,
-            ],
-            'text'   => !$updateResult ? '操作失败，未知错误' : '操作成功',
-            'status' => !!$updateResult,
-        ]);
-
-        return [
-            'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => [],
-            'message' => !$updateResult ? '操作失败，未知错误' : '操作成功',
-        ];
-    }
-
     public function getAdminLists($search_form)
     {
-        $where_params = [];
-        if (isset($search_form['permission_id']) && !empty($search_form['permission_id'])) {
-            $where_params['permission_id'] = $search_form['permission_id'];
-        }
-        $query = Admin::where($where_params);
-        if (isset($search_form['username']) && $search_form['username'] !== '') {
-            $query->where('username', 'like', '%' . $search_form['username'] . '%');
-        }
-        return $query->paginate();
+        $where_params = $this->parseParams($search_form);
+        return Admin::parseWheres($where_params)->paginate();
     }
 }
