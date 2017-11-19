@@ -155,6 +155,8 @@ function checkSubstrs($list, $str)
  */
 function validateValue($value, $type = 'string', $default = '')
 {
-
-    return (isset($value) && !empty($value)) ? ($type == 'string' ? strval($value) : intval($value)) : $default;
+    if (!isset($value) || empty($value) && ($value !== 0 || $value !== '0')) {
+        return $type == 'string' ? strval($default) : intval($default);
+    }
+    return $type == 'string' ? strval($value) : intval($value);
 }

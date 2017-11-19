@@ -9,12 +9,11 @@
             <el-button type="primary" icon="search" @click="getLists">搜索</el-button>
             <el-button type="primary" icon="plus" @click="create">添加</el-button>
         </el-row>
-        <!-- 用户快捷窗口 -->
-        <shortcut-component ref="describtion"></shortcut-component>
         <el-table :data="tableData" border style="width: 100%">
             <el-table-column label="用户名" class-name="am-link-target-td">
                 <template slot-scope="scope">
-                    <router-link to="/home" :class="scope.row.status ? 'highlight-link' : 'disabled'">{{scope.row.username}}</router-link>
+                    <a href="javascript:;" class="block-data highlight-link" @click="showShortBox($event, scope.row.id)" v-if="scope.row.status">{{scope.row.username}}</a>
+                    <a href="javascript:;" class="block-data highlight-disabled" @click="showShortBox($event, scope.row.id)" v-else>{{scope.row.username}}(冻结)</a>
                 </template>
             </el-table-column>
             <el-table-column prop="email" label="电子邮件"></el-table-column>
@@ -71,13 +70,12 @@
 import PaginationComponent from '../common/pagination-component.vue';
 import TableHeaderComponent from '../common/table-header-component.vue';
 import DialogFooterComponent from '../common/dialog-footer-component.vue';
-import ShortcutComponent from '../common/shortcut-component.vue';
 export default {
     components: {
-        'pagination-component': PaginationComponent,
-        'table-header-component': TableHeaderComponent,
-        'dialog-footer-component': DialogFooterComponent,
-        'shortcut-component': ShortcutComponent
+        PaginationComponent,
+        TableHeaderComponent,
+        DialogFooterComponent,
+        // comp1
     },
     data() {
         var checkRepassword = (rule, value, callback) => {
@@ -88,6 +86,7 @@ export default {
             }
         };
         return {
+            currentView:'',aaa:false,
             formTitle: '',
             formVisible: false,
             tableData: [],
@@ -106,7 +105,7 @@ export default {
                 permission_id: '',
             },
             options: {
-                permission: '',
+                permission: {},
                 status: [
                     { value: 0, text: '冻结' },
                     { value: 1, text: '正常' }
@@ -136,6 +135,7 @@ export default {
                 { required: true, message: '请再次输入密码', trigger: 'blur' },
                 { validator: checkRepassword, trigger: 'blur' }
             ],
+            shortcut_message_box: ''
         }
     },
     mounted() {
@@ -234,21 +234,29 @@ export default {
         changePermission(val) {
             this.loadPermissionIconLoading = true;
         },
-        getLinkDescribe(id) {
-            document.getElementById('am-link-container').style.left = (Vue.getX(event) + 30) + 'px';
-            document.getElementById('am-link-container').style.top = (Vue.getY(event) - 80) + 'px';
-            //重复点击
-            if (_this.$refs.describtion.describeData.id == id && _this.$refs.describtion.describeData.show) {
-                _this.$refs.describtion.describeData.show = false;
-                return false;
-            }
+        showShortBox(event, id) {
+            let data = {};
+            let _this = this;
             _this.tableData.forEach(function(item) {
-                if (item.id === id) {
-                    _this.$refs.describtion.describeData.id = item.id;
-                    _this.$refs.describtion.describeData.username = item.username;
-                    _this.$refs.describtion.describeData.show = true;
+                if (item.id == id) {
+                    data.id = item.id;
+                    data.username = item.username;
+                    _this.options.permission.forEach(function(permission_item) {
+                        if (permission_item.id == item.permission_id) {
+                            data.permission_text = permission_item.text;
+                        }
+                    })
+                    data.email = item.email;
+                    data.last_login_ip = item.last_login_ip;
+                    data.last_login_time = item.last_login_time;
+                    _this.options.status.forEach(function(status_item) {
+                        if (status_item.value == item.status) {
+                            data.status_text = status_item.text;
+                        }
+                    })
                 }
-            });
+            })
+            _this.$emit('changePublicComponent', 'shortcut', event, data);
         }
     }
 }

@@ -8,6 +8,9 @@ html, body {
 a {
     text-decoration: none;
 }
+li {
+    list-style: none;
+}
 .sidebar-wrapper::-webkit-scrollbar/*整体部分*/
 {
     width: 6px;
@@ -64,9 +67,15 @@ a {
 .highlight-link {
     color: #409EFF;
 }
-.disabled {
+.highlight-disabled {
     color: #B0AEAE;
 }
 .search-input {
     width: 200px !important;;
+}
+.block-data {
+    display: block;
+}
+.clear-float {
+    clear: both;
 }

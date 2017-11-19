@@ -39,4 +39,15 @@ export function formatByOptions(val, options, objKey, objValue, text = '-') {
     return text;
 }
 
-
+/**
+ * 默认值
+ * @param  {string} value
+ * @param  {string} default
+ * @return {string}
+ */
+export function defaultValue(value, defaultString) {
+    if (value == undefined || value === '') {
+        return defaultString;
+    }
+    return value;
+}

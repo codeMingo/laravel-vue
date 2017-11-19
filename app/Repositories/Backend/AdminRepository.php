@@ -4,6 +4,7 @@ namespace App\Repositories\Backend;
 use App\Models\Admin;
 use App\Models\AdminPermission;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class AdminRepository extends BaseRepository
 {
@@ -46,7 +47,7 @@ class AdminRepository extends BaseRepository
         $permission_id = validateValue($input['permission_id'], 'int');
         $status        = validateValue($input['status'], 'int');
 
-        if (!$username || !$email || $password || !$permission_id) {
+        if (!$username || !$email || !$password || !$permission_id) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],

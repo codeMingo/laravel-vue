@@ -5,10 +5,11 @@
                 <Sidebar-component class="sidebar-container"></Sidebar-component>
             </div>
             <div class="main-container" :class="$store.state.sidebarMainContainerClass">
-                <Herader-component></Herader-component>
+                <Header-component></Header-component>
                 <div class="app-main">
-                    <router-view></router-view>
+                    <router-view v-on:changePublicComponent="changePublicComponent"></router-view>
                 </div>
+                <Public-component ref="childComponent"></Public-component>
             </div>
         </el-row>
     </div>
@@ -17,15 +18,30 @@
 </style>
 <script type="text/javascript">
 import HeaderComponent from './header-component.vue';
-import sidebarComponent from './sidebar-component.vue';
+import SidebarComponent from './sidebar-component.vue';
+import PublicComponent from './public-component.vue';
 export default {
     name: 'main',
     components: {
-        'Herader-component': HeaderComponent,
-        'Sidebar-component': sidebarComponent
+        HeaderComponent,
+        SidebarComponent,
+        PublicComponent
     },
     computed: {
 
+    },
+    methods: {
+        changePublicComponent(name, event, data) {
+            let targetElementRect = event.target.getBoundingClientRect();
+            let left_x = targetElementRect.left;
+            let screen_y =  document.body.offsetHeight;
+            let origin_y = targetElementRect.top + event.target.clientHeight;
+            let origin_b_y = targetElementRect.top;
+            let top_y = screen_y - origin_y > origin_b_y ? origin_y : origin_b_y - 300;
+            this.$refs.childComponent.currentComponent(name, left_x, top_y);
+            this.$refs.childComponent.shortcutDataDetail = data;
+            // this.$refs.childComponent.dataDetail = data;
+        }
     }
 }
 </script>
