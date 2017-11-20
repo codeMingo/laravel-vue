@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Schema;
 abstract class BaseRepository
 {
     protected static $instance;
-    const ERROR_STATUS   = 0; //失败状态
-    const SUCCESS_STATUS = 1; //成功状态
 
     //获取实例化
     public static function getInstance()
@@ -24,17 +22,33 @@ abstract class BaseRepository
     }
 
     /**
+     * 响应返回
+     * @param  bool $status  true or false
+     * @param  array  $data    返回结果集
+     * @param  string $message 消息提示
+     * @return json
+     */
+    public function responseResult($status, $data = [], $message = '')
+    {
+        return response()->json([
+            'status' => $status,
+            'data' =>  $data,
+            'message' => $message === '' ? (!$status ? '失败' : '成功') : $mesage,
+        ]);
+    }
+
+    /**
      * 过滤，重组查询参数
      * @param  Array $params
      * @return Array [key => [condition=>'', value=>'']]
      */
-    public function parseParams($params)
+    public function parseParams($table_name, $params)
     {
         if (empty($params)) {
             return [];
         }
-        $field_lists = Schema::getColumnListing($this->table_name); // 数据表所有字段
-        $param_rules = $this->params_rules; // 过滤规则
+        $field_lists = Schema::getColumnListing($table_name); // 获取数据表所有字段
+        $param_rules = config('ububs.param_rules')['admins']; // 获取过滤规则
         $result = [];
         foreach ($params as $key => $value) {
             // 参数不在表内直接过滤
@@ -51,18 +65,15 @@ abstract class BaseRepository
     }
 
     /**
-     * 获取字段
+     * 获取字典数据
      * @param  Array $code_arr
-     * @return Array
+     * @return Object
      */
-    public function getDicts($code_arr)
+    public function getDictsByCodeArr($code_arr)
     {
         $result = [];
         if (!empty($code_arr) && is_array($code_arr)) {
-            $lists = Dict::whereIn('code', $code_arr)->get();
-            foreach ($code_arr as $item) {
-                $result[$item] = $lists->where('code', $item)->values()->toArray();
-            }
+            $result = Dict::whereIn('code', $code_arr)->get();
         }
         return $result;
     }
@@ -84,7 +95,9 @@ abstract class BaseRepository
                 'status'     => $input['status'],
             ]);
         } catch (Exception $e) {
-            Log::info('RECORD FAIL：saveAdminOperateRecord is error，params :' . json_encode($input));
+            file_put_contents('../storage/errorLogs/backend/' . data('Y-m-d', time()) . '.txt', 'function saveOperateRecord is error，params :' . json_encode($input) . PHP_EOL, FILE_APPEND);
         }
     }
+
+
 }
