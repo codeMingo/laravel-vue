@@ -12,8 +12,8 @@
         <el-table :data="tableData" border style="width: 100%">
             <el-table-column label="用户名" class-name="am-link-target-td">
                 <template slot-scope="scope">
-                    <a href="javascript:;" class="block-data highlight-link" @click="showShortBox($event, scope.row.id)" v-if="scope.row.status">{{scope.row.username}}</a>
-                    <a href="javascript:;" class="block-data highlight-disabled" @click="showShortBox($event, scope.row.id)" v-else>{{scope.row.username}}(冻结)</a>
+                    <a href="javascript:;" class="block-data highlight-link" @click.stop="showShortBox($event, scope.row.id)" v-if="scope.row.status">{{scope.row.username}}</a>
+                    <a href="javascript:;" class="block-data highlight-disabled" @click.stop="showShortBox($event, scope.row.id)" v-else>{{scope.row.username}}(冻结)</a>
                 </template>
             </el-table-column>
             <el-table-column prop="email" label="电子邮件"></el-table-column>
@@ -75,7 +75,6 @@ export default {
         PaginationComponent,
         TableHeaderComponent,
         DialogFooterComponent,
-        // comp1
     },
     data() {
         var checkRepassword = (rule, value, callback) => {
@@ -86,7 +85,8 @@ export default {
             }
         };
         return {
-            currentView:'',aaa:false,
+            currentView: '',
+            aaa: false,
             formTitle: '',
             formVisible: false,
             tableData: [],
@@ -106,10 +106,7 @@ export default {
             },
             options: {
                 permission: {},
-                status: [
-                    { value: 0, text: '冻结' },
-                    { value: 1, text: '正常' }
-                ]
+                status: {}
             },
             rules: {
                 username: [
@@ -146,12 +143,12 @@ export default {
             let _this = this;
             let paramsData = { 'data': { 'search_form': _this.search_form } };
             axios.get('/backend/admins?page=' + _this.$refs.pagination.pageData.current_page, { params: paramsData }).then(response => {
-                let data = response.data;
-                _this.tableData = data.data.lists.data;
-                _this.options.permission = data.data.permissionOptions;
-                _this.$refs.pagination.pageData.per_page = parseInt(data.data.lists.per_page);
-                _this.$refs.pagination.pageData.current_page = parseInt(data.data.lists.current_page);
-                _this.$refs.pagination.pageData.total = parseInt(data.data.lists.total);
+                let { status, data, message } = response.data;
+                _this.tableData = data.lists.data;
+                _this.options = data.options;
+                _this.$refs.pagination.pageData.per_page = parseInt(data.lists.per_page);
+                _this.$refs.pagination.pageData.current_page = parseInt(data.lists.current_page);
+                _this.$refs.pagination.pageData.total = parseInt(data.lists.total);
             })
         },
         detail(id) {
@@ -209,8 +206,8 @@ export default {
                     _this.$message.success(response.data.message);
                     Vue.removeOneData(_this.tableData, id);
                 });
-            }).catch(function(response) {
-                console.log(response);
+            }).catch(response => {
+
             });
         },
         close() {

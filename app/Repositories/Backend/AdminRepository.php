@@ -17,7 +17,8 @@ class AdminRepository extends BaseRepository
     public function index($input)
     {
         $result['lists']             = $this->getAdminLists($input['search_form']);
-        $result['permissionOptions'] = DB::table('admin_permissions')->where('status', 1)->get();
+        $result['options']['permission'] = DB::table('admin_permissions')->where('status', 1)->get();
+        $result['options']['status'] = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
         return $this->responseResult(true, $result);
     }
 

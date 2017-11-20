@@ -13,7 +13,7 @@
                 </el-tag>
             </div>
             <el-submenu index="5" style="float: right;margin-right: 5px;">
-                <template slot="title">{{this.$store.state.adminData.permission_text}}：{{this.$store.state.adminData.username}}</template>
+                <template slot="title">{{this.$store.state.admin_data.permission_text}}：{{this.$store.state.admin_data.username}}</template>
                 <el-menu-item index="5-1">个人中心</el-menu-item>
                 <el-menu-item index="5-1">刷新缓存</el-menu-item>
                 <el-menu-item index="5-2">设置</el-menu-item>
@@ -93,9 +93,9 @@ export default {
     },
     mounted() {
         let _this = this;
-        var adminData = sessionStorage.getItem('admin');
-        if (adminData) {
-            _this.adminData = JSON.parse(adminData);
+        var admin_data = sessionStorage.getItem('admin');
+        if (admin_data) {
+            _this.admin_data = JSON.parse(admin_data);
         }
     },
     methods: {

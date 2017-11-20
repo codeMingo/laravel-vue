@@ -16,5 +16,5 @@ return [
             'permission_include' => 'in',
             'status' => '='
         ]
-    ];
+    ]
 ];

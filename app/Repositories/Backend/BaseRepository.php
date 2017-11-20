@@ -30,11 +30,11 @@ abstract class BaseRepository
      */
     public function responseResult($status, $data = [], $message = '')
     {
-        return response()->json([
+        return [
             'status' => $status,
             'data' =>  $data,
-            'message' => $message === '' ? (!$status ? '失败' : '成功') : $mesage,
-        ]);
+            'message' => $message === '' ? (!$status ? '失败' : '成功') : $message,
+        ];
     }
 
     /**

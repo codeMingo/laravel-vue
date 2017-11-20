@@ -54,7 +54,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     // 判断是否登录
     let _this = this;
-    if ((!store.state.adminData.username || !store.state.adminData.permission_text) && to.path != '/login') {
+    if ((!store.state.admin_data.username || !store.state.admin_data.permission_text) && to.path != '/login') {
         axios.get('/backend/login-status').then(response => {
             let { status, data, message } = response.data;
             if (status && Object.keys(data).length > 0) {

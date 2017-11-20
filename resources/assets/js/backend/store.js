@@ -13,7 +13,7 @@ const store = new Vuex.Store({
         submitLoading: false,
 
         // 管理员登录信息
-        adminData: {
+        admin_data: {
             username: '',
             permission_text: ''
         },

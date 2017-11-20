@@ -21,31 +21,19 @@ class LoginRepository extends BaseRepository
         $ip_address = getClientIp();
 
         if (!$username || !$password) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '登录失败，必填字段不得为空',
-            ];
+            return $this->responseResult(false, [], '登录失败，必填字段不得为空');
         }
 
         // redis 限制用户、ip不可登录
         if (Redis::sismember('limitBackendLoginUser', $username) || Redis::sismember('limitBackendLoginIp', $ip_address)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '登录失败，您已被限制登录，请联系管理员',
-            ];
+            return $this->responseResult(false, [], '登录失败，您已被限制登录，请联系管理员');
         }
 
         // redis 连续登录错误超过10次，1小时内禁止登录
         $redisKey   = 'backednLoginTimes:' . $ip_address;
         $redisExist = Redis::exists($redisKey);
         if ($redisExist && Redis::get($redisKey) > 10) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '登录失败，登录次数超过限制，请一小时后操作',
-            ];
+            return $this->responseResult(false, [], '登录失败，登录次数超过限制，请稍后操作');
         }
 
         if (!Auth::guard('admin')->attempt(['username' => $username, 'password' => $password])) {
@@ -63,24 +51,20 @@ class LoginRepository extends BaseRepository
                 'ip_address' => $ip_address,
                 'status'     => 0,
             ]);
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '登录失败，用户名或密码错误',
-            ];
+            return $this->responseResult(false, [], '登录失败，用户名或密码错误');
         }
 
         // 登录成功
         Redis::del($redisKey);
 
-        $adminList = Auth::guard('admin')->user();
+        $list = Auth::guard('admin')->user();
 
-        if (!$adminList->status) {
+        if (!$list->status) {
             Auth::guard('admin')->logout();
 
             // 记录登录日志
             AdminLoginRecord::create([
-                'admin_id'   => $adminList->id,
+                'admin_id'   => $list->id,
                 'params'     => json_encode($input),
                 'text'       => '登录失败，帐号被限制',
                 'ip_address' => $ip_address,
@@ -97,29 +81,26 @@ class LoginRepository extends BaseRepository
             ];
         };
 
-        $updateResult = Admin::where('id', $adminList->id)->update([
+        // 更新信息
+        Admin::where('id', $list->id)->update([
             'last_login_ip'   => $ip_address,
             'last_login_time' => date('Y-m-d H:i:s', time()),
         ]);
 
         // 记录登录日志
         AdminLoginRecord::create([
-            'admin_id'   => $adminList->id,
+            'admin_id'   => $list->id,
             'params'     => json_encode($input),
-            'text'       => !$updateResult ? '登录失败，发生未知错误' : '登录成功',
+            'text'       => '登录成功',
             'ip_address' => $ip_address,
-            'status'     => !!$updateResult,
+            'status'     => 1,
         ]);
 
-        $returnData['data'] = [
-            'username'        => $adminList->username,
+        $result['data'] = [
+            'username'        => $list->username,
             'permission_text' => '超级管理员',
         ];
-        return [
-            'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => !$updateResult ? [] : $returnData,
-            'message' => !$updateResult ? '登录失败，发生未知错误' : '登录成功',
-        ];
+        return $this->responseResult(true, $result, '登录成功');
     }
 
     /**
@@ -128,21 +109,16 @@ class LoginRepository extends BaseRepository
      */
     public function loginStatus()
     {
-        $resultData = [];
+        $result = [];
         if (Auth::guard('admin')->check()) {
-            $adminList = Auth::guard('admin')->user();
-            $adminData = [
-                'username' => $adminList->username,
-                'email'    => $adminList->email,
-                'face'     => $adminList->face,
+            $list = Auth::guard('admin')->user();
+            $result['list'] = [
+                'username' => $list->username,
+                'email'    => $list->email,
+                'face'     => $list->face,
             ];
-            $resultData['data'] = $adminData;
         }
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取成功',
-        ];
+        return $this->responseResult(true, $result);
     }
 
     public function reset($input)
