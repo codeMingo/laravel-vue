@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as ContractsAuthenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Authenticatable as AuthAuthenticatable;
 
-class User extends Base implements Authenticatable
+class User extends Base implements ContractsAuthenticatable
 {
     use Notifiable;
     use SoftDeletes;
+    use AuthAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
