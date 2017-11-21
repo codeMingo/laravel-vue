@@ -1,6 +1,6 @@
 <template>
     <div id="shortcut" class="shortcut-container" v-show="shortcutDisplay">
-        <h3>查看详情<a href="javascript:;" class="close-btn" @click="shortcutDisplay = false"><i class="el-icon-close"></i></a></h3>
+        <h3><i class="el-icon-search"></i> 查看详情<a href="javascript:;" class="close-btn" @click="shortcutDisplay = false"><i class="el-icon-close"></i></a></h3>
         <div class="data-detail">
             <ul>
                 <li>

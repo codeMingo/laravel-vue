@@ -49,7 +49,6 @@ export default {
         }
     },
     mounted() {
-        console.log(this.permission_data);
         this.getList();
     },
     methods: {

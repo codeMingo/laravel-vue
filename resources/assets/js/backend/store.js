@@ -37,7 +37,7 @@ const store = new Vuex.Store({
             }
         },
         setAdminData(state, data) {
-            state.adminData = data;
+            state.admin_data = data;
         }
     }
 });

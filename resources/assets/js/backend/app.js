@@ -58,7 +58,7 @@ router.beforeEach((to, from, next) => {
         axios.get('/backend/login-status').then(response => {
             let { status, data, message } = response.data;
             if (status && Object.keys(data).length > 0) {
-                store.commit('setAdminData', data.data);
+                store.commit('setAdminData', data.list);
                 next();
             } else {
                 next({

@@ -1,8 +1,10 @@
 <template>
     <div class="app-container">
-        <table-header-component v-on:create="create" v-on:getList="getList">
-            <el-input v-model="searchForm.permissionName" placeholder="请输入权限名" style="width: 200px;"></el-input>
-        </table-header-component>
+        <el-row class="filter-container">
+            <el-input v-model="search_form.permission_text" class="search-input" placeholder="请输入权限名"></el-input>
+            <el-button type="primary" icon="search" @click="getLists">搜索</el-button>
+            <el-button type="primary" icon="plus" @click="toLink('/home')">添加</el-button>
+        </el-row>
         <el-table :data="tableData" border style="width: 100%">
             <el-table-column prop="text" label="权限等级" width="180"></el-table-column>
             <el-table-column prop="num" label="当前人数" width="180" :formatter="formatNum"></el-table-column>
@@ -17,7 +19,7 @@
                 </template>
             </el-table-column>
         </el-table>
-        <pagination-component ref="pagination" v-on:getList="getList"></pagination-component>
+        <pagination-component ref="pagination" v-on:getLists="getLists"></pagination-component>
     </div>
 </template>
 <script>
@@ -37,8 +39,8 @@ export default {
                 statusOptions: '',
                 numOptions: '',
             },
-            searchForm: {
-                permissionName: ''
+            search_form: {
+                permission_text: ''
             }
         }
     },
@@ -46,7 +48,7 @@ export default {
         //this.getList();
     },
     methods: {
-        getList() {
+        getLists() {
 
         },
         trashed(id) {
@@ -66,6 +68,9 @@ export default {
         },
         create() {
 
+        },
+        toLink(url) {
+            this.$router.push({ path: url });
         }
     }
 }

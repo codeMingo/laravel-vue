@@ -5,6 +5,7 @@ use App\Models\Admin;
 use App\Models\AdminLoginRecord;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 
 class LoginRepository extends BaseRepository
 {
@@ -98,7 +99,8 @@ class LoginRepository extends BaseRepository
 
         $result['data'] = [
             'username'        => $list->username,
-            'permission_text' => '超级管理员',
+            'email'           => $list->email,
+            'permission_text' => DB::table('admin_permissions')->where('id', $list->permission_id)->where('status', 1)->value('text'),
         ];
         return $this->responseResult(true, $result, '登录成功');
     }
@@ -113,9 +115,9 @@ class LoginRepository extends BaseRepository
         if (Auth::guard('admin')->check()) {
             $list = Auth::guard('admin')->user();
             $result['list'] = [
-                'username' => $list->username,
-                'email'    => $list->email,
-                'face'     => $list->face,
+                'username'        => $list->username,
+                'email'           => $list->email,
+                'permission_text' => DB::table('admin_permissions')->where('id', $list->permission_id)->where('status', 1)->value('text'),
             ];
         }
         return $this->responseResult(true, $result);
@@ -135,9 +137,6 @@ class LoginRepository extends BaseRepository
         if (Auth::guard('admin')->check()) {
             Auth::guard('admin')->logout();
         }
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'message' => '退出成功',
-        ];
+        return $this->responseResult(true, [], '退出成功');
     }
 }

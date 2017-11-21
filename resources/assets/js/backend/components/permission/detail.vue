@@ -16,7 +16,6 @@
     </div>
 </template>
 <script type="text/javascript">
-import { save } from '../../request.js';
 export default {
     data() {
         return {
@@ -30,33 +29,9 @@ export default {
         }
     },
     created() {
-        this.getPermissionDetail(this.$route.params.id);
     },
     methods: {
-        getPermissionDetail(id) {
-            let _this = this;
-            axios.get('/backend/permissions/' + id).then(function(res) {
-                _this.form = res.data.data.permissionData;
-                _this.$refs.tree.setCheckedKeys(res.data.data.permissionData.include_menus);;
-            });
-        },
-        submit() {
-            let _this = this;
-            _this.form.include_menus = _this.$refs.tree.getCheckedKeys();
-            var method = 'put',
-                url = '/backend/permissions/' + _this.form.id,
-                params = { 'data': _this.form };
-            save(method, url, params).then(data => {
-                if (!data.status) {
-                    _this.$message.error(data.message);
-                    return false;
-                }
-                _this.$message.success(data.message);
-            });
-        },
-        toLink(url) {
-            this.$router.push({ path: url });
-        }
+
     }
 }
 </script>
