@@ -85,18 +85,14 @@ abstract class BaseRepository
      */
     public function saveOperateRecord($input)
     {
-        try {
-            AdminOperateRecord::create([
-                'admin_id'   => Auth::guard('admin')->id(),
-                'action'     => $input['action'],
-                'params'     => json_encode($input['params']),
-                'text'       => $input['text'],
-                'ip_address' => getClientIp(),
-                'status'     => $input['status'],
-            ]);
-        } catch (Exception $e) {
-            file_put_contents('../storage/errorLogs/backend/' . data('Y-m-d', time()) . '.txt', 'function saveOperateRecord is error，params :' . json_encode($input) . PHP_EOL, FILE_APPEND);
-        }
+        AdminOperateRecord::create([
+            'admin_id'   => Auth::guard('admin')->id(),
+            'action'     => $input['action'],
+            'params'     => json_encode($input['params']),
+            'text'       => $input['text'],
+            'ip_address' => getClientIp(),
+            'status'     => $input['status'],
+        ]);
     }
 
 

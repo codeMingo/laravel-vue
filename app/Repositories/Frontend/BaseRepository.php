@@ -27,41 +27,58 @@ abstract class BaseRepository
     }
 
     /**
-     * 过滤参数
-     * @param  Array $params
-     * @return Array
+     * 响应返回
+     * @param  bool $status  true or false
+     * @param  array  $data    返回结果集
+     * @param  string $message 消息提示
+     * @return json
      */
-    public function parseParams($params)
+    public function responseResult($status, $data = [], $message = '')
+    {
+        return [
+            'status' => $status,
+            'data' =>  $data,
+            'message' => $message === '' ? (!$status ? '失败' : '成功') : $message,
+        ];
+    }
+
+    /**
+     * 过滤，重组查询参数
+     * @param  Array $params
+     * @return Array [key => [condition=>'', value=>'']]
+     */
+    public function parseParams($table_name, $params)
     {
         if (empty($params)) {
             return [];
         }
-        $field_lists = Schema::getColumnListing($this->table_name);
+        $field_lists = Schema::getColumnListing($table_name); // 获取数据表所有字段
+        $param_rules = isset(config('ububs.param_rules')[$table_name]) ? config('ububs.param_rules')[$table_name] : []; // 获取过滤规则
+        $result = [];
         foreach ($params as $key => $value) {
-            if (!in_array($key, $field_lists)) {
-                unset($params[$key]);
-                break;
+            // 参数不在表内直接过滤
+            if (!in_array($key, $field_lists) || $value === '' || $value === [] || $value === null) {
+                continue;
             }
-            if (empty($value) && !($value === '0' || $value === 0)) {
-                unset($params[$key]);
-            }
+            // 参数过滤方式
+            $result[$key] = [
+                'condition' => isset($param_rules[$key]) ? $param_rules[$key] : '=',
+                'value' => $value
+            ];
         }
-        return $params;
+        return $result;
     }
 
     /**
-     * 获取字典
+     * 获取字典数据
      * @param  Array $code_arr
-     * @return Array
+     * @return Object
      */
-    protected function getDicts($code_arr)
+    public function getDictsByCodeArr($code_arr)
     {
         $result = [];
         if (!empty($code_arr) && is_array($code_arr)) {
-            $lists = Dict::whereIn('code', $code_arr)->get();
-            foreach ($code_arr as $item) {
-                $result[$item] = $lists->where('code', $item)->values()->toArray();
-            }
+            $result = Dict::whereIn('code', $code_arr)->get();
         }
         return $result;
     }
@@ -71,19 +88,15 @@ abstract class BaseRepository
      * @param  Array  $input [action, params, text, status]
      * @return Array
      */
-    public function saveUserOperateRecord($input)
+    public function saveOperateRecord($input)
     {
-        try {
-            UserOperateRecord::create([
-                'user_id'   => Auth::guard('web')->id(),
-                'action'     => $input['action'],
-                'params'     => json_encode($input['params']),
-                'text'       => $input['text'],
-                'ip_address' => getClientIp(),
-                'status'     => $input['status'],
-            ]);
-        } catch (Exception $e) {
-            Log::info('RECORD FAIL：saveUserOperateRecord is error，params :' . json_encode($input));
-        }
+        UserOperateRecord::create([
+            'user_id'   => Auth::guard('admin')->id(),
+            'action'     => $input['action'],
+            'params'     => json_encode($input['params']),
+            'text'       => $input['text'],
+            'ip_address' => getClientIp(),
+            'status'     => $input['status'],
+        ]);
     }
 }

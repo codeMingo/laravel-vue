@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\DB;
 class ArticleRepository extends BaseRepository
 {
 
-    public $table_name = 'articles';
-
     /**
      * 文章列表
      * @param  Array $input [search_form]
@@ -23,10 +21,10 @@ class ArticleRepository extends BaseRepository
      */
     public function lists($input)
     {
-        $resultData['lists'] = $this->getArticleLists($input['search_form']);
-        if (!empty($resultData['lists'])) {
+        $result['lists'] = $this->getArticleLists($input['search_form'])->toArray();
+        if (!empty($result['lists'])) {
             $article_id_arr = [];
-            foreach ($resultData['lists']['data'] as $index => $article) {
+            foreach ($result['lists']['data'] as $index => $article) {
                 $article_id_arr[] = $article['id'];
             }
 
@@ -49,19 +47,19 @@ class ArticleRepository extends BaseRepository
             // 获取阅读总数
             $read_count_lists = $this->readCount($article_id_arr);
 
-            foreach ($resultData['lists']['data'] as $index => $article) {
+            foreach ($result['lists']['data'] as $index => $article) {
                 $article['like_count']               = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['like_count']) ? $interactive_key_count[$article['id']]['like_count'] : 0;
                 $article['hate_count']               = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['hate_count']) ? $interactive_key_count[$article['id']]['hate_count'] : 0;
                 $article['collect_count']            = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['collect_count']) ? $interactive_key_count[$article['id']]['collect_count'] : 0;
                 $article['comment_count']            = isset($comment_key_value_lists[$article['id']]) ? $comment_key_value_lists[$article['id']] : 0;
                 $article['read_count']               = isset($read_count_lists[$article['id']]) ? $read_count_lists[$article['id']] : 0;
-                $resultData['lists']['data'][$index] = $article;
+                $result['lists']['data'][$index] = $article;
             }
         }
-        $resultData['options']['categories'] = [];
+        $result['options']['categories'] = CategoryRepository::getInstance()->getArticleCategories();
         return [
             'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
+            'data'    => $result,
             'message' => '数据获取成功',
         ];
     }
@@ -73,9 +71,10 @@ class ArticleRepository extends BaseRepository
      */
     public function detail($article_id)
     {
-        $dictListsValue     = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $resultData['list'] = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->with('category')->first();
-        if (empty($resultData['list'])) {
+        $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
+        $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
+        $result['list'] = Article::where('id', $article_id)->where('status', $show_status_value)->where('is_audit', $audit_pass_value)->with('category')->first();
+        if (empty($result['list'])) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
@@ -92,9 +91,9 @@ class ArticleRepository extends BaseRepository
         ]);
 
         // 上一篇文章
-        $prev_article = Article::where('id', '<', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'desc')->first();
+        $prev_article = Article::where('id', '<', $article_id)->where('status', $show_status_value)->orderBy('id', 'desc')->first();
         // 下一篇文章
-        $next_article = Article::where('id', '>', $article_id)->where('status', $dictListsValue['article_is_show'])->orderBy('id', 'asc')->first();
+        $next_article = Article::where('id', '>', $article_id)->where('status', $show_status_value)->orderBy('id', 'asc')->first();
 
         $article_id_arr = [];
         if (!empty($prev_article)) {
@@ -113,10 +112,10 @@ class ArticleRepository extends BaseRepository
 
         // 该篇文章的 hate like collect read 总数
         if (isset($interactive_count_lists[$article_id])) {
-            $resultData['list']->like_count = isset($interactive_count_lists[$article_id]['like_count']) ? $interactive_count_lists[$article_id]['like_count'] : 0;
-            $resultData['list']->hate_count = isset($interactive_count_lists[$article_id]['hate_count']) ? $interactive_count_lists[$article_id]['hate_count'] : 0;
+            $result['list']->like_count = isset($interactive_count_lists[$article_id]['like_count']) ? $interactive_count_lists[$article_id]['like_count'] : 0;
+            $result['list']->hate_count = isset($interactive_count_lists[$article_id]['hate_count']) ? $interactive_count_lists[$article_id]['hate_count'] : 0;
         }
-        $resultData['list']->read_count = (!empty($read_count_lists) && isset($read_count_lists[$article_id])) ? $read_count_lists[$article_id] : 0;
+        $result['list']->read_count = (!empty($read_count_lists) && isset($read_count_lists[$article_id])) ? $read_count_lists[$article_id] : 0;
 
         if (!empty($prev_article)) {
             if (isset($interactive_count_lists[$prev_article->id])) {
@@ -136,12 +135,12 @@ class ArticleRepository extends BaseRepository
             $next_article->comment_count = (!empty($comment_count_lists) && isset($comment_count_lists[$next_article->id])) ? $comment_count_lists[$next_article->id] : 0;
         }
 
-        $resultData['prev_article'] = !empty($prev_article) ? $prev_article : '';
-        $resultData['next_article'] = !empty($next_article) ? $next_article : '';
+        $result['prev_article'] = !empty($prev_article) ? $prev_article : '';
+        $result['next_article'] = !empty($next_article) ? $next_article : '';
 
         // 文章标签
-        if (!empty($resultData['list']->tag_ids)) {
-            $tag_id_arr   = explode(',', $resultData['list']->tag_ids);
+        if (!empty($result['list']->tag_ids)) {
+            $tag_id_arr   = explode(',', $result['list']->tag_ids);
             $tag_lists    = DB::table('tags')->whereIn('id', $tag_id_arr)->where('status', 1)->get();
             $temp_tag_arr = [];
             if (!empty($tag_lists)) {
@@ -151,13 +150,13 @@ class ArticleRepository extends BaseRepository
                         'tag_name' => $item->tag_name,
                     ];
                 }
-                $resultData['list']->tag_lists = $temp_tag_arr;
+                $result['list']->tag_lists = $temp_tag_arr;
             }
         }
 
         return [
             'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
+            'data'    => $result,
             'message' => '数据获取成功',
         ];
     }
@@ -169,17 +168,18 @@ class ArticleRepository extends BaseRepository
      */
     public function commentLists($article_id)
     {
-        $dictListsValue      = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $resultData['lists'] = ArticleComment::where('article_id', $article_id)->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
-        if ($resultData['lists']->isEmpty()) {
+        $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
+        $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
+        $result['lists'] = ArticleComment::where('article_id', $article_id)->where('is_audit', $audit_pass_value)->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
+        if ($result['lists']->isEmpty()) {
             return [
                 'status'  => Parent::SUCCESS_STATUS,
-                'data'    => $resultData,
+                'data'    => $result,
                 'message' => '数据获取成功',
             ];
         }
         $comment_ids = [];
-        foreach ($resultData['lists'] as $index => $comment) {
+        foreach ($result['lists'] as $index => $comment) {
             $comment_ids[] = $comment->id;
         }
 
@@ -192,14 +192,14 @@ class ArticleRepository extends BaseRepository
                     $response_temp[$response->parent_id][] = $response;
                 }
 
-                foreach ($resultData['lists'] as $index => $comment) {
-                    $resultData['lists'][$index]['response'] = isset($response_temp[$comment->id]) ? $response_temp[$comment->id] : [];
+                foreach ($result['lists'] as $index => $comment) {
+                    $result['lists'][$index]['response'] = isset($response_temp[$comment->id]) ? $response_temp[$comment->id] : [];
                 }
             }
         }
         return [
             'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
+            'data'    => $result,
             'message' => '数据获取成功',
         ];
     }
@@ -220,8 +220,10 @@ class ArticleRepository extends BaseRepository
             ];
         }
 
-        $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $articleList    = Article::where('id', $article_id)->where('status', $dictListsValue['article_is_show'])->first();
+        $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
+        $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
+
+        $articleList    = Article::where('id', $article_id)->where('status', $show_status_value)->first();
         if (empty($articleList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -245,7 +247,7 @@ class ArticleRepository extends BaseRepository
         ]);
 
         // 记录操作日志
-        Parent::saveUserOperateRecord([
+        Parent::saveOperateRecord([
             'action' => 'Article/interactive',
             'params' => $input,
             'text'   => $result ? '操作成功' : '操作失败',
@@ -275,21 +277,22 @@ class ArticleRepository extends BaseRepository
                 'message' => '操作失败，文章id或内容为空',
             ];
         }
-        $article_show_status_value = DB::table('dicts')->where('code', 'article_status')->where('text_en', 'article_is_show')->value('value');
-        $articleList               = Article::where('id', $article_id)->where('status', $article_show_status_value)->first();
-        if (empty($articleList)) {
+        $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
+
+        $list               = Article::where('id', $article_id)->where('status', $show_status_value)->first();
+        if (empty($list)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
                 'message' => '不存在这篇文章',
             ];
         }
-        $article_comment_audit = DB::table('dicts')->where('code', 'system')->where('text_en', 'article_comment_audit')->value('value');
-        $dictListsValue        = DictRepository::getInstance()->getDictListsByTextEnArr(['audit_loading', 'audit_pass']);
+        $dict_key_value_lists        = DictRepository::getInstance()->getKeyValueByCode('audit');
+        $comment_is_audit = DictRepository::getInstance()->getValueByCodeAndTextEn('system', 'article_comment_audit');
 
         // 表示回复
         if ($comment_id) {
-            $commentList = ArticleComment::where('id', $comment_id)->where('status', 1)->where('is_audit', $dictListsValue['audit_pass'])->first();
+            $commentList = ArticleComment::where('id', $comment_id)->where('status', 1)->where('is_audit', $dict_key_value_lists['pass'])->first();
             if (empty($commentList)) {
                 return [
                     'status'  => Parent::ERROR_STATUS,
@@ -304,12 +307,12 @@ class ArticleRepository extends BaseRepository
             'parent_id'  => $comment_id ? $comment_id : 0,
             'article_id' => $article_id,
             'content'    => $content,
-            'is_audit'   => $article_comment_audit ? $dictListsValue['audit_loading'] : $dictListsValue['audit_pass'],
+            'is_audit'   => $comment_is_audit ? $dict_key_value_lists['loading'] : $dict_key_value_lists['pass'],
             'status'     => 1,
         ]);
 
         // 记录操作日志
-        Parent::saveUserOperateRecord([
+        Parent::saveOperateRecord([
             'action' => 'Article/comment',
             'params' => $input,
             'text'   => $createResult ? ($comment_id ? '回复成功' : '评论成功') : ($comment_id ? '回复失败，未知错误' : '评论失败，未知错误'),
@@ -324,7 +327,7 @@ class ArticleRepository extends BaseRepository
             ];
         }
         // 评论成功
-        if (!$article_comment_audit) {
+        if (!$comment_is_audit) {
             $comment_lists                = ArticleComment::where('id', $createResult->id)->with('user')->first();
             $comment_lists->response      = [];
             $comment_lists->show_response = true;
@@ -332,7 +335,7 @@ class ArticleRepository extends BaseRepository
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => [
-                'list' => $article_comment_audit ? [] : $comment_lists,
+                'list' => $comment_is_audit ? [] : $comment_lists,
             ],
             'message' => $comment_id ? '回复成功' : '评论成功',
         ];
@@ -362,10 +365,10 @@ class ArticleRepository extends BaseRepository
                 'message' => '不存在这篇文章',
             ];
         }
-        $resultData['lists'] = Interact::where('article_id', $article_id)->where($type, 1)->where('status', 1)->user()->get();
+        $result['lists'] = Interact::where('article_id', $article_id)->where($type, 1)->where('status', 1)->user()->get();
         return [
             'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
+            'data'    => $result,
             'message' => '数据获取成功',
         ];
     }
@@ -444,8 +447,9 @@ class ArticleRepository extends BaseRepository
     public function commentCount($article_ids)
     {
         $result         = [];
-        $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['audit_pass']);
-        $query          = ArticleComment::select(['article_id'])->where('is_audit', $dictListsValue['audit_pass'])->where('status', 1)->where('parent_id', 0);
+        $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
+        $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
+        $query          = ArticleComment::select(['article_id'])->where('is_audit', $audit_pass_value)->where('status', 1)->where('parent_id', 0);
         if (is_array($article_ids)) {
             $query = $query->whereIn('article_id', $article_ids);
         } else {
@@ -472,34 +476,34 @@ class ArticleRepository extends BaseRepository
      */
     public function recommendList($input)
     {
-        $resultData = [];
+        $result = [];
         if (empty($input)) {
-            $resultData['lists'] = Article::where('recommend', 1)->where('status', 1)->get();
+            $result['lists'] = Article::where('recommend', 1)->where('status', 1)->get();
         } else {
             $type = isset($input['type']) ? strval($input['type']) : '';
             switch ($type) {
                 case 'hot':
-                    $resultData['lists'] = $this->hotLists();
+                    $result['lists'] = $this->hotLists();
                     break;
                 case 'most-like':
-                    $resultData['lists'] = $this->mostLikeLists();
+                    $result['lists'] = $this->mostLikeLists();
                     break;
                 case 'most-collect':
-                    $resultData['lists'] = $this->mostCollectLists();
+                    $result['lists'] = $this->mostCollectLists();
                     break;
                 case 'most-comment':
-                    $resultData['lists'] = $this->mostCommentLists();
+                    $result['lists'] = $this->mostCommentLists();
                     break;
                 case 'most-read':
-                    $resultData['lists'] = $this->mostReadLists();
+                    $result['lists'] = $this->mostReadLists();
                     break;
                 default:
-                    $resultData['lists'] = $this->hotLists();
+                    $result['lists'] = $this->hotLists();
             }
         }
         return [
             'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
+            'data'    => $result,
             'message' => '数据获取成功',
         ];
     }
@@ -596,11 +600,11 @@ class ArticleRepository extends BaseRepository
         }
 
         $page_size           = DB::table('dicts')->where('text_en', 'article_page_size')->value('value');
-        $resultData['lists'] = $query->paginate($page_size);
+        $result['lists'] = $query->paginate($page_size);
 
         return [
             'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
+            'data'    => $result,
             'message' => '数据获取成功',
         ];
     }
@@ -612,11 +616,10 @@ class ArticleRepository extends BaseRepository
      */
     public function getArticleLists($search_form)
     {
-        return [];
-        $article_show_status          = DB::table('dicts')->where('code', 'article_status')->where('text_en', 'show')->where('status', 1)->value('value');
-        $search_form['status'] = $article_show_status;
-        $where_params          = $this->parseParams($search_form);
-        return Article::parseWheres($where_params)->paginate()->toArray();
+        $show_status_value          = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
+        $search_form['status'] = $show_status_value;
+        $where_params          = $this->parseParams('articles', $search_form);
+        return Article::parseWheres($where_params)->paginate();
     }
 
     /**
@@ -625,10 +628,10 @@ class ArticleRepository extends BaseRepository
      */
     public function categoryLists()
     {
-        $resultData['lists'] = CategoryRepository::getInstance()->getArticleCategories();
+        $result['lists'] = CategoryRepository::getInstance()->getArticleCategories();
         return [
             'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
+            'data'    => $result,
             'message' => '数据获取成功',
         ];
     }

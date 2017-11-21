@@ -2,36 +2,51 @@
 namespace App\Repositories\Frontend;
 
 use App\Models\Dict;
+use Illuminate\Support\Facades\DB;
 
 class DictRepository extends BaseRepository
 {
 
     /**
      * 获取字典通过code
-     * @param  Array $code
-     * @return Array [text, value]
+     * @param  String $code
+     * @return object
      */
-    public function getDictListsByCode($code_arr)
+    public function getListsByCode($code)
     {
-        $dictLists = Dict::where('code', $code_arr)->get();
-        if ($dictLists->isEmpty()) {
+        $lists = Dict::where('code', $code)->where('status', 1)->get();
+        if ($lists->isEmpty()) {
             return [];
         }
-        foreach ($dictLists as $key => $item) {
-            $temp_list['value'] = $item->value;
-            $temp_list['text']  = $item->text;
-            $result[]           = $temp_list;
-        }
-        return $result;
+        return $lists;
     }
 
     /**
-     * 根据 text_en 获取value
-     * @param  String $textEn text_en
-     * @return Int
+     * 获取字典value通过code 和 text_en
+     * @param  String $code
+     * @param  String $text_en
+     * @return Int    value
      */
-    public function getDictValueByTextEn($text_en)
+    public function getValueByCodeAndTextEn($code, $text_en)
     {
-        return Dict::where('text_en', $text_en)->value('value');
+        return DB::table('dicts')->where('code', $code)->where('text_en', $text_en)->where('status', 1)->value('value');
+    }
+
+    /**
+     * 获取字典通过code
+     * @param  String $code
+     * @return object
+     */
+    public function getKeyValueByCode($code)
+    {
+        $lists = Dict::where('code', $code)->where('status', 1)->get();
+        if ($lists->isEmpty()) {
+            return [];
+        }
+        $result = [];
+        foreach ($lists as $key => $value) {
+            $result[$value->text_en] = $value->value;
+        }
+        return $result;
     }
 }

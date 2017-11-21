@@ -26,7 +26,7 @@ class LeaveRepository extends BaseRepository
 
     public function getLeaveLists()
     {
-        $audit_pass_value      = DictRepository::getInstance()->getDictValueByTextEn('audit_pass');
+        $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
         $leave_lists = Leave::where('is_audit', $audit_pass_value)->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
         if ($leave_lists->isEmpty()) {
             return $leave_lists;
@@ -64,12 +64,12 @@ class LeaveRepository extends BaseRepository
                 'message' => '操作失败，内容不得为空',
             ];
         }
-        $leave_audit = DictRepository::getInstance()->getDictValueByTextEn('leave_audit');
-        $dictListsValue        = DictRepository::getInstance()->getDictListsByTextEnArr(['audit_loading', 'audit_pass']);
+        $leave_audit = DictRepository::getInstance()->getValueByCodeAndTextEn('system', 'leave_audit');
 
+        $dict_key_value_lists = DictRepository::getInstance()->getKeyValueByCode('audit');
         // 表示回复
         if ($leave_id) {
-            $leave_list = Leave::where('id', $leave_id)->where('status', 1)->where('is_audit', $dictListsValue['audit_pass'])->first();
+            $leave_list = Leave::where('id', $leave_id)->where('status', 1)->where('is_audit', $dict_key_value_lists['pass'])->first();
             if (empty($leave_list)) {
                 return [
                     'status'  => Parent::ERROR_STATUS,
@@ -83,13 +83,13 @@ class LeaveRepository extends BaseRepository
             'user_id'    => $user_id,
             'parent_id'  => $leave_id ? $leave_id : 0,
             'content'    => $content,
-            'is_audit'   => $leave_audit ? $dictListsValue['audit_loading'] : $dictListsValue['audit_pass'],
+            'is_audit'   => $leave_audit ? $dict_key_value_lists['loading'] : $dict_key_value_lists['pass'],
             'ip_address'   => getClientIp(),
             'status'     => 1,
         ]);
 
         // 记录操作日志
-        Parent::saveUserOperateRecord([
+        Parent::saveOperateRecord([
             'action' => 'Leave/publish',
             'params' => $input,
             'text'   => $createResult ? ($leave_id ? '回复成功' : '留言成功') : ($leave_id ? '回复失败，未知错误' : '留言失败，未知错误'),

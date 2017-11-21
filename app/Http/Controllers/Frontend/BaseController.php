@@ -33,25 +33,6 @@ class BaseController extends Controller
      */
     public function repeatOperation($action)
     {
-        if (Redis::exists('limit_time_arr')) {
-            $limit_arr = Redis::hgetAll('limit_time_arr');
-        } else {
-            $limit_arr = DictRepository::getInstance()->getDictListsByTextEnArr(['repeat_limit_time', 'repeat_limit_times']);
-            foreach ($limit_arr as $key => $value) {
-                Redis:: hset('limit_time_arr', $key, $value);
-            }
-        }
-        $redisLimitKey   = 'limit_time:' . getClientIp() . ':' . $action;
-        $redisLimitExist = Redis::exists($redisLimitKey);
-        if ($redisLimitExist && Redis::get($redisLimitKey) > $limit_arr['repeat_limit_times']) {
-            return false;
-        }
-        if ($redisLimitExist) {
-            Redis::incr($redisLimitKey);
-        } else {
-            Redis::set($redisLimitKey, 1);
-        }
-        Redis::expire($redisLimitKey, $limit_arr['repeat_limit_time']);
         return true;
     }
 }
