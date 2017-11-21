@@ -48,7 +48,7 @@ abstract class BaseRepository
             return [];
         }
         $field_lists = Schema::getColumnListing($table_name); // 获取数据表所有字段
-        $param_rules = config('ububs.param_rules')['admins']; // 获取过滤规则
+        $param_rules = isset(config('ububs.param_rules')[$table_name]) ? config('ububs.param_rules')[$table_name] : []; // 获取过滤规则
         $result = [];
         foreach ($params as $key => $value) {
             // 参数不在表内直接过滤
@@ -57,7 +57,7 @@ abstract class BaseRepository
             }
             // 参数过滤方式
             $result[$key] = [
-                'condition' => (!empty($param_rules) && isset($param_rules[$key])) ? $param_rules[$key] : '=',
+                'condition' => isset($param_rules[$key]) ? $param_rules[$key] : '=',
                 'value' => $value
             ];
         }

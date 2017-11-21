@@ -15,44 +15,16 @@ class DictRepository extends BaseRepository
     {
         $dictLists = Dict::where('code', $code_arr)->get();
         if ($dictLists->isEmpty()) {
-            echo '参数错误，请联系管理员';
-            exit();
+            return [];
         }
         foreach ($dictLists as $key => $item) {
-            $tempList['value'] = $item->value;
-            $tempList['text']  = $item->text;
-            $resultData[]      = $tempList;
+            $temp_list['value'] = $item->value;
+            $temp_list['text']  = $item->text;
+            $result[]           = $temp_list;
         }
-        return $resultData;
+        return $result;
     }
 
-    /**
-     * 根据 text_en Arr 获取对应内容
-     * @param  Array $code_arr [text_en]
-     * @return Array [text_en => value]
-     */
-    public function getDictListsByTextEnArr($text_en_arr)
-    {
-        $dictLists = Dict::whereIn('text_en', $text_en_arr)->where('status', 1)->get();
-        if (count($text_en_arr) !== count($dictLists)) {
-            echo '参数错误，请联系管理员';
-            exit();
-        }
-        foreach ($dictLists as $key => $item) {
-            $resultData[$item->text_en] = $item->value;
-        }
-        return $resultData;
-    }
-
-    /**
-     * 根据 text_en 获取value
-     * @param  String $textEn text_en
-     * @return Int
-     */
-    public function getDictValueByTextEn($text_en)
-    {
-        return Dict::where('text_en', $text_en)->value('value');
-    }
 
     /**
      * 判断dict是否存在

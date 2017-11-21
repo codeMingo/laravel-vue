@@ -13,19 +13,14 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 文章列表
-     * @param  Array $input [searchForm]
+     * @param  Array $input [search_form]
      * @return Array
      */
     public function lists($input)
     {
-        $resultData['lists']                 = $this->getArticleLists($input['searchForm']);
-        $resultData['options']['categories'] = CategoryRepository::getInstance()->getListsByDictText('article_category');
-        $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取成功',
-        ];
+        $result['lists']   = $this->getArticleLists($input['search_form']);
+        $result['options'] = $this->getOptions();
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -35,36 +30,28 @@ class ArticleRepository extends BaseRepository
      */
     public function store($input)
     {
-        $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
-        $title       = isset($input['title']) ? strval($input['title']) : '';
-        $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
-        $auther      = isset($input['auther']) ? strval($input['auther']) : '';
-        $content     = isset($input['content']) ? strval($input['content']) : '';
-        $tag_ids = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
-        $source      = isset($input['source']) ? strval($input['source']) : '';
-        $is_audit    = isset($input['is_audit']) ? intval($input['is_audit']) : 0;
-        $recommend   = isset($input['recommend']) && !empty($input['recommend']) ? 1 : 0;
-        $status      = isset($input['status']) ? intval($input['status']) : 0;
+        $category_id = validateValue($input['category_id'], 'int');
+        $title       = validateValue($input['title']);
+        $thumbnail   = validateValue($input['thumbnail']);
+        $auther      = validateValue($input['auther']);
+        $content     = validateValue($input['content']);
+        $tag_ids     = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
+        $source      = validateValue($input['source']);
+        $is_audit    = validateValue($input['is_audit'], 'int');
+        $recommend   = validateValue($input['recommend'], 'int');
+        $status      = validateValue($input['status'], 'int');
 
         if (!$category_id || !$title || !$content) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '必填字段不得为空',
-            ];
+            return $this->responseResult(false, [], '新增失败，必填字段不得为空');
         }
 
         // 是否存在这个dict
         $flag = DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit]);
         if (!$flag) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '参数错误，请刷新后重试',
-            ];
+            return $this->responseResult(false, [], '新增失败，参数错误，请刷新后重试');
         }
 
-        $insertResult = Article::create([
+        $result = Article::create([
             'category_id' => $category_id,
             'title'       => $title,
             'thumbnail'   => $thumbnail,
@@ -83,19 +70,15 @@ class ArticleRepository extends BaseRepository
             'params' => [
                 'input' => $input,
             ],
-            'text'   => !$insertResult ? '新增文章失败，未知错误' : '新增文章成功',
-            'status' => !!$insertResult,
+            'text'   => !$result ? '新增失败，未知错误' : '新增成功',
+            'status' => !!$result,
         ]);
 
-        return [
-            'status'  => !$insertResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => [],
-            'message' => !$insertResult ? '新增文章失败，未知错误' : '新增文章成功',
-        ];
+        return $this->responseResult(!!$result, [], !$result ? '新增失败，未知错误' : '新增成功');
     }
 
     /**
-     * 编辑文章
+     * 编辑
      * @param Int $article_id
      * @param  Array $input [category_id, title, auther, content, tag_ids, source, is_audit, recommend, status]
      * @return array
@@ -104,48 +87,37 @@ class ArticleRepository extends BaseRepository
     {
         $articleList = Article::where('id', $article_id)->first();
         if (empty($articleList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在这篇文章',
-            ];
+            return $this->responseResult(false, [], '不存在这篇文章');
         }
-        $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
-        $title       = isset($input['title']) ? strval($input['title']) : '';
-        $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
-        $auther      = isset($input['auther']) ? strval($input['auther']) : '';
-        $content     = isset($input['content']) ? strval($input['content']) : '';
-        $tag_ids = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
-        $source      = isset($input['source']) ? strval($input['source']) : '';
-        $is_audit    = isset($input['is_audit']) ? intval($input['is_audit']) : 0;
-        $recommend   = isset($input['recommend']) && !empty($input['recommend']) ? 1 : 0;
-        $status      = isset($input['status']) ? intval($input['status']) : 0;
+
+        $category_id = validateValue($input['category_id'], 'int');
+        $title       = validateValue($input['title']);
+        $thumbnail   = validateValue($input['thumbnail']);
+        $auther      = validateValue($input['auther']);
+        $content     = validateValue($input['content']);
+        $tag_ids     = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
+        $source      = validateValue($input['source']);
+        $is_audit    = validateValue($input['is_audit'], 'int');
+        $recommend   = validateValue($input['recommend'], 'int');
+        $status      = validateValue($input['status'], 'int');
 
         if (!$category_id || !$title || !$content) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '必填字段不得为空',
-            ];
+            return $this->responseResult(false, [], '更新失败，必填字段不得为空');
         }
 
         // 是否存在这个dict
         $flag = DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit]);
         if (!$flag) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '参数错误，请刷新后重试',
-            ];
+            return $this->responseResult(false, [], '更新失败，参数错误，请刷新后重试');
         }
 
-        $updateResult = Article::where('id', $article_id)->update([
+        $result = Article::where('id', $article_id)->update([
             'category_id' => $category_id,
             'title'       => $title,
             'thumbnail'   => $thumbnail,
             'auther'      => $auther,
             'content'     => $content,
-            'tag_ids' => $tag_ids,
+            'tag_ids'     => $tag_ids,
             'source'      => $source,
             'is_audit'    => $is_audit,
             'recommend'   => $recommend,
@@ -159,108 +131,49 @@ class ArticleRepository extends BaseRepository
                 'article_id' => $article_id,
                 'input'      => $input,
             ],
-            'text'   => !$updateResult ? '更新文章失败，未知错误' : '更新文章成功',
-            'status' => !!$updateResult,
+            'text'   => !$result ? '更新文章失败，未知错误' : '更新文章成功',
+            'status' => !!$result,
         ]);
 
-        return [
-            'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => '',
-            'message' => !$updateResult ? '更新文章失败，未知错误' : '更新文章成功',
-        ];
+        return $this->responseResult(!!$result, [], !$result ? '更新失败，未知错误' : '更新成功');
     }
 
     /**
-     * 删除文章
+     * 删除
      * @param  Array $article_id
      * @return Array
      */
     public function destroy($article_id)
     {
-        $deleteResult = Article::where('id', $article_id)->delete();
+        $result = Article::where('id', $article_id)->delete();
 
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'Article/update',
             'params' => [
                 'article_id' => $article_id,
-                'input'      => $input,
             ],
-            'text'   => !$deleteResult ? '删除文章失败，未知错误' : '删除文章成功',
-            'status' => !!$deleteResult,
+            'text'   => !$result ? '删除文章失败，未知错误' : '删除文章成功',
+            'status' => !!$result,
         ]);
 
-        return [
-            'status'  => !$deleteResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => '',
-            'message' => !$deleteResult ? '删除文章失败，未知错误' : '删除文章成功',
-        ];
+        return $this->responseResult(!!$result, [], !$result ? '删除失败，未知错误' : '删除成功');
     }
 
     /**
-     * 获取options
-     * @return Array
-     */
-    public function getOptions()
-    {
-        $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
-        $resultData['options']['categories'] = CategoryRepository::getInstance()->getListsByDictText('article_category');
-        $resultData['options']['recommends'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取成功',
-        ];
-    }
-
-    /**
-     * 获取一篇文章详情
+     * 详情
      * @param  Int $article_id
      * @return Array
      */
     public function show($article_id)
     {
-        $resultData['data'] = Article::where('id', $article_id)->first();
-        if (empty($resultData)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在这篇文章',
-            ];
+        $result['data'] = Article::where('id', $article_id)->first();
+        if (empty($result)) {
+            return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $resultData['options']['categories'] = Category::lists('article_category');
-        $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
-        $resultData['options']['recommends'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取成功',
-        ];
-    }
+        $result['options'] = $this->getOptions();
 
-    /**
-     * 获取一篇文章编辑
-     * @param  Int $article_id
-     * @return Array
-     */
-    public function edit($article_id)
-    {
-        $resultData['data'] = Article::where('id', $article_id)->first();
-        if (empty($resultData)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在这篇文章',
-            ];
-        }
-        $resultData['options']['categories'] = Category::lists('article_category');
-        $resultData['options']['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
-        $resultData['options']['recommends'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取成功',
-        ];
+        return $this->responseResult(true);
     }
 
     /**
@@ -270,32 +183,25 @@ class ArticleRepository extends BaseRepository
      */
     public function getInteractives($article_id)
     {
-        $articleList = Article::where('id', $article_id)->first();
-        if (empty($articleList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在这篇文章',
-            ];
+        $list = Article::where('id', $article_id)->first();
+        if (empty($list)) {
+            return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $interactiveLists    = ArticleInteractive::where('article_id', $article_id)->user()->get();
-        $resultData['lists'] = [];
-        if (!empty($interactiveLists)) {
-            foreach ($interactiveLists as $key => $item) {
+        $lists    = ArticleInteractive::where('article_id', $article_id)->user()->get();
+        $result['lists'] = [];
+        if (!empty($lists)) {
+            foreach ($lists as $key => $item) {
                 if ($item->like) {
-                    $resultData['lists']['like'][] = $item;
+                    $result['lists']['like'][] = $item;
                 } else if ($item->hate) {
-                    $resultData['lists']['hate'][] = $item;
+                    $result['lists']['hate'][] = $item;
                 } else if ($item->collect) {
-                    $resultData['lists']['collect'][] = $item;
+                    $result['lists']['collect'][] = $item;
                 }
             }
         }
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取成功',
-        ];
+
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -305,20 +211,13 @@ class ArticleRepository extends BaseRepository
      */
     public function getComments($article_id)
     {
-        $articleList = Article::where('id', $article_id)->first();
-        if (empty($articleList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在这篇文章',
-            ];
+        $list = Article::where('id', $article_id)->first();
+        if (empty($list)) {
+            return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $resultData['lists'] = ArticleComment::where('article_id', $article_id)->user()->get();
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取成功',
-        ];
+        $result['lists'] = ArticleComment::where('article_id', $article_id)->user()->get();
+
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -328,99 +227,35 @@ class ArticleRepository extends BaseRepository
      */
     public function getReads($article_id)
     {
-        $articleList = Article::where('id', $article_id)->first();
-        if (empty($articleList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在这篇文章',
-            ];
+        $list = Article::where('id', $article_id)->first();
+        if (empty($list)) {
+            return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $resultData['lists'] = ArticleRead::where('article_id', $article_id)->user()->get();
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取成功',
-        ];
+        $result['lists'] = ArticleRead::where('article_id', $article_id)->user()->get();
+
+        return $this->responseResult(true, $result);
     }
 
     /**
-     * 改变某一个字段的值
-     * @param  Int $article_id
-     * @param  Array $data [field, value]
-     * @return Array
-     */
-    public function changeFieldValue($article_id, $input)
-    {
-        $updateResult = Article::where('id', $article_id)->update([$input['field'] => $input['value']]);
-
-        // 记录操作日志
-        Parent::saveOperateRecord([
-            'action' => 'Article/changeFieldValue',
-            'params' => [
-                'article_id' => $article_id,
-                'input'      => $input,
-            ],
-            'text'   => !$updateResult ? '操作失败，未知错误' : '操作成功',
-            'status' => !!$updateResult,
-        ]);
-
-        return [
-            'status'  => !$updateResult ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => [],
-            'message' => !$updateResult ? '操作失败，未知错误' : '操作成功',
-        ];
-    }
-
-    /**
-     * 获取文章数据
-     * @param  Array $search_form [所有可搜索字段]
-     * @return Object
+     * 列表
+     * @param  Array $search_form [permission_id, status, username]
+     * @return Object              结果集
      */
     public function getArticleLists($search_form)
     {
-        $page_size    = 10;
-        $where_params = [];
-        if (empty($search_form)) {
-            return Article::where($where_params)->paginate($page_size);
-        }
+        $where_params = $this->parseParams('articles', $search_form);
+        return Article::parseWheres($where_params)->paginate();
+    }
 
-        if (isset($search_form['status']) && $search_form['status'] !== '') {
-            $where_params['status'] = $search_form['status'];
-        }
-
-        if (isset($search_form['is_audit'])) {
-            $where_params['is_audit'] = $search_form['is_audit'];
-        }
-
-        if (isset($search_form['recommend'])) {
-            $where_params['recommend'] = $search_form['recommend'];
-        }
-
-        if (isset($search_form['category_id']) && !empty($search_form['category_id'])) {
-            $where_params['category_id'] = $search_form['category_id'];
-        }
-
-        if (isset($search_form['admin_id']) && !empty($search_form['admin_id'])) {
-            $where_params['admin_id'] = $search_form['admin_id'];
-        }
-
-        if (isset($search_form['user_id']) && !empty($search_form['user_id'])) {
-            $where_params['user_id'] = $search_form['user_id'];
-        }
-
-        $query = Article::where($where_params);
-        if (isset($search_form['title']) && $search_form['title'] !== '') {
-            $query->where('title', 'like', '%' . $search_form['title'] . '%');
-        }
-
-        if (isset($search_form['auther']) && $search_form['auther'] !== '') {
-            $query->where('auther', 'like', '%' . $search_form['auther'] . '%');
-        }
-
-        if (isset($search_form['tag_ids']) && is_array($search_form['tag_ids']) && !empty($search_form['tag_ids'])) {
-            $query->whereIn('tag_ids', $search_form['tag_ids']);
-        }
-        return $query->paginate($page_size);
+    /**
+     * 获取options
+     * @return Array
+     */
+    public function getOptions()
+    {
+        $result['category']   = CategoryRepository::getInstance()->getArticleCategories();
+        $result['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
+        $result['recommend']  = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
+        return $result;
     }
 }

@@ -1,20 +1,23 @@
 <?php
 
 return [
-    // 过滤参数规则
+    // 过滤参数规则， 默认就是 = ，不用写
     'param_rules' => [
+        // 管理员
         'admins' => [
-            'id' => '=',
             'username' => 'like',
-            'email' => 'like',
-            'permission_id' => '=',
-            'status' => '='
+            'email'    => 'like',
         ],
+        // 管理员权限
         'admin_permissions' => [
-            'id' => '=',
-            'text' => 'like',
+            'text'               => 'like',
             'permission_include' => 'in',
-            'status' => '='
+        ],
+        // 文章
+        'articles' => [
+            'title'   => 'like',
+            'auther'  => 'like',
+            'tag_ids' => 'in',
         ]
     ]
 ];
