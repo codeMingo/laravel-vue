@@ -58,7 +58,7 @@ class ArticleRepository extends BaseRepository
                 $resultData['lists']['data'][$index] = $article;
             }
         }
-        $resultData['options']['categories'] = CategoryRepository::getInstance()->getListsByDictText('article_category');
+        $resultData['options']['categories'] = [];
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,
@@ -612,11 +612,11 @@ class ArticleRepository extends BaseRepository
      */
     public function getArticleLists($search_form)
     {
-        $dictKeyValue          = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'article_page_size']);
-        $search_form['status'] = $dictKeyValue['article_is_show'];
+        return [];
+        $article_show_status          = DB::table('dicts')->where('code', 'article_status')->where('text_en', 'show')->where('status', 1)->value('value');
+        $search_form['status'] = $article_show_status;
         $where_params          = $this->parseParams($search_form);
-        $page_size             = $dictKeyValue['article_page_size'];
-        return Article::parseWheres($where_params)->paginate($page_size)->toArray();
+        return Article::parseWheres($where_params)->paginate()->toArray();
     }
 
     /**
@@ -625,7 +625,7 @@ class ArticleRepository extends BaseRepository
      */
     public function categoryLists()
     {
-        $resultData['lists'] = CategoryRepository::getInstance()->getListsByDictText('article_category');
+        $resultData['lists'] = CategoryRepository::getInstance()->getArticleCategories();
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $resultData,

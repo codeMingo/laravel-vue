@@ -16,14 +16,14 @@ class AdminPermissionSeeder extends Seeder
         DB::table('admin_permissions')->truncate();
         \App\Models\AdminPermission::create([
             'text'               => '超级管理员',
-            'permission_include' => '',
+            'permission_includes' => '',
             'status'             => 1,
         ]);
 
         for ($i = 1; $i < 10; $i++) {
-            $data = [
+            $data[] = [
                 'text'               => '管理员' . $i,
-                'permission_include' => $i,
+                'permission_includes' => $i,
                 'status'             => 1,
             ];
         }

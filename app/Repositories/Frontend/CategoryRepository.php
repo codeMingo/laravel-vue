@@ -8,13 +8,12 @@ class CategoryRepository extends BaseRepository
 {
 
     /**
-     * 根据字典的菜单类型获取某一类菜单列表
-     * @param  String $text_en 字典表的text_en
+     * 获取文章菜单
      * @return Object
      */
-    public function getListsByDictText($text_en)
+    public function getArticleCategories()
     {
-        $category_type = DB::table('dicts')->where('text_en', $text_en)->where('status', 1)->value('value');
-        return Category::where('category_type', $category_type)->where('status', 1)->get();
+        $article_category_value = DB::table('dicts')->where('code', 'category')->where('text_en', 'article')->where('status', 1)->value('value');
+        return Category::where('category_type', $article_category_value)->where('status', 1)->get();
     }
 }
