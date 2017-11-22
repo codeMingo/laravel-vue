@@ -33,6 +33,13 @@ class BaseController extends Controller
      */
     public function repeatOperation($action)
     {
+        $redis_key   = 'limit_time:' . getClientIp() . ':' . $action;
+        if (Redis::exists($redis_key) && Redis::get($redis_key) > 10) {
+            return false;
+        }
+        Redis::setnx($redis_key, 1);
+        Redis::incr($redis_key);
+        Redis::expire($redis_key, 3600);
         return true;
     }
 }

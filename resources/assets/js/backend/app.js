@@ -79,8 +79,12 @@ router.beforeEach((to, from, next) => {
     }
     next();
 });
-router.afterEach(() => {
-
+router.afterEach((to, from, next) => {
+    // 获取面包屑
+    let breadcrumb_data = [
+        {path: to.path, text: to.name}
+    ];
+    store.commit('changeBreadcrumb', breadcrumb_data);
 });
 
 //axios拦截器

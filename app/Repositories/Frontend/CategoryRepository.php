@@ -8,23 +8,23 @@ class CategoryRepository extends BaseRepository
 {
     /**
      * 列表
-     * @param  Array $input [search_form]
+     * @param  Array $input [search]
      * @return Array
      */
     public function lists($input)
     {
-        $result['lists'] = $this->getCategoryLists($input['search_from']);
+        $result['lists'] = $this->getCategoryLists($input['search']);
         return $this->responseResult(true, $result);
     }
 
     /**
      * 列表
-     * @param  Array $search_from [type]
+     * @param  Array $search [type]
      * @return Object
      */
-    public function getCategoryLists($search_from)
+    public function getCategoryLists($search)
     {
-        $type = validateValue($search_from['type']);
+        $type = validateValue($search['type']);
         if (!$type) {
             return [];
         }

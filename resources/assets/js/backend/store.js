@@ -12,6 +12,12 @@ const store = new Vuex.Store({
     state: {
         submitLoading: false,
 
+        // 面包屑{{path: '', text: ''}, {path: '', text: ''}}
+        breadcrumb: [
+            /*{path: '/home', text: '測試1'},
+            {path: '', text: '测试2'},*/
+        ],
+
         // 管理员登录信息
         admin_data: {
             username: '',
@@ -38,6 +44,9 @@ const store = new Vuex.Store({
         },
         setAdminData(state, data) {
             state.admin_data = data;
+        },
+        changeBreadcrumb(state, data) {
+            state.breadcrumb = data;
         }
     }
 });

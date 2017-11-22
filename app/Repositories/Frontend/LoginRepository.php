@@ -19,11 +19,7 @@ class LoginRepository extends BaseRepository
         $remember = isset($input['remember']) ? (bool) $input['remember'] : false;
 
         if (!$account || !$password) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '登录失败，必填字段不得为空',
-            ];
+            return $this->responseResult(false, [], '登录失败，必填字段不得为空');
         }
         if (strpos($account, '@')) {
             //邮箱登录
@@ -48,11 +44,7 @@ class LoginRepository extends BaseRepository
             'email'    => $user['email'],
             'face'     => $user['face'],
         ];
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '登录成功',
-        ];
+        $this->responseResult(true, $resultData, '登录成功');
     }
 
     public function reset($input)
@@ -76,11 +68,7 @@ class LoginRepository extends BaseRepository
             ];
             $resultData['data'] = $userData;
         }
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取成功',
-        ];
+        return $this->responseResult(true, $resultData);
     }
 
     /**
@@ -92,9 +80,6 @@ class LoginRepository extends BaseRepository
         if (Auth::guard('web')->check()) {
             Auth::guard('web')->logout();
         }
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'message' => '退出成功',
-        ];
+        $this->responseResult(true, [], '退出成功');
     }
 }

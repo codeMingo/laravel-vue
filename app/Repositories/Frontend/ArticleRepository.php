@@ -16,13 +16,13 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 文章列表
-     * @param  Array $input [search_form]
+     * @param  Array $input [search]
      * @return Array
      */
     public function lists($input)
     {
-        $result['lists'] = $this->getArticleLists($input['search_form'])->toArray();
-        $result['options']['category'] = CategoryRepository::getInstance()->getArticleCategories();
+        $result['lists'] = $this->getArticleLists($input['search'])->toArray();
+        $result['options']['category'] = CategoryRepository::getInstance()->getCategoryLists(['type' => 'article']);
         return $this->responseResult(true, $result);
     }
 
@@ -38,18 +38,18 @@ class ArticleRepository extends BaseRepository
         // 文章正常显示的value
         $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
 
-        $result['list'] = Article::where('id', $article_id)->where('status', $show_status_value)->where('is_audit', $audit_pass_value)->with('read')->with('interactive')->with('category')->first();
+        $result['list'] = Article::where('id', $article_id)->where('status', $show_status_value)->where('is_audit', $audit_pass_value)->with('read')->with('interact')->with('category')->first();
         if (empty($result['list'])) {
             return $this->responseResult(false, $result, '获取失败，文章不存在或已被删除');
         }
 
         // 文章阅读量 +1
-        $this->read($article_id, Auth::guard('web')->id());
+        $this->read($article_id, $this->getUserId());
 
         // 获取上一篇文章
-        $result['prev'] = $this->getPrevArticleList($article_id);
+        $result['prev_article'] = $this->getPrevArticleList($article_id);
         // 获取下一篇文章
-        $result['next'] = $this->getNextArticleList($article_id);
+        $result['next_article'] = $this->getNextArticleList($article_id);
 
         // 文章标签
         if (!empty($result['list']->tag_ids)) {
@@ -77,7 +77,7 @@ class ArticleRepository extends BaseRepository
         $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
         // 文章正常显示的value
         $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
-        return DB::table('articles')->where('status', $show_status_value)->where('is_audit', $audit_pass_value)->where('article_id', '<', $article_id)->orderBy('article_id', 'desc')->first();
+        return Article::where('status', $show_status_value)->where('is_audit', $audit_pass_value)->where('id', '<', $article_id)->with('read')->with('interact')->with('comment')->orderBy('id', 'desc')->first();
     }
 
     // 获取下一篇文章
@@ -87,7 +87,7 @@ class ArticleRepository extends BaseRepository
         $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
         // 文章正常显示的value
         $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
-        return DB::table('articles')->where('status', $show_status_value)->where('is_audit', $audit_pass_value)->where('article_id', '>', $article_id)->orderBy('article_id', 'asc')->first();
+        return Article::where('status', $show_status_value)->where('is_audit', $audit_pass_value)->where('id', '>', $article_id)->with('read')->with('interact')->with('comment')->orderBy('id', 'asc')->first();
     }
 
     /**
@@ -145,12 +145,12 @@ class ArticleRepository extends BaseRepository
         if (empty($articleList)) {
             return $this->responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
         }
-        $user_id  = Auth::guard('web')->id();
+        $user_id  = $this->getUserId();
         $dataList = Interact::where('article_id', $article_id)->where('user_id', $user_id)->where($type, 1)->first();
         if (!empty($dataList)) {
             return $this->responseResult(false, [], $type_text . '失败，您已经操作过了');
         }
-        Interact::create([
+        $result = Interact::create([
             'user_id'    => $user_id,
             'article_id' => $article_id,
             $type        => 1,
@@ -162,7 +162,7 @@ class ArticleRepository extends BaseRepository
             'params' => $input,
             'text'   => $type_text . '成功',
         ]);
-        return $this->responseResult(true, [], $type_text . '成功');
+        return $this->responseResult(true, $result, $type_text . '成功');
     }
 
     /**
@@ -372,14 +372,14 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 获取文章数据
-     * @param  Array $search_form [所有可搜索字段]
+     * @param  Array $search [所有可搜索字段]
      * @return Object
      */
-    public function getArticleLists($search_form)
+    public function getArticleLists($search)
     {
         $show_status_value          = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
-        $search_form['status'] = $show_status_value;
-        $where_params          = $this->parseParams('articles', $search_form);
-        return Article::parseWheres($where_params)->with('comment')->with('read')->with('interactive')->paginate();
+        $search['status'] = $show_status_value;
+        $where_params          = $this->parseParams('articles', $search);
+        return Article::parseWheres($where_params)->with('comment')->with('read')->with('interact')->paginate();
     }
 }

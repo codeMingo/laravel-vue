@@ -4,14 +4,17 @@
             <div class="hamburger-container" @click="toggleSidebar"><i class="fa fa-navicon"></i></div>
             <el-breadcrumb class="sidebar-breadcrumb" separator="/">
                 <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-                <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-                <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+                <template v-for="item in this.$store.state.breadcrumb">
+                    <el-breadcrumb-item :to="{ path: item.path }" v-if="item.path">{{item.text}}</el-breadcrumb-item>
+                    <el-breadcrumb-item v-else>{{item.text}}</el-breadcrumb-item>
+                </template>
+
             </el-breadcrumb>
-            <div class="sidebar-tag">
+            <!-- <div class="sidebar-tag">
                 <el-tag v-for="tag in tags" :key="tag.name" :closable="true" :type="tag.type">
                     {{tag.name}}
                 </el-tag>
-            </div>
+            </div> -->
             <el-submenu index="5" style="float: right;margin-right: 5px;">
                 <template slot="title">{{this.$store.state.admin_data.permission_text}}：{{this.$store.state.admin_data.username}}</template>
                 <el-menu-item index="5-1">个人中心</el-menu-item>

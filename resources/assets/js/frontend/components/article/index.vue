@@ -7,7 +7,7 @@
                         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
                         <template v-if="$route.params.category_id">
                             <el-breadcrumb-item :to="{ path: '/article/index' }">全部文章</el-breadcrumb-item>
-                            <el-breadcrumb-item>{{search_form.category_id | formatByOptions(options.categories, 'id', 'category_name')}}</el-breadcrumb-item>
+                            <el-breadcrumb-item>{{search.category_id | formatByOptions(options.category, 'id', 'category_name')}}</el-breadcrumb-item>
                         </template>
                         <template v-else>
                             <el-breadcrumb-item>全部文章</el-breadcrumb-item>
@@ -15,11 +15,11 @@
                     </el-breadcrumb>
                 </div>
                 <div class="content-box article-box">
-                    <div class="article-detail" v-for="(item, index) in data_lists">
+                    <div class="article-detail" v-for="(item, index) in lists">
                         <div class='article-picture' v-show="item.thumbnail"><img :src="item.thumbnail"></div>
                         <div class="article-word" :class="item.thumbnail ? '' : 'article-all'">
                             <h2 class='article-title'>
-                                <el-tag type="primary">{{item.category_id | formatByOptions(options.categories, 'id', 'category_name')}}</el-tag>
+                                <el-tag type="primary">{{item.category_id | formatByOptions(options.category, 'id', 'category_name')}}</el-tag>
                                 <router-link :to="{ path: '/article/detail/' + item.id }">{{item.title}}</router-link>
                             </h2>
                             <div class='article-right'>
@@ -33,9 +33,9 @@
                             </div>
                             <div class='article-interactive'>
                                 <p>
-                                    <a href="javascript:;" @click="interactive(item.id, 'like')">赞：<span>{{item.intearact | getCount('like')}}</span></a>
+                                    <a href="javascript:;" @click="interactive(item.id, 'like')">赞：<span>{{item.interact | getCount('like', 1)}}</span></a>
                                     <router-link :to="{ path: '/article/detail/' + item.id }">评论：<span>{{item.comment | getCount}}</span></router-link>
-                                    <a href="javascript:;" @click="interactive(item.id, 'collect')">收藏：<span>{{item.interact | getCount('like')}}</span></a>
+                                    <a href="javascript:;" @click="interactive(item.id, 'collect')">收藏：<span>{{item.interact | getCount('collect', 1)}}</span></a>
                                     <router-link :to="{ path: '/article/detail/' + item.id }">阅读：<span>{{item.read | getCount}}</span></router-link>
                                 </p>
                             </div>
@@ -190,7 +190,7 @@
 export default {
     data() {
         return {
-            data_lists: [],
+            lists: [],
             options: {
                 category: [],
             },
@@ -199,7 +199,7 @@ export default {
                 total: 0,
                 per_page: 10,
             },
-            search_form: {
+            search: {
                 category_id: this.$route.params.category_id
             }
         };
@@ -209,17 +209,17 @@ export default {
     },
     watch: {
         '$route' (to, from) {
-            this.search_form.category_id = this.$route.params.category_id;
+            this.search.category_id = this.$route.params.category_id;
             this.getLists();
         }
     },
     methods: {
         getLists() {
             let _this = this;
-            let paramsData = { 'data': { 'search_form': _this.search_form } };
+            let paramsData = { 'data': { 'search': _this.search } };
             axios.get('/article/lists?page=' + _this.pagination.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
-                _this.data_lists = data.lists.data;
+                _this.lists = data.lists.data;
                 _this.options = data.options;
                 _this.pagination.per_page = parseInt(data.lists.per_page);
                 _this.pagination.current_page = parseInt(data.lists.current_page);
@@ -232,22 +232,16 @@ export default {
         },
         interactive(article_id, type) {
             let _this = this;
-            axios.put('/article/interactive/' + article_id, {'data': {'type': type}}).then(response => {
+            axios.put('/article/interactive/' + article_id, { 'data': { 'type': type } }).then(response => {
                 let { status, data, message } = response.data;
                 if (!status) {
                     _this.$message.error(message);
                     return false;
                 }
                 _this.$message.success(message);
-                _this.data_lists.forEach(function(item) {
+                _this.lists.forEach(function(item) {
                     if (item.id == article_id) {
-                        if (type == 'like') {
-                            item.like_count ++;
-                        } else if (type == 'hate') {
-                            item.hate_count ++;
-                        } else if (type == 'collect') {
-                            item.collect_count ++;
-                        }
+                        item.interact.push(data);
                         return false;
                     }
                 });

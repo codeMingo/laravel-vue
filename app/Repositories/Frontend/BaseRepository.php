@@ -12,9 +12,7 @@ use Illuminate\Support\Facades\Auth;
 abstract class BaseRepository
 {
     protected static $instance;
-    const ERROR_STATUS   = 0; // 失败状态
-    const SUCCESS_STATUS = 1; // 成功状态
-    protected $current_model; // Model类
+    protected $user_id;
 
     //获取实例化
     public static function getInstance()
@@ -91,13 +89,26 @@ abstract class BaseRepository
     public function saveOperateRecord($input)
     {
         UserOperateRecord::create([
-            'user_id'    => Auth::guard('web')->id(),
-            'action'     => validateValue($input['action']),
-            'params'     => json_encode($input['params']),
-            'text'       => validateValue($input['text'], 'string', '操作成功'),
+            'user_id'    => $this->getUserId(),
+            'action'     => isset($input['action']) ? validateValue($input['action']) : '',
+            'params'     => isset($input['params']) ? json_encode($input['params']) : '',
+            'text'       => isset($input['text']) ? validateValue($input['text'], 'string') : '操作成功',
             'ip_address' => getClientIp(),
-            'status'     => validateValue($input['status'], 'int', 1),
+            'status'     => isset($input['status']) ? validateValue($input['status'], 'int') : 1,
         ]);
+    }
+
+    /**
+     * 获取当前用户id
+     * @return Int
+     */
+    public function getUserId()
+    {
+        if (Auth::guard('web')->check()) {
+            return Auth::guard('web')->id();
+        } else {
+            return 0;
+        }
     }
 
     /**

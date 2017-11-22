@@ -15,9 +15,9 @@
                     <p class="article-right">
                         <span>作者：<strong>{{article_data.auther}}</strong></span>
                         <span>发表时间：<strong>{{article_data.created_at}}</strong></span>
-                        <span>阅读量：<strong>{{article_data.read_count}}</strong></span>
-                        <span>评论：<strong>{{article_comment_pagination.total}}</strong></span>
-                        <span>点赞：<strong>{{article_data.like_count | defaultValue(0)}}</strong></span>
+                        <span>阅读：<strong>{{article_data.read | getCount}}</strong></span>
+                        <span>评论：<strong>{{article_comments | getCount('parent_id', 0)}}</strong></span>
+                        <span>点赞：<strong>{{article_data.interact | getCount('like', 1)}}</strong></span>
                     </p>
                     <div class="ql-container ql-snow">
                         <div class="article-content ql-editor" v-html="article_data.content" style="padding: 0;"></div>
@@ -43,7 +43,12 @@
                                     <p>
                                         <router-link :to="{ path: '/article/detail/' + prev_article.id }"><i class="fa fa-chevron-left"></i>上一篇：{{prev_article.title}}</router-link>
                                     </p>
-                                    <p>@{{prev_article.created_at}} 阅读({{prev_article.read_count}}) 赞({{prev_article.like_count | defaultValue(0)}}) 评论({{prev_article.comment_count}})</p>
+                                    <p>
+                                        <span>@{{prev_article.created_at}}</span>
+                                        <span>阅读({{prev_article.read | getCount}})</span>
+                                        <span>赞({{prev_article.interact | getCount('like', 1)}})</span>
+                                        <span>评论({{prev_article.comment | getCount('parent_id', 0)}})</span>
+                                    </p>
                                 </template>
                                 <template v-else>
                                     <p><a href="javascript:;"><i class="fa fa-chevron-left"></i>这是第一篇</a></p>
@@ -54,7 +59,12 @@
                                     <p>
                                         <router-link :to="{ path: '/article/detail/' + next_article.id }">下一篇：{{next_article.title}}<i class="fa fa-chevron-right"></i></router-link>
                                     </p>
-                                    <p>@{{next_article.created_at}} 阅读({{next_article.read_count}}) 赞({{next_article.like_count | defaultValue(0)}}) 评论({{next_article.comment_count}})</p>
+                                    <p>
+                                        <span>@{{next_article.created_at}}</span>
+                                        <span>阅读({{next_article.read | getCount}})</span>
+                                        <span>赞({{next_article.interact | getCount('like', 1)}})</span>
+                                        <span>评论({{next_article.comment | getCount('parent_id', 0)}})</span>
+                                    </p>
                                 </template>
                                 <template v-else>
                                     <p><a href="javascript:;">已经是最后一篇<i class="fa fa-chevron-right"></i></a></p>

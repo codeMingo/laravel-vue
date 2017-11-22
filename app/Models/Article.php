@@ -25,9 +25,9 @@ class Article extends Base
     }
 
     // 关联所有的互动
-    public function interactive()
+    public function Interact()
     {
-        return $this->hasMany('App\Models\ArticleInteractive', 'article_id', 'id');
+        return $this->hasMany('App\Models\Interact', 'article_id', 'id');
     }
 
     // 关联菜单表
