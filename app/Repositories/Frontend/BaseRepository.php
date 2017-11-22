@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 abstract class BaseRepository
 {
@@ -112,37 +113,35 @@ abstract class BaseRepository
     }
 
     /**
-     * 获取redis的值
-     * @param  Array $key_type_arr  [redis key_type_arr],只包含string  和 hash
+     * 获取redis的值，string  和 hash
+     * @param  Array $key_arr [key => [filed1, filed2], key, ...]
      * @return Array
      */
-    public function getRedisListsValue($key_item_arr, $flag = true)
+    public function getRedisListsValue($key_arr, $flag = true)
     {
         $result = [];
-        if (!empty($key_type_arr)) {
+        if (empty($key_arr)) {
             return $result;
         }
-        foreach ($key_type_arr as $redis_key => $redis_item) {
-            // 如果redis值为空，则清除所有缓存，重新生成
-            if ($flag && !Redis::exist($redis_key)) {
-                $flag = false;
-                $this->refreshRedisCache();
-            }
+        foreach ($key_arr as $redis_key => $item) {
             // 表示为 string 类型
-            if (is_string($redis_item)) {
-                $result[$redis_key] = Redis::get($redis_key);
-            } else {
-                // 表示为 hash
-                 if ($flag && !Redis::hexists($redis_key, $redis_item[0])) {
+            if (is_string($item)) {
+                // 如果redis值为空，则清除所有缓存，重新生成
+                if ($flag && !Redis::exists($item)) {
                     $flag = false;
                     $this->refreshRedisCache();
-                 }
-                 $result[$redis_key] = Redis::hget($redis_key, $redis_item[0]);
-            }
-            if ($redis_type == 'string') {
-                $result[$redis_key] = Redis::get($redis_key);
-            } else if ($redis_type == 'hash') {
-                $result[$redis_key] = Redis::hget($redis_key);
+                }
+                $result[$item] = Redis::get($item);
+            } else {
+                // 表示为 hash
+                $field_arr = array_values($item);
+                foreach ($field_arr as $field) {
+                    if ($flag && !Redis::hexists($redis_key, $field)) {
+                        $flag = false;
+                        $this->refreshRedisCache();
+                    }
+                    $result[$redis_key][$field] = Redis::hget($redis_key, $field);
+                }
             }
         }
         return $result;

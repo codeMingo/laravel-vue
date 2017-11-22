@@ -13,6 +13,8 @@ class TestController extends Controller
     // 测试
     public function index()
     {
+        $a = ['a' => ['b', '2']];
+        print_r(array_values($a));exit;
         $mailData = [
             'view'  => 'register',
             'to'    => '292304400@qq.com',
