@@ -21,7 +21,7 @@ class ArticleRepository extends BaseRepository
      */
     public function lists($input)
     {
-        $result['lists'] = $this->getlists($input['search'])->toArray();
+        $result['lists'] = $this->getArticleList($input['search'])->toArray();
         $result['options']['category'] = CategoryRepository::getInstance()->getCategoryLists(['type' => 'article']);
         return $this->responseResult(true, $result);
     }
@@ -373,7 +373,7 @@ class ArticleRepository extends BaseRepository
      * @param  Array $search [所有可搜索字段]
      * @return Object
      */
-    public function getlists($search)
+    public function getArticleList($search)
     {
         $dicts = $this->getRedisListsValue(['dicts_audit' => ['pass'], 'dicts_article_status' => ['show']]);
         $search['status'] = $dicts['dicts_article_status']['show'];
