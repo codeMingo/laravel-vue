@@ -99,4 +99,59 @@ abstract class BaseRepository
             'status'     => validateValue($input['status'], 'int', 1),
         ]);
     }
+
+    /**
+     * 获取redis的值
+     * @param  Array $key_type_arr  [redis key_type_arr],只包含string  和 hash
+     * @return Array
+     */
+    public function getRedisListsValue($key_item_arr, $flag = true)
+    {
+        $result = [];
+        if (!empty($key_type_arr)) {
+            return $result;
+        }
+        foreach ($key_type_arr as $redis_key => $redis_item) {
+            // 如果redis值为空，则清除所有缓存，重新生成
+            if ($flag && !Redis::exist($redis_key)) {
+                $flag = false;
+                $this->refreshRedisCache();
+            }
+            // 表示为 string 类型
+            if (is_string($redis_item)) {
+                $result[$redis_key] = Redis::get($redis_key);
+            } else {
+                // 表示为 hash
+                 if ($flag && !Redis::hexists($redis_key, $redis_item[0])) {
+                    $flag = false;
+                    $this->refreshRedisCache();
+                 }
+                 $result[$redis_key] = Redis::hget($redis_key, $redis_item[0]);
+            }
+            if ($redis_type == 'string') {
+                $result[$redis_key] = Redis::get($redis_key);
+            } else if ($redis_type == 'hash') {
+                $result[$redis_key] = Redis::hget($redis_key);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 清空redis缓存，并且重新生成缓存
+     * @return [type] [description]
+     */
+    public function refreshRedisCache()
+    {
+        Redis::flushdb();
+        $dict_lists = DB::table('dicts')->where('status', 1)->get();
+
+        if (!empty($dict_lists)) {
+            $dict_redis_key = 'dicts_';
+            foreach ($dict_lists as $key => $dict) {
+                Redis::hset('dicts_' . $dict->code, $dict->text_en, $dict->value);
+            }
+        }
+        return true;
+    }
 }

@@ -19,6 +19,7 @@ Vue.use(VueRouter);
 Vue.use(ElementUI);
 Vue.use(Vuex);
 Vue.use(plugins);
+
 //注册全局的过滤函数
 Object.keys(filters).forEach(key => {
     Vue.filter(key, filters[key])
@@ -95,9 +96,9 @@ axios.interceptors.response.use(function(response) {
 const app = new Vue({
     beforeCreate() {
         window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
-
         // 获取首页技术篇菜单
-        axios.get('/article/category').then(response => {
+        let params = {'data': {'type': 'article'}};
+        axios.get('/category', params).then(response => {
             let {status, data, message} = response.data;
             if (status && Object.keys(data).length > 0) {
                 store.commit('setStateValue', {'article_category': data.lists});

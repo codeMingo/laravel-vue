@@ -7,7 +7,7 @@ Route::post('/login', 'Auth\LoginController@userLogin');
 Route::post('/logout', 'Auth\LoginController@userLogout');
 Route::get('/login-status', 'Auth\LoginController@loginStatus');
 // 获取前台技术篇菜单
-Route::get('/article/category', 'Frontend\ArticleController@categoryLists');
+Route::get('/category', 'Frontend\CategoryController@lists');
 Route::group(['namespace' => 'Frontend'], function () {
     // 公共模块
     Route::get('/test', 'TestController@index');

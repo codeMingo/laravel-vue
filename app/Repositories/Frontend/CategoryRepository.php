@@ -6,14 +6,29 @@ use Illuminate\Support\Facades\DB;
 
 class CategoryRepository extends BaseRepository
 {
+    /**
+     * 列表
+     * @param  Array $input [search_form]
+     * @return Array
+     */
+    public function lists($input)
+    {
+        $result['lists'] = $this->getCategoryLists($input['search_from']);
+        return $this->responseResult(true, $result);
+    }
 
     /**
-     * 获取文章菜单
+     * 列表
+     * @param  Array $search_from [type]
      * @return Object
      */
-    public function getArticleCategories()
+    public function getCategoryLists($search_from)
     {
-        $article_category_value = DB::table('dicts')->where('code', 'category')->where('text_en', 'article')->where('status', 1)->value('value');
-        return Category::where('category_type', $article_category_value)->where('status', 1)->get();
+        $type = validateValue($search_from['type']);
+        if (!$type) {
+            return [];
+        }
+        $category_type = DictRepository::getInstance()->getValueByCodeAndTextEn('category', $type);
+        return Category::where('category_type', $category_type)->where('status', 1)->get();
     }
 }

@@ -73,11 +73,4 @@ class ArticleController extends BaseController
         $result = ArticleRepository::getInstance()->interativeLists($input);
         return response()->json($result);
     }
-
-    // 获取菜单列表
-    public function categoryLists()
-    {
-        $result = ArticleRepository::getInstance()->categoryLists();
-        return response()->json($result);
-    }
 }
