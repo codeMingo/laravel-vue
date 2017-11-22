@@ -8,16 +8,16 @@ import Login from './components/common/login.vue';
 import Index from './components/index/index.vue';
 
 // 视频列表
-import Video from './components/video/video.vue';
-import VideoDetail from './components/video/videoDetail.vue';
-import VideoPlay from './components/video/videoPlay.vue';
+import Video from './components/video/index.vue';
+import VideoDetail from './components/video/detail.vue';
+import VideoPlay from './components/video/play.vue';
 
 // 技术篇
-import Article from './components/article/article.vue';
-import ArticleDetail from './components/article/articleDetail.vue';
+import Article from './components/article/index.vue';
+import ArticleDetail from './components/article/detail.vue';
 
 // 留言
-import Leave from './components/leave/leave.vue';
+import Leave from './components/leave/index.vue';
 
 // 用户模块
 import User from './components/common/user.vue';
@@ -79,4 +79,4 @@ export default [{
         { path: 'collect', component: UserCollect, name: '我的收藏', iconCls: '' },
         { path: 'interactive', component: UserInteractive, name: '我的动态', iconCls: '' },
     ]
-}]
+}];

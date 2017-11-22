@@ -65,18 +65,26 @@ export function subString(str, sub_start, sub_length) {
 
 /**
  * 获取总数
- * @param  {array} targetLists
+ * @param  {array} lists
  * @return {string}
  */
-export function getCount(targetLists) {
+export function getCount(lists, key = '', value = 1) {
     let count = 0;
-    if (targetLists == undefined) {
+    if (lists == undefined) {
         return count;
     }
-    if (Array.isArray(targetLists)) {
-        return targetLists.length;
+    if (Array.isArray(lists)) {
+        if (key === '') {
+            return lists.length;
+        }
+        lists.forEach(response => {
+            if (response[key] == value) {
+                count ++;
+            }
+        });
+        return count;
     }
-    return Object.keys(targetLists).length;
+    return getCount(Object.keys(lists), key, value);
 }
 
 /**

@@ -7,7 +7,7 @@
                         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
                         <template v-if="$route.params.category_id">
                             <el-breadcrumb-item :to="{ path: '/article/index' }">全部文章</el-breadcrumb-item>
-                            <el-breadcrumb-item>{{search_form.category_id | formatByOptions(article_options.categories, 'id', 'category_name')}}</el-breadcrumb-item>
+                            <el-breadcrumb-item>{{search_form.category_id | formatByOptions(options.categories, 'id', 'category_name')}}</el-breadcrumb-item>
                         </template>
                         <template v-else>
                             <el-breadcrumb-item>全部文章</el-breadcrumb-item>
@@ -15,11 +15,11 @@
                     </el-breadcrumb>
                 </div>
                 <div class="content-box article-box">
-                    <div class="article-detail" v-for="(item, index) in article_data">
+                    <div class="article-detail" v-for="(item, index) in data_lists">
                         <div class='article-picture' v-show="item.thumbnail"><img :src="item.thumbnail"></div>
                         <div class="article-word" :class="item.thumbnail ? '' : 'article-all'">
                             <h2 class='article-title'>
-                                <el-tag type="primary">{{item.category_id | formatByOptions(article_options.categories, 'id', 'category_name')}}</el-tag>
+                                <el-tag type="primary">{{item.category_id | formatByOptions(options.categories, 'id', 'category_name')}}</el-tag>
                                 <router-link :to="{ path: '/article/detail/' + item.id }">{{item.title}}</router-link>
                             </h2>
                             <div class='article-right'>
@@ -33,16 +33,16 @@
                             </div>
                             <div class='article-interactive'>
                                 <p>
-                                    <a href="javascript:;" @click="interactive(item.id, 'like')">赞：<span>{{item.like_count}}</span></a>
-                                    <router-link :to="{ path: '/article/detail/' + item.id }">评论：<span>{{item.comment_count}}</span></router-link>
-                                    <a href="javascript:;" @click="interactive(item.id, 'collect')">收藏：<span>{{item.collect_count}}</span></a>
-                                    <router-link :to="{ path: '/article/detail/' + item.id }">阅读：<span>{{item.read_count}}</span></router-link>
+                                    <a href="javascript:;" @click="interactive(item.id, 'like')">赞：<span>{{item.intearact | getCount('like')}}</span></a>
+                                    <router-link :to="{ path: '/article/detail/' + item.id }">评论：<span>{{item.comment | getCount}}</span></router-link>
+                                    <a href="javascript:;" @click="interactive(item.id, 'collect')">收藏：<span>{{item.interact | getCount('like')}}</span></a>
+                                    <router-link :to="{ path: '/article/detail/' + item.id }">阅读：<span>{{item.read | getCount}}</span></router-link>
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div class="page-box">
-                        <el-pagination @current-change="changeCurrentPage" :current-page.sync="article_pagination.current_page" :page-size="article_pagination.per_page" layout="total, prev, pager, next" :total="article_pagination.total">
+                        <el-pagination @current-change="changeCurrentPage" :current-page.sync="pagination.current_page" :page-size="pagination.per_page" layout="total, prev, pager, next" :total="pagination.total">
                         </el-pagination>
                     </div>
                 </div>
@@ -190,11 +190,11 @@
 export default {
     data() {
         return {
-            article_data: [],
-            article_options: {
-                categories: [],
+            data_lists: [],
+            options: {
+                category: [],
             },
-            article_pagination: {
+            pagination: {
                 current_page: 1,
                 total: 0,
                 per_page: 10,
@@ -217,17 +217,17 @@ export default {
         getLists() {
             let _this = this;
             let paramsData = { 'data': { 'search_form': _this.search_form } };
-            axios.get('/article/lists?page=' + _this.article_pagination.current_page, { params: paramsData }).then(response => {
+            axios.get('/article/lists?page=' + _this.pagination.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
-                _this.article_data = data.lists.data;
-                _this.article_options = data.options;
-                _this.article_pagination.per_page = parseInt(data.lists.per_page);
-                _this.article_pagination.current_page = parseInt(data.lists.current_page);
-                _this.article_pagination.total = parseInt(data.lists.total);
+                _this.data_lists = data.lists.data;
+                _this.options = data.options;
+                _this.pagination.per_page = parseInt(data.lists.per_page);
+                _this.pagination.current_page = parseInt(data.lists.current_page);
+                _this.pagination.total = parseInt(data.lists.total);
             });
         },
         changeCurrentPage(val) {
-            this.article_pagination.current_page = val;
+            this.pagination.current_page = val;
             this.getLists();
         },
         interactive(article_id, type) {
@@ -239,7 +239,7 @@ export default {
                     return false;
                 }
                 _this.$message.success(message);
-                _this.article_data.forEach(function(item) {
+                _this.data_lists.forEach(function(item) {
                     if (item.id == article_id) {
                         if (type == 'like') {
                             item.like_count ++;

@@ -13,15 +13,21 @@ class Article extends Base
     ];
 
     // 关联所有的评论
-    public function comments()
+    public function comment()
     {
         return $this->hasMany('App\Models\ArticleComment', 'article_id', 'id');
     }
 
-    // 关联所有的互动
-    public function interactives()
+    // 关联所有的阅读
+    public function read()
     {
-        return $this->hasMany('App\Models\ArticleInteractive');
+        return $this->hasMany('App\Models\ArticleRead', 'article_id', 'id');
+    }
+
+    // 关联所有的互动
+    public function interactive()
+    {
+        return $this->hasMany('App\Models\ArticleInteractive', 'article_id', 'id');
     }
 
     // 关联菜单表

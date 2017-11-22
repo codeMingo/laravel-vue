@@ -22,46 +22,8 @@ class ArticleRepository extends BaseRepository
     public function lists($input)
     {
         $result['lists'] = $this->getArticleLists($input['search_form'])->toArray();
-        if (!empty($result['lists'])) {
-            $article_id_arr = [];
-            foreach ($result['lists']['data'] as $index => $article) {
-                $article_id_arr[] = $article['id'];
-            }
-
-            // 获取 like hate collect 各自的总数
-            $interactive_key_count = $this->interactiveCount(['like', 'hate', 'collect'], $article_id_arr);
-
-            $comment_key_value_lists = $read_key_value_lists = [];
-            // 获取评论总数
-            $comment_lists = ArticleComment::whereIn('article_id', $article_id_arr)->get();
-            if (!empty($comment_lists)) {
-                foreach ($comment_lists as $index => $comment) {
-                    if (isset($comment_key_value_lists[$comment->article_id])) {
-                        $comment_key_value_lists[$comment->article_id]++;
-                    } else {
-                        $comment_key_value_lists[$comment->article_id] = 1;
-                    }
-                }
-            }
-
-            // 获取阅读总数
-            $read_count_lists = $this->readCount($article_id_arr);
-
-            foreach ($result['lists']['data'] as $index => $article) {
-                $article['like_count']               = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['like_count']) ? $interactive_key_count[$article['id']]['like_count'] : 0;
-                $article['hate_count']               = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['hate_count']) ? $interactive_key_count[$article['id']]['hate_count'] : 0;
-                $article['collect_count']            = isset($interactive_key_count[$article['id']]) && isset($interactive_key_count[$article['id']]['collect_count']) ? $interactive_key_count[$article['id']]['collect_count'] : 0;
-                $article['comment_count']            = isset($comment_key_value_lists[$article['id']]) ? $comment_key_value_lists[$article['id']] : 0;
-                $article['read_count']               = isset($read_count_lists[$article['id']]) ? $read_count_lists[$article['id']] : 0;
-                $result['lists']['data'][$index] = $article;
-            }
-        }
-        $result['options']['categories'] = CategoryRepository::getInstance()->getArticleCategories();
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $result,
-            'message' => '数据获取成功',
-        ];
+        $result['options']['category'] = CategoryRepository::getInstance()->getArticleCategories();
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -75,11 +37,7 @@ class ArticleRepository extends BaseRepository
         $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
         $result['list'] = Article::where('id', $article_id)->where('status', $show_status_value)->where('is_audit', $audit_pass_value)->with('category')->first();
         if (empty($result['list'])) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在这篇文章',
-            ];
+            return $this->responseResult(false, $result, '获取失败，文章不存在或已被删除');
         }
 
         // 文章阅读量 +1
@@ -153,12 +111,7 @@ class ArticleRepository extends BaseRepository
                 $result['list']->tag_lists = $temp_tag_arr;
             }
         }
-
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $result,
-            'message' => '数据获取成功',
-        ];
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -170,13 +123,9 @@ class ArticleRepository extends BaseRepository
     {
         $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
         $show_status_value = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
-        $result['lists'] = ArticleComment::where('article_id', $article_id)->where('is_audit', $audit_pass_value)->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
+        $result['lists'] = ArticleComment::where('article_id', $article_id)->where('is_audit', $audit_pass_value)->where('status', 1)->where('parent_id', 0)->with('user')->paginate();
         if ($result['lists']->isEmpty()) {
-            return [
-                'status'  => Parent::SUCCESS_STATUS,
-                'data'    => $result,
-                'message' => '数据获取成功',
-            ];
+            return $this->responseResult(true, $result);
         }
         $comment_ids = [];
         foreach ($result['lists'] as $index => $comment) {
@@ -197,11 +146,7 @@ class ArticleRepository extends BaseRepository
                 }
             }
         }
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $result,
-            'message' => '数据获取成功',
-        ];
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -212,12 +157,20 @@ class ArticleRepository extends BaseRepository
     public function interactive($input, $article_id)
     {
         $type = isset($input['type']) ? strval($input['type']) : '';
-        if (!$article_id || !$type) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '操作失败，发生未知错误',
-            ];
+        $type_text = '';
+        swtich($type) {
+            case 'like':
+                $type_text = '点赞';
+            break;
+            case 'hate':
+                $type_text = '反对';
+            break;
+            case 'collect':
+                $type_text = '收藏';
+            break;
+        }
+        if (!$article_id || !$type || !$type_text) {
+            return $this->responseResult(false, [], $type_text . '失败，发生未知错误');
         }
 
         $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
@@ -225,22 +178,14 @@ class ArticleRepository extends BaseRepository
 
         $articleList    = Article::where('id', $article_id)->where('status', $show_status_value)->first();
         if (empty($articleList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '操作失败，不存在这篇文章',
-            ];
+            return $this->responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
         }
         $user_id  = Auth::guard('web')->id();
         $dataList = Interact::where('article_id', $article_id)->where('user_id', $user_id)->where($type, 1)->first();
         if (!empty($dataList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '操作失败，不可重复操作',
-            ];
+            return $this->responseResult(false, [], $type_text . '失败，您已经操作过了');
         }
-        $result = Interact::create([
+        Interact::create([
             'user_id'    => $user_id,
             'article_id' => $article_id,
             $type        => 1,
@@ -250,15 +195,9 @@ class ArticleRepository extends BaseRepository
         Parent::saveOperateRecord([
             'action' => 'Article/interactive',
             'params' => $input,
-            'text'   => $result ? '操作成功' : '操作失败',
-            'status' => !!$result,
+            'text'   => $type_text . '成功',
         ]);
-
-        return [
-            'status'  => $result ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
-            'data'    => [],
-            'message' => $result ? '操作成功' : '操作失败，发生未知错误',
-        ];
+        return $this->responseResult(true, [], $type_text . '成功');
     }
 
     /**
@@ -619,7 +558,7 @@ class ArticleRepository extends BaseRepository
         $show_status_value          = DictRepository::getInstance()->getValueByCodeAndTextEn('article_status', 'show');
         $search_form['status'] = $show_status_value;
         $where_params          = $this->parseParams('articles', $search_form);
-        return Article::parseWheres($where_params)->paginate();
+        return Article::parseWheres($where_params)->with('comment')->with('read')->with('interactive')->paginate();
     }
 
     /**

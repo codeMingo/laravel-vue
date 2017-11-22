@@ -91,12 +91,12 @@ abstract class BaseRepository
     public function saveOperateRecord($input)
     {
         UserOperateRecord::create([
-            'user_id'   => Auth::guard('admin')->id(),
-            'action'     => $input['action'],
+            'user_id'    => Auth::guard('web')->id(),
+            'action'     => validateValue($input['action']),
             'params'     => json_encode($input['params']),
-            'text'       => $input['text'],
+            'text'       => validateValue($input['text'], 'string', '操作成功'),
             'ip_address' => getClientIp(),
-            'status'     => $input['status'],
+            'status'     => validateValue($input['status'], 'int', 1),
         ]);
     }
 }
