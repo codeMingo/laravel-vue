@@ -42,7 +42,7 @@
                 </el-col>
             </el-row>
             <el-form-item label="缩略图" prop="thumbnail">
-                <el-upload class="upload-demo" action="/backend/upload-image" :on-preview="previewThumbnail" :on-remove="removeThumbnail" :file-list="thumbnailFileList" list-type="picture" :on-success="uploadThumbnailSuccess" :before-upload="beforeUploadThumbnail" :on-change="thumbnailChange" :headers="uploadHeaders">
+                <el-upload class="upload-demo" action="/api/upload-image" :on-preview="previewThumbnail" :on-remove="removeThumbnail" :file-list="thumbnailFileList" list-type="picture" :on-success="uploadThumbnailSuccess" :before-upload="beforeUploadThumbnail" :on-change="thumbnailChange" :headers="uploadHeaders">
                     <el-button size="small" type="primary">点击上传</el-button>
                 </el-upload>
             </el-form-item>

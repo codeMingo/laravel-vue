@@ -1,23 +1,31 @@
 <?php
+// 前后台登录验证 和 初始页
+Route::group(['namespace' => 'Auth'], function () {
+    Route::get('/', 'LoginController@index');
+    Route::post('/login', 'LoginController@userLogin');
+    Route::post('/logout', 'LoginController@userLogout');
+    Route::get('/login-status', 'LoginController@loginStatus');
 
-/**
- * 前台
- */
-Route::post('/login', 'Auth\LoginController@userLogin');
-Route::post('/logout', 'Auth\LoginController@userLogout');
-Route::get('/login-status', 'Auth\LoginController@loginStatus');
-// 获取前台技术篇菜单
-Route::get('/category', 'Frontend\CategoryController@lists');
+    Route::get('/backend', 'LoginController@adminIndex');
+    Route::post('/backend/login', 'LoginController@adminLogin');
+    Route::post('/backend/logout', 'LoginController@adminLogout');
+    Route::get('/backend/login-status', 'LoginController@adminLoginStatus');
+});
+
+// 前后台公共api
+Route::group(['namespace' => 'Common', 'prefix' => '/api'], function () {
+    Route::post('/upload-image', 'CommonController@uploadImage');
+});
+
+// 前台
 Route::group(['namespace' => 'Frontend'], function () {
     // 公共模块
     Route::get('/test', 'TestController@index');
-    Route::get('/', 'IndexController@index');
-    Route::post('/upload-image', 'CommonController@uploadImage');
     Route::post('/sendEmail', 'CommonController@sendEmail');
+    Route::get('/category', 'CategoryController@lists');
 
     // 注册模块
     Route::post('/register/create-user', 'RegisterController@createUser');
-
 
     // 邮件， 激活
     Route::post('/register-active/check', 'RegisterController@activeUser');
@@ -48,17 +56,10 @@ Route::group(['namespace' => 'Frontend'], function () {
     });
 });
 
-/**
- * 后台
- */
-Route::get('/backend', 'Auth\LoginController@index');
-Route::post('/backend/login', 'Auth\LoginController@adminLogin');
-Route::post('/backend/logout', 'Auth\LoginController@adminLogout');
-Route::get('/backend/login-status', 'Auth\LoginController@adminLoginStatus');
+// 后台
 Route::group(['namespace' => 'Backend', 'prefix' => 'backend', 'middleware' => 'auth.admin'], function () {
     // 公共模块
     Route::get('/index', 'IndexController@index');
-    Route::post('/upload-image', 'CommonController@uploadImage');
     Route::post('/update-redis', 'CommonController@uploadRedis');
 
     // 管理员模块

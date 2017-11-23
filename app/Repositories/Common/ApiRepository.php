@@ -1,12 +1,10 @@
 <?php
-namespace App\Repositories\Frontend;
+namespace App\Repositories\Common;
 
-use App\Mail\RegisterOrder;
-use Illuminate\Support\Facades\Mail;
 use Qiniu\Auth;
 use Qiniu\Storage\UploadManager;
 
-class CommonRepository extends BaseRepository
+class ApiRepository extends BaseRepository
 {
 
     /**
@@ -27,7 +25,7 @@ class CommonRepository extends BaseRepository
                 'message' => '请上传正确的图片',
             ];
         }
-        if ($imageSize > config('blog.pictureSize')) {
+        if ($imageSize > config('ububs.pictureSize')) {
             return [
                 'status'  => Parent::ERROR_STATUS,
                 'data'    => [],
@@ -37,8 +35,8 @@ class CommonRepository extends BaseRepository
         // redis记录该ip上传图片次数，一小时只允许上传10张
 
         //七牛上传图片
-        $auth   = new Auth(config('blog.qiniuAccessKey'), config('blog.qiniuSecretKey'));
-        $bucket = config('blog.qiniuImageBucket');
+        $auth   = new Auth(config('ububs.qiniuAccessKey'), config('ububs.qiniuSecretKey'));
+        $bucket = config('ububs.qiniuImageBucket');
         // 生成上传Token
         $token = $auth->uploadToken($bucket);
         // 构建 UploadManager 对象
@@ -53,7 +51,7 @@ class CommonRepository extends BaseRepository
                 'message' => '头像上传失败',
             ];
         }
-        $ret['faceUrl'] = config('blog.qiniuBucketUrl') . '/' . $ret['key'];
+        $ret['faceUrl'] = config('ububs.qiniuBucketUrl') . '/' . $ret['key'];
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => $ret,

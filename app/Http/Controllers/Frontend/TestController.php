@@ -35,7 +35,7 @@ class TestController extends Controller
         object($arr, ['key3' => 'value3']);
         print_r($arr);
         exit();
-        $auth   = new Auth(config('blog.qiniuAccessKey'), config('blog.qiniuSecretKey'));
+        $auth   = new Auth(config('ububs.qiniuAccessKey'), config('ububs.qiniuSecretKey'));
         $bucket = 'linlm1994';
         // 生成上传Token
         $token = $auth->uploadToken($bucket);

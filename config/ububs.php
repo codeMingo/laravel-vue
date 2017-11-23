@@ -7,6 +7,11 @@ return [
     'website_url'  => 'http://www.ububs.com',
     // 网站密匙
     'website_encrypt'  => '$1$D.1.QW1.$cA1J0g5JjRf0Li0WHBhnQ1',
+    // 七牛参数
+    'qiniuAccessKey'    => env('QINIU_ACCESS_KEY', ''),
+    'qiniuSecretKey'    => env('QINIU_SECRET_KEY', ''),
+    'qiniuImageBucket'  => env('QINIU_IMAGE_BUCKET', ''),
+    'qiniuBucketUrl'    => env('QINIU_BUCKET_URL', ''),
     // 过滤参数规则， 默认就是 = ，不用写
     'param_rules'  => [
         // 管理员

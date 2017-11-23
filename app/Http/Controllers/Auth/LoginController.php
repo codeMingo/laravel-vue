@@ -42,7 +42,7 @@ class LoginController extends Controller
     }
 
     // 后台登录界面
-    public function index()
+    public function adminIndex()
     {
         return view('backend.index');
     }
@@ -77,11 +77,10 @@ class LoginController extends Controller
         return response()->json($result);
     }
 
-    // 前台获取初始用户数据
-    public function loginStatus(Request $request)
+    // 前台登录界面
+    public function index()
     {
-        $result = \App\Repositories\Frontend\LoginRepository::getInstance()->loginStatus();
-        return response()->json($result);
+        return view('frontend.index');
     }
 
     // 前台登录
@@ -104,6 +103,13 @@ class LoginController extends Controller
     {
         $input  = $request->input('data');
         $result = App\Repositories\Frontend\LoginRepository::getInstance()->reset($input);
+        return response()->json($result);
+    }
+
+    // 前台获取初始用户数据
+    public function loginStatus(Request $request)
+    {
+        $result = \App\Repositories\Frontend\LoginRepository::getInstance()->loginStatus();
         return response()->json($result);
     }
 }

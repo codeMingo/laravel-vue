@@ -10,7 +10,7 @@
                     <div class="register-body">
                         <el-form label-position="right" label-width="80px" :model="registerForm" :rules="registerRules" ref="registerForm">
                             <el-form-item label="头像" prop="face">
-                                <el-upload class="avatar-uploader" action="/upload-image" :show-file-list="false" :on-success="uploadFaceSuccess" :before-upload="beforeUploadFace" :headers="uploadHeaders">
+                                <el-upload class="avatar-uploader" action="/api/upload-image" :show-file-list="false" :on-success="uploadFaceSuccess" :before-upload="beforeUploadFace" :headers="uploadHeaders">
                                     <img v-if="registerForm.face" :src="registerForm.face" class="avatar">
                                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                                 </el-upload>

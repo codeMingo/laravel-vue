@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Http\Controllers\Controller;
 use App\Repositories\Backend\UserRepository;
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class UserController extends BaseRepository
 {
     /**
      * Display a listing of the resource.
