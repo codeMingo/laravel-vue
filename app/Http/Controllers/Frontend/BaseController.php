@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Support\Facades\Redis;
-use App\Repositories\Frontend\DictRepository;
 
 class BaseController extends Controller
 {
@@ -16,9 +14,9 @@ class BaseController extends Controller
             if (!$request->isMethod('get')) {
                 if (!$this->repeatOperation($request->path())) {
                     return response()->json([
-                        'status' => 0,
-                        'data' => [],
-                        'message' => '请求过于频繁，请不要重复操作'
+                        'status'  => 0,
+                        'data'    => [],
+                        'message' => '请求过于频繁，请不要重复操作',
                     ]);
                 }
             }
@@ -33,7 +31,7 @@ class BaseController extends Controller
      */
     public function repeatOperation($action)
     {
-        $redis_key   = 'limit_time:' . getClientIp() . ':' . $action;
+        $redis_key = 'limit_time:' . getClientIp() . ':' . $action;
         if (Redis::exists($redis_key) && Redis::get($redis_key) > 10) {
             return false;
         }

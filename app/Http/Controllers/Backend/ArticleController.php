@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Backend;
 
-use Illuminate\Http\Request;
 use App\Repositories\Backend\ArticleRepository;
+use Illuminate\Http\Request;
 
 class ArticleController extends BaseController
 {
@@ -14,7 +14,7 @@ class ArticleController extends BaseController
      */
     public function index(Request $request)
     {
-        $input = json_decode($request->input('data'), true);
+        $input  = json_decode($request->input('data'), true);
         $result = ArticleRepository::getInstance()->lists($input);
         return response()->json($result);
     }
@@ -37,7 +37,7 @@ class ArticleController extends BaseController
      */
     public function store(Request $request)
     {
-        $input = $request->input('data');
+        $input  = $request->input('data');
         $result = ArticleRepository::getInstance()->store($input);
         return response()->json($result);
     }
@@ -75,7 +75,7 @@ class ArticleController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $input = $request->input('data');
+        $input  = $request->input('data');
         $result = ArticleRepository::getInstance()->update($id, $input);
         return response()->json($result);
     }

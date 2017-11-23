@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Repositories\Backend\UserRepository;
 use Illuminate\Http\Request;
 
-
 class UserController extends Controller
 {
     /**

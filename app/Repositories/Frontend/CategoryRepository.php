@@ -2,7 +2,6 @@
 namespace App\Repositories\Frontend;
 
 use App\Models\Category;
-use Illuminate\Support\Facades\DB;
 
 class CategoryRepository extends BaseRepository
 {
@@ -24,7 +23,7 @@ class CategoryRepository extends BaseRepository
      */
     public function getCategoryLists($search)
     {
-        $type = validateValue($search['type']);
+        $type = isset($search['type']) ? intval($search['type']) : 0;
         if (!$type) {
             return [];
         }

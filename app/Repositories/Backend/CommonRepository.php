@@ -38,7 +38,7 @@ class CommonRepository extends BaseRepository
         // redis记录该ip上传图片次数，一小时只允许上传10张
 
         // 七牛上传图片
-        $auth   = new Auth(config('blog.qiniuAccessKey'), config('blog.qiniuSecretKey'));
+        $auth = new Auth(config('blog.qiniuAccessKey'), config('blog.qiniuSecretKey'));
 
         $bucket = config('blog.qiniuImageBucket');
         // 生成上传Token

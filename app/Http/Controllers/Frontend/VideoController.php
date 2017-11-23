@@ -15,7 +15,7 @@ class VideoController extends BaseController
     // 视频列表
     public function lists()
     {
-        $input = json_decode($request->input('data'), true);
+        $input  = json_decode($request->input('data'), true);
         $result = VideoRepository::getInstance()->getVideoLists($input);
         return response()->json($result);
     }
@@ -37,7 +37,7 @@ class VideoController extends BaseController
     // 点赞 or 反对 or 收藏 视频
     public function interactive(Request $request, $video_id)
     {
-        $input = $request->input('data');
+        $input  = $request->input('data');
         $result = VideoRepository::getInstance()->interactive($video_id, $input);
         return response()->json($result);
     }
@@ -45,7 +45,7 @@ class VideoController extends BaseController
     // 评论 or 回复 视频
     public function comment(Request $request, $video_id)
     {
-        $input = $request->input('data');
+        $input  = $request->input('data');
         $result = VideoRepository::getInstance()->comment($video_id, $input);
         return response()->json($result);
     }

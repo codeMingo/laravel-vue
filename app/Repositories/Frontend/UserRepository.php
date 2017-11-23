@@ -12,7 +12,7 @@ class UserRepository extends BaseRepository
 
     public function mainShow()
     {
-        $user_id = Auth::guard('web')->id();
+        $user_id        = Auth::guard('web')->id();
         $result['list'] = User::select(['username', 'last_login_time', 'sign', 'face'])->where('id', $user_id)->where('status', 1)->first();
         return [
             'status'  => Parent::ERROR_STATUS,

@@ -4,7 +4,6 @@ namespace App\Repositories\Backend;
 use App\Models\AdminOperateRecord;
 use App\Models\Dict;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 abstract class BaseRepository
@@ -31,8 +30,8 @@ abstract class BaseRepository
     public function responseResult($status, $data = [], $message = '')
     {
         return [
-            'status' => $status,
-            'data' =>  $data,
+            'status'  => $status,
+            'data'    => $data,
             'message' => $message === '' ? (!$status ? '失败' : '成功') : $message,
         ];
     }
@@ -49,7 +48,7 @@ abstract class BaseRepository
         }
         $field_lists = Schema::getColumnListing($table_name); // 获取数据表所有字段
         $param_rules = isset(config('ububs.param_rules')[$table_name]) ? config('ububs.param_rules')[$table_name] : []; // 获取过滤规则
-        $result = [];
+        $result      = [];
         foreach ($params as $key => $value) {
             // 参数不在表内直接过滤
             if (!in_array($key, $field_lists) || $value === '' || $value === []) {
@@ -58,7 +57,7 @@ abstract class BaseRepository
             // 参数过滤方式
             $result[$key] = [
                 'condition' => isset($param_rules[$key]) ? $param_rules[$key] : '=',
-                'value' => $value
+                'value'     => $value,
             ];
         }
         return $result;
@@ -95,5 +94,58 @@ abstract class BaseRepository
         ]);
     }
 
+    /**
+     * 获取redis的值，string  和 hash
+     * @param  Array $key_arr [key => [filed1, filed2], key, ...]
+     * @return Array
+     */
+    public function getRedisDictLists($key_arr)
+    {
+        $result = [];
+        if (empty($key_arr)) {
+            return $result;
+        }
+        $flag = true;
+        foreach ($key_arr as $redis_key => $item) {
+            // 表示为 string 类型
+            if (is_string($item)) {
+                // 如果redis值为空，则清除所有缓存，重新生成
+                if ($flag && !Redis::exists($item)) {
+                    $flag = false;
+                    $this->refreshRedisCache();
+                }
+                $result[$item] = Redis::get($item);
+            } else {
+                // 表示为 hash
+                $field_arr = array_values($item);
+                foreach ($field_arr as $field) {
+                    if ($flag && !Redis::hexists($redis_key, $field)) {
+                        $flag = false;
+                        $this->refreshRedisCache();
+                    }
+                    $result[$redis_key][$field] = Redis::hget($redis_key, $field);
+                }
+            }
+        }
+        return $result;
+    }
 
+    /**
+     * 清空redis缓存，并且重新生成缓存
+     * @return [type] [description]
+     */
+    public function refreshRedisCache()
+    {
+        Redis::flushdb();
+
+        // dicts字典表缓存
+        $dict_lists = DB::table('dicts')->where('status', 1)->get();
+        if (!empty($dict_lists)) {
+            $dict_redis_key = 'dicts_';
+            foreach ($dict_lists as $key => $dict) {
+                Redis::hset('dicts_' . $dict->code, $dict->text_en, $dict->value);
+            }
+        }
+        return true;
+    }
 }

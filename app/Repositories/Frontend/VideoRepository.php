@@ -2,7 +2,6 @@
 namespace App\Repositories\Frontend;
 
 use App\Models\Video;
-use App\Models\VideoLists;
 
 class VideoRepository extends BaseRepository
 {
@@ -14,12 +13,12 @@ class VideoRepository extends BaseRepository
      */
     public function getVideoLists($input)
     {
-        $search_form = $input['search_form'];
+        $search_form           = $input['search_form'];
         $dictKeyValue          = DictRepository::getInstance()->getDictListsByTextEnArr(['video_is_show', 'video_page_size']);
         $search_form['status'] = $dictKeyValue['video_is_show'];
-        $where_params            = $this->parseParams($search_form);
+        $where_params          = $this->parseParams($search_form);
         $page_size             = $dictKeyValue['video_page_size'];
-        $result['lists'] = Video::parseWheres($where_params)->with('videoList')->paginate($page_size);
+        $result['lists']       = Video::parseWheres($where_params)->with('videoList')->paginate($page_size);
 
         return [
             'status'  => Parent::ERROR_STATUS,
@@ -36,7 +35,7 @@ class VideoRepository extends BaseRepository
     public function getVideoDetail($video_id)
     {
         $video_show_status = DB::table('dicts')->where('code', 'video_status')->where('text_en', 'video_is_show')->value('value');
-        $result['list'] = DB::table('video')->where('id', $video_id)->where('status', $video_show_status)->with('videoList')->first();
+        $result['list']    = DB::table('video')->where('id', $video_id)->where('status', $video_show_status)->with('videoList')->first();
         return [
             'status'  => Parent::ERROR_STATUS,
             'data'    => $result,
@@ -46,7 +45,7 @@ class VideoRepository extends BaseRepository
 
     public function comment_lists($video_id)
     {
-        $dict_lists_value      = DictRepository::getInstance()->getDictListsByTextEnArr(['video_is_show', 'audit_pass']);
+        $dict_lists_value    = DictRepository::getInstance()->getDictListsByTextEnArr(['video_is_show', 'audit_pass']);
         $resultData['lists'] = DB::table('video_comments')->where('video_id', $video_id)->where('is_audit', $dict_lists_value['audit_pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
         if ($resultData['lists']->isEmpty()) {
             return [
@@ -93,7 +92,7 @@ class VideoRepository extends BaseRepository
         }
 
         $dict_lists_value = DictRepository::getInstance()->getDictListsByTextEnArr(['video_is_show', 'audit_pass']);
-        $video_list    = DB::table('video')->where('id', $video_id)->where('status', $dict_lists_value['video_is_show'])->first();
+        $video_list       = DB::table('video')->where('id', $video_id)->where('status', $dict_lists_value['video_is_show'])->first();
         if (empty($video_list)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -111,9 +110,9 @@ class VideoRepository extends BaseRepository
             ];
         }
         $result = Interact::create([
-            'user_id'    => $user_id,
+            'user_id'  => $user_id,
             'video_id' => $video_id,
-            $type        => 1,
+            $type      => 1,
         ]);
 
         // 记录操作日志
@@ -143,7 +142,7 @@ class VideoRepository extends BaseRepository
             ];
         }
         $video_show_status_value = DB::table('dicts')->where('code', 'video_status')->where('text_en', 'video_is_show')->value('value');
-        $video_list               = DB::table('video')->where('id', $video_id)->where('status', $video_show_status_value)->first();
+        $video_list              = DB::table('video')->where('id', $video_id)->where('status', $video_show_status_value)->first();
         if (empty($videoList)) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -152,7 +151,7 @@ class VideoRepository extends BaseRepository
             ];
         }
         $video_comment_audit = DB::table('dicts')->where('code', 'system')->where('text_en', 'video_comment_audit')->value('value');
-        $dict_lists_value        = DictRepository::getInstance()->getDictListsByTextEnArr(['audit_loading', 'audit_pass']);
+        $dict_lists_value    = DictRepository::getInstance()->getDictListsByTextEnArr(['audit_loading', 'audit_pass']);
 
         // 表示回复
         if ($comment_id) {
@@ -167,12 +166,12 @@ class VideoRepository extends BaseRepository
         }
         $user_id      = Auth::guard('web')->id();
         $createResult = DB::table('video_comments')->create([
-            'user_id'    => $user_id,
-            'parent_id'  => $comment_id ? $comment_id : 0,
-            'video_id' => $video_id,
-            'content'    => $content,
-            'is_audit'   => $video_comment_audit ? $dict_lists_value['audit_loading'] : $dict_lists_value['audit_pass'],
-            'status'     => 1,
+            'user_id'   => $user_id,
+            'parent_id' => $comment_id ? $comment_id : 0,
+            'video_id'  => $video_id,
+            'content'   => $content,
+            'is_audit'  => $video_comment_audit ? $dict_lists_value['audit_loading'] : $dict_lists_value['audit_pass'],
+            'status'    => 1,
         ]);
 
         // 记录操作日志

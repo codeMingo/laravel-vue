@@ -1,11 +1,9 @@
 <?php
 namespace App\Repositories\Frontend;
 
-use App\Mail\RegisterOrder;
 use App\Models\Dict;
 use App\Models\EmailRecord;
 use App\Models\User;
-use App\Repositories\Frontend\CommonRepository;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
@@ -20,63 +18,43 @@ class RegisterRepository extends BaseRepository
     public function createUser($input)
     {
         $username = isset($input['username']) ? strval($input['username']) : '';
-        $email = isset($input['email']) ? strval($input['email']) : '';
-        $face = isset($input['face']) ? strval($input['face']) : '';
+        $email    = isset($input['email']) ? strval($input['email']) : '';
+        $face     = isset($input['face']) ? strval($input['face']) : '';
         $password = isset($input['password']) ? Hash::make(strval($input['password'])) : '';
 
         if (!$username || !$email || !$password) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '必填信息不得为空',
-            ];
+            return $this->responseResult(false, [], '注册失败，必填信息不得为空');
         }
-        $usernameList = User::where('username', $username)->first();
-        if (!empty($usernameList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '用户名已经存在',
-            ];
+
+        $unique_list = User::where('username', $username)->whereOr('email', $email)->first();
+        if (!empty($unique_list)) {
+            $error_text = $unique_list->username == $username ? '注册失败，用户名已被注册' : '注册失败，邮箱已被注册';
+            return $this->responseResult(false, [], $error_text);
         }
-        $emailList = User::where('email', $email)->first();
-        if (!empty($emailList)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '邮箱已经存在',
-            ];
-        }
-        $insertResult = User::create([
+
+        $result = User::create([
             'username' => $username,
             'email'    => $email,
             'face'     => $face,
             'password' => $password,
-            'active'   => 0,
-            'status'   => 1,
         ]);
-        if (!$insertResult) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '注册失败，未知错误',
-            ];
-        }
-        $insertEmailResult = EmailRecord::create([
-            'type_id'     => Dict::getDictValueByTextEn('register_active'),
-            'user_id'     => $insertResult->id,
+
+        $dicts = $this->getRedisDictLists(['email_type' => 'register_active']);
+        $email_record = EmailRecord::create([
+            'type_id'     => $dicts['email_type']['register_active'],
+            'user_id'     => $result->id,
             'email_title' => '账户激活邮件',
-            'text'        => '用户首次注册',
-            'status'      => 1,
+            'text'        => '用户注册',
         ]);
-        $mailData = [
-            'view'  => 'register',
-            'to'    => $insertResult->email,
-            'title' => '账户激活邮件',
-            'name'  => $insertResult->username,
-            'url'   => env('APP_URL') . '/active?mail_id=' . $insertEmailResult->id . '&user_id=' . base64_encode($insertResult->id),
-        ];
-        CommonRepository::getInstance()->sendEmail($mailData);
+
+        // 发送邮件
+        sendEmail([
+            'mail_id'  => $email_record->id,
+            'user_id'  => $result->user_id,
+            'to'       => $result->email,
+            'username' => $result->username,
+        ], 'register');
+
         return [
             'status'  => Parent::SUCCESS_STATUS,
             'data'    => [
@@ -90,47 +68,28 @@ class RegisterRepository extends BaseRepository
 
     /**
      * 激活用户
-     * @param  Array $input [email_id, user_id]
+     * @param  Array $code 加密字符
      * @return Array
      */
     public function activeUser($input)
     {
-        $emailId = isset($input['email_id']) && !empty($input['email_id']) ? intval($input['email_id']) : '';
-        $userId  = isset($input['user_id']) && !empty($input['user_id']) ? intval(base64_decode($input['user_id'])) : '';
-        if (!$emailId || !$userId) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在这个链接地址或邮件已经过期',
-            ];
+        $mail_id = authcode($input['mail_id'], 'decrypt');
+        $user_id = authcode($input['user_id'], 'decrypt');
+        if (!$mail_data || !$user_id) {
+            return $this->responseResult(false, [], '地址不存在或邮件已经失效');
         }
-        // 判断邮件是否过期
-        $emailList = EmailRecord::where([
-            ['id', '=', $emailId],
-            ['user_id', '=', $userId],
-        ])->first();
-        if (empty($emailList) || time() - config('APP_EMAIL_REGISTER_TIME') < strtotime($emailList->create_at)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在这个链接地址或邮件已经过期',
-            ];
+
+        $list = User::where('id', $user_id)->first();
+        if (empty($list) ) {
+            return $this->responseResult(false, [], '不存在此用户');
         }
-        $userList = User::where('id', $userId)->first();
-        if (empty($userList) || $userList->active) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '不存在此用户',
-            ];
+
+        if ($list->active) {
+            return $this->responseResult(false, [], '账户已经激活，请不要重复操作');
         }
-        // 激活
-        $userList->active = 1;
-        $saveResult       = $userList->save();
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => [],
-            'message' => '用户成功激活',
-        ];
+
+        $list->active = 1;
+        $result       = $list->save();
+        return $this->responseResult(true, $result, '恭喜您，账户激活成功');
     }
 }

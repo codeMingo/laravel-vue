@@ -40,7 +40,7 @@ class DictSeeder extends Seeder
             ['code' => 'audit', 'code_name' => '审核结果', 'value' => 10, 'text_en' => 'refuse', 'text' => '拒绝'],
             ['code' => 'audit', 'code_name' => '审核结果', 'value' => 20, 'text_en' => 'pass', 'text' => '通过'],
             // 邮件类型
-            ['code' => 'email_type', 'code_name' => '邮件类型', 'value' => 10, 'text_en' => 'active', 'text' => '注册'],
+            ['code' => 'email_type', 'code_name' => '邮件类型', 'value' => 10, 'text_en' => 'register_active', 'text' => '注册'],
             ['code' => 'email_type', 'code_name' => '邮件类型', 'value' => 20, 'text_en' => 'repassword', 'text' => '重置密码'],
             // 文章状态
             ['code' => 'article_status', 'code_name' => '文章状态', 'value' => 0, 'text_en' => 'not_show', 'text' => '未显示'],

@@ -60,21 +60,4 @@ class CommonRepository extends BaseRepository
             'message' => '头像上传成功',
         ];
     }
-
-    /**
-     * 发送邮件
-     * @param  Array $mailData [view, to, ...]
-     * @return null
-     */
-    public function sendEmail($mailData)
-    {
-        switch ($mailData['view']) {
-            case 'register':
-                $mailMessage = (new RegisterOrder($mailData));
-                break;
-            default:
-                $mailMessage = (new RegisterOrder($mailData));
-        }
-        Mail::to($mailData['to'])->queue($mailMessage);
-    }
 }

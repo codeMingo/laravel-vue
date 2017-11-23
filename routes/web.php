@@ -17,7 +17,10 @@ Route::group(['namespace' => 'Frontend'], function () {
 
     // 注册模块
     Route::post('/register/create-user', 'RegisterController@createUser');
-    Route::post('/register/active-user', 'RegisterController@activeUser');
+
+
+    // 邮件， 激活
+    Route::post('/register-active/check', 'RegisterController@activeUser');
 
     // 文章模块
     Route::get('/article/lists', 'ArticleController@lists');

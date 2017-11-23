@@ -30,16 +30,16 @@ class ArticleRepository extends BaseRepository
      */
     public function store($input)
     {
-        $category_id = validateValue($input['category_id'], 'int');
-        $title       = validateValue($input['title']);
-        $thumbnail   = validateValue($input['thumbnail']);
-        $auther      = validateValue($input['auther']);
-        $content     = validateValue($input['content']);
+        $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
+        $title       = isset($input['title']) ? strval($input['title']) : '';
+        $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
+        $auther      = isset($input['auther']) ? strval($input['auther']) : '';
+        $content     = isset($input['content']) ? strval($input['content']) : '';
         $tag_ids     = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
-        $source      = validateValue($input['source']);
-        $is_audit    = validateValue($input['is_audit'], 'int');
-        $recommend   = validateValue($input['recommend'], 'int');
-        $status      = validateValue($input['status'], 'int');
+        $source      = isset($input['source']) ? strval($input['source']) : '';
+        $is_audit    = isset($input['is_audit']) ? intval($input['is_audit']) : 0;
+        $recommend   = isset($input['recommend']) ? intval($input['recommend']) : 0;
+        $status      = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$category_id || !$title || !$content) {
             return $this->responseResult(false, [], '新增失败，必填字段不得为空');
@@ -90,16 +90,16 @@ class ArticleRepository extends BaseRepository
             return $this->responseResult(false, [], '不存在这篇文章');
         }
 
-        $category_id = validateValue($input['category_id'], 'int');
-        $title       = validateValue($input['title']);
-        $thumbnail   = validateValue($input['thumbnail']);
-        $auther      = validateValue($input['auther']);
-        $content     = validateValue($input['content']);
+        $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
+        $title       = isset($input['title']) ? strval($input['title']) : '';
+        $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
+        $auther      = isset($input['auther']) ? strval($input['auther']) : '';
+        $content     = isset($input['content']) ? strval($input['content']) : '';
         $tag_ids     = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
-        $source      = validateValue($input['source']);
-        $is_audit    = validateValue($input['is_audit'], 'int');
-        $recommend   = validateValue($input['recommend'], 'int');
-        $status      = validateValue($input['status'], 'int');
+        $source      = isset($input['source']) ? strval($input['source']) : '';
+        $is_audit    = isset($input['is_audit']) ? intval($input['is_audit']) : 0;
+        $recommend   = isset($input['recommend']) ? intval($input['recommend']) : 0;
+        $status      = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$category_id || !$title || !$content) {
             return $this->responseResult(false, [], '更新失败，必填字段不得为空');
@@ -187,7 +187,7 @@ class ArticleRepository extends BaseRepository
         if (empty($list)) {
             return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $lists    = ArticleInteractive::where('article_id', $article_id)->user()->get();
+        $lists           = ArticleInteractive::where('article_id', $article_id)->user()->get();
         $result['lists'] = [];
         if (!empty($lists)) {
             foreach ($lists as $key => $item) {
@@ -253,9 +253,9 @@ class ArticleRepository extends BaseRepository
      */
     public function getOptions()
     {
-        $result['category']   = CategoryRepository::getInstance()->getArticleCategories();
-        $result['status']     = DictRepository::getInstance()->getDictListsByCode('article_status');
-        $result['recommend']  = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
+        $result['category']  = CategoryRepository::getInstance()->getArticleCategories();
+        $result['status']    = DictRepository::getInstance()->getDictListsByCode('article_status');
+        $result['recommend'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
         return $result;
     }
 }

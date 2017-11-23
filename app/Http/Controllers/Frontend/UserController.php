@@ -36,7 +36,7 @@ class UserController extends BaseController
     // 收藏列表
     public function collectLists(Request $request)
     {
-        $input = json_decode($request->input('data'), true);
+        $input  = json_decode($request->input('data'), true);
         $result = UserRepository::getInstance()->collectLists($input);
         return response()->json($result);
     }

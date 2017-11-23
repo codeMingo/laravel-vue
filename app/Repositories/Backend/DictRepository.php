@@ -25,7 +25,6 @@ class DictRepository extends BaseRepository
         return $result;
     }
 
-
     /**
      * 判断dict是否存在
      * @param  Array $code_value_arr [code => $value]
@@ -37,11 +36,11 @@ class DictRepository extends BaseRepository
             $code_arr[] = $code;
         }
         $dictLists = Dict::where('status', 1)->whereIn('code', $code_arr)->get();
-        $count = 0;
+        $count     = 0;
         foreach ($code_value_arr as $code => $value) {
             foreach ($dictLists as $key => $item) {
                 if ($code == $item->code && $value == $item->value) {
-                    $count ++;
+                    $count++;
                 }
             }
         }

@@ -3,12 +3,10 @@ namespace App\Repositories\Frontend;
 
 use App\Models\Dict;
 use App\Models\UserOperateRecord;
-use Illuminate\Database\Eloquent\Model as Model;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Schema;
 
 abstract class BaseRepository
 {
@@ -35,8 +33,8 @@ abstract class BaseRepository
     public function responseResult($status, $data = [], $message = '')
     {
         return [
-            'status' => $status,
-            'data' =>  $data,
+            'status'  => $status,
+            'data'    => $data,
             'message' => $message === '' ? (!$status ? '失败' : '成功') : $message,
         ];
     }
@@ -53,7 +51,7 @@ abstract class BaseRepository
         }
         $field_lists = Schema::getColumnListing($table_name); // 获取数据表所有字段
         $param_rules = isset(config('ububs.param_rules')[$table_name]) ? config('ububs.param_rules')[$table_name] : []; // 获取过滤规则
-        $result = [];
+        $result      = [];
         foreach ($params as $key => $value) {
             // 参数不在表内直接过滤
             if (!in_array($key, $field_lists) || $value === '' || $value === [] || $value === null) {
@@ -62,7 +60,7 @@ abstract class BaseRepository
             // 参数过滤方式
             $result[$key] = [
                 'condition' => isset($param_rules[$key]) ? $param_rules[$key] : '=',
-                'value' => $value
+                'value'     => $value,
             ];
         }
         return $result;
@@ -91,11 +89,11 @@ abstract class BaseRepository
     {
         UserOperateRecord::create([
             'user_id'    => $this->getUserId(),
-            'action'     => isset($input['action']) ? validateValue($input['action']) : '',
+            'action'     => isset($input['action']) ? strval($input['action']) : '',
             'params'     => isset($input['params']) ? json_encode($input['params']) : '',
-            'text'       => isset($input['text']) ? validateValue($input['text'], 'string') : '操作成功',
+            'text'       => isset($input['text']) ? strval($input['text']) : '操作成功',
             'ip_address' => getClientIp(),
-            'status'     => isset($input['status']) ? validateValue($input['status'], 'int') : 1,
+            'status'     => isset($input['status']) ? intval($input['status']) : 1,
         ]);
     }
 
@@ -117,13 +115,15 @@ abstract class BaseRepository
      * @param  Array $key_arr [key => [filed1, filed2], key, ...]
      * @return Array
      */
-    public function getRedisListsValue($key_arr, $flag = true)
+    public function getRedisDictLists($key_arr)
     {
         $result = [];
         if (empty($key_arr)) {
             return $result;
         }
-        foreach ($key_arr as $redis_key => $item) {
+        $flag = true;
+        foreach ($key_arr as $key => $item) {
+            $redis_key = 'dicts_' . $key;
             // 表示为 string 类型
             if (is_string($item)) {
                 // 如果redis值为空，则清除所有缓存，重新生成
@@ -140,7 +140,7 @@ abstract class BaseRepository
                         $flag = false;
                         $this->refreshRedisCache();
                     }
-                    $result[$redis_key][$field] = Redis::hget($redis_key, $field);
+                    $result[$key][$field] = Redis::hget($redis_key, $field);
                 }
             }
         }
@@ -154,8 +154,9 @@ abstract class BaseRepository
     public function refreshRedisCache()
     {
         Redis::flushdb();
-        $dict_lists = DB::table('dicts')->where('status', 1)->get();
 
+        // dicts字典表缓存
+        $dict_lists = DB::table('dicts')->where('status', 1)->get();
         if (!empty($dict_lists)) {
             $dict_redis_key = 'dicts_';
             foreach ($dict_lists as $key => $dict) {

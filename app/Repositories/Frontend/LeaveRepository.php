@@ -27,7 +27,7 @@ class LeaveRepository extends BaseRepository
     public function getLeaveLists()
     {
         $audit_pass_value = DictRepository::getInstance()->getValueByCodeAndTextEn('audit', 'pass');
-        $leave_lists = Leave::where('is_audit', $audit_pass_value)->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
+        $leave_lists      = Leave::where('is_audit', $audit_pass_value)->where('status', 1)->where('parent_id', 0)->with('user')->paginate(10);
         if ($leave_lists->isEmpty()) {
             return $leave_lists;
         }
@@ -56,7 +56,7 @@ class LeaveRepository extends BaseRepository
     public function publish($input)
     {
         $leave_id = isset($input['leave_id']) ? intval($input['leave_id']) : '';
-        $content    = isset($input['content']) ? strval($input['content']) : '';
+        $content  = isset($input['content']) ? strval($input['content']) : '';
         if (!$content) {
             return [
                 'status'  => Parent::ERROR_STATUS,
@@ -84,7 +84,7 @@ class LeaveRepository extends BaseRepository
             'parent_id'  => $leave_id ? $leave_id : 0,
             'content'    => $content,
             'is_audit'   => $leave_audit ? $dict_key_value_lists['loading'] : $dict_key_value_lists['pass'],
-            'ip_address'   => getClientIp(),
+            'ip_address' => getClientIp(),
             'status'     => 1,
         ]);
 

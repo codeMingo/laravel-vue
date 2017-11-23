@@ -2,9 +2,8 @@
 namespace App\Repositories\Backend;
 
 use App\Models\Admin;
-use App\Models\AdminPermission;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AdminRepository extends BaseRepository
 {
@@ -16,9 +15,9 @@ class AdminRepository extends BaseRepository
      */
     public function index($input)
     {
-        $result['lists']             = $this->getAdminLists($input['search_form']);
+        $result['lists']                 = $this->getAdminLists($input['search_form']);
         $result['options']['permission'] = DB::table('admin_permissions')->where('status', 1)->get();
-        $result['options']['status'] = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
+        $result['options']['status']     = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
         return $this->responseResult(true, $result);
     }
 
@@ -29,11 +28,11 @@ class AdminRepository extends BaseRepository
      */
     public function store($input)
     {
-        $username      = validateValue($input['username']);
-        $email         = validateValue($input['email']);
+        $username      = isset($input['username']) ? strval($input['username']) : '';
+        $email         = isset($input['email']) ? strval($input['email']) : '';
         $password      = isset($input['password']) ? Hash::make(strval($input['password'])) : '';
-        $permission_id = validateValue($input['permission_id'], 'int');
-        $status        = validateValue($input['status'], 'int');
+        $permission_id = isset($input['permission_id']) ? intval($input['permission_id']) : 0;
+        $status        = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$username || !$email || !$password || !$permission_id) {
             return $this->responseResult(false, [], '必填字段不得为空');
@@ -81,11 +80,11 @@ class AdminRepository extends BaseRepository
      */
     public function update($input, $admin_id)
     {
-        $username      = validateValue($input['username']);
-        $email         = validateValue($input['email']);
-        $password      = isset($input['password']) && !empty($input['password']) ? Hash::make(strval($input['password'])) : '';
-        $permission_id = validateValue($input['permission_id'], 'int');
-        $status        = validateValue($input['status'], 'int');
+        $username      = isset($input['username']) ? strval($input['username']) : '';
+        $email         = isset($input['email']) ? strval($input['email']) : '';
+        $password      = (isset($input['password']) && !empty($input['password'])) ? Hash::make(strval($input['password'])) : '';
+        $permission_id = isset($input['permission_id']) ? intval($input['permission_id']) : 0;
+        $status        = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$username || !$email || !$permission_id) {
             return $this->responseResult(false, [], '必填字段不得为空');

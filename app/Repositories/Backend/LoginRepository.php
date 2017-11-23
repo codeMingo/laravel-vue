@@ -4,8 +4,8 @@ namespace App\Repositories\Backend;
 use App\Models\Admin;
 use App\Models\AdminLoginRecord;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 
 class LoginRepository extends BaseRepository
 {
@@ -113,7 +113,7 @@ class LoginRepository extends BaseRepository
     {
         $result = [];
         if (Auth::guard('admin')->check()) {
-            $list = Auth::guard('admin')->user();
+            $list           = Auth::guard('admin')->user();
             $result['list'] = [
                 'username'        => $list->username,
                 'email'           => $list->email,

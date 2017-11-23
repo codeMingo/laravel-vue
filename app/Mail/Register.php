@@ -6,11 +6,11 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class RegisterOrder extends Mailable
+class Register extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $data;
+    private $data;
 
     /**
      * Create a new message instance.
@@ -30,9 +30,9 @@ class RegisterOrder extends Mailable
     public function build()
     {
         return $this->view('emails.register')->with([
-            'title' => $this->data['title'],
-            'name'  => $this->data['name'],
-            'url'   => $this->data['url'],
-        ])->subject($this->data['title']);
+            'title'    => config('ububs.website_name') . '-账户注册激活邮件',
+            'url'      => config('ububs.website_url') . '/register-active/check?mail_id=' . authcode($this->data['mail_id'], 'encrypt', 3600) . '&user_id=' authcode($this->data['user_id'], 'encrypt', 3600),
+            'username' => $this->data['username'],
+        ])->subject(config('ububs.website_name') . '-账户注册激活邮件');
     }
 }

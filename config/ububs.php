@@ -1,10 +1,16 @@
 <?php
 
 return [
+    // 网站名称
+    'website_name' => 'ububs编程',
+    // 网站地址
+    'website_url'  => 'http://www.ububs.com',
+    // 网站密匙
+    'website_encrypt'  => '$1$D.1.QW1.$cA1J0g5JjRf0Li0WHBhnQ1',
     // 过滤参数规则， 默认就是 = ，不用写
-    'param_rules' => [
+    'param_rules'  => [
         // 管理员
-        'admins' => [
+        'admins'            => [
             'username' => 'like',
             'email'    => 'like',
         ],
@@ -14,10 +20,10 @@ return [
             'permission_include' => 'in',
         ],
         // 文章
-        'articles' => [
+        'articles'          => [
             'title'   => 'like',
             'auther'  => 'like',
             'tag_ids' => 'in',
-        ]
-    ]
+        ],
+    ],
 ];
