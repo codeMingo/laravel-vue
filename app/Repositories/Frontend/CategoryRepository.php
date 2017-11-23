@@ -23,11 +23,11 @@ class CategoryRepository extends BaseRepository
      */
     public function getCategoryLists($search)
     {
-        $type = isset($search['type']) ? intval($search['type']) : 0;
+        $type = isset($search['type']) ? strval($search['type']) : 0;
         if (!$type) {
             return [];
         }
-        $category_type = DictRepository::getInstance()->getValueByCodeAndTextEn('category', $type);
-        return Category::where('category_type', $category_type)->where('status', 1)->get();
+        $dicts = $this->getRedisDictLists(['category' => [$type]]);
+        return Category::where('category_type', $dicts['category']['article'])->where('status', 1)->get();
     }
 }

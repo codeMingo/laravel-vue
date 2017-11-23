@@ -131,7 +131,7 @@ export default {
                             _this.$message.error(message);
                             return false;
                         }
-                        _this.$store.commit('setStateValue', {'user_data': data.data});
+                        _this.$store.commit('setUserData', data.list);
                         _this.$message.success(message);
                         _this.$router.push({ path: '/index' });
                     }).catch(response => {

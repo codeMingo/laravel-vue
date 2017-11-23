@@ -28,23 +28,19 @@ class LoginRepository extends BaseRepository
             $flag = Auth::guard('web')->attempt(['username' => $account, 'password' => $password]);
         }
         if (!$flag) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '登录失败，用户名或密码错误',
-            ];
+            return $this->responseResult(false, [], '登录失败，用户名或密码错误');
         }
         $user         = Auth::guard('web')->user();
-        $updateResult = User::where('id', $user['id'])->update([
+        User::where('id', $user['id'])->update([
             'last_login_time' => date('Y-m-d H:i:s', time()),
             'last_login_ip'   => getClientIp(),
         ]);
-        $resultData['data'] = [
+        $result['list'] = [
             'username' => $user['username'],
             'email'    => $user['email'],
             'face'     => $user['face'],
         ];
-        $this->responseResult(true, $resultData, '登录成功');
+        return $this->responseResult(true, $result, '登录成功');
     }
 
     public function reset($input)
@@ -80,6 +76,6 @@ class LoginRepository extends BaseRepository
         if (Auth::guard('web')->check()) {
             Auth::guard('web')->logout();
         }
-        $this->responseResult(true, [], '退出成功');
+        return $this->responseResult(true, [], '退出成功');
     }
 }

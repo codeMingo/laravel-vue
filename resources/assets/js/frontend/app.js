@@ -38,6 +38,9 @@ const store = new Vuex.Store({
         article_category: {},
     },
     mutations: {
+        setUserData(state, data) {
+            state.user_data = data;
+        },
         setStateValue(state, data) {
             for(var item in data){
                 state[item] = data[item];

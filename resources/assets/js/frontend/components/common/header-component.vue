@@ -137,12 +137,8 @@ export default {
         logout() {
             let _this = this;
             axios.post('/logout').then(function(res) {
-                let { status, message } = res.data;
-                if (!status) {
-                    _this.$message.error('未知错误，用户退出失败');
-                    return false;
-                }
-                _this.$store.commit('setSateValue', 'user_data', { username: '', email: '', face: '' });
+                let { status, data, message } = res.data;
+                _this.$store.commit('setUserData', { username: '', email: '', face: '' });
                 _this.$message.success(message);
                 _this.$router.push({ path: '/index' });
             }).catch(function(err) {

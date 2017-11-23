@@ -83,7 +83,7 @@ class ArticleRepository extends BaseRepository
      * @param  int $article_id 文章id
      * @return Object
      */
-    public function comment_lists($article_id)
+    public function commentLists($article_id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $list  = Article::where('id', $article_id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
