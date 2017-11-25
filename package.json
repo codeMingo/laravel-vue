@@ -21,11 +21,15 @@
     "vue-loader": "^11.0.0",
     "vue-router": "^2.1.1",
     "vuex": "^2.2.1",
-    "vue-quill-editor": "^2.2.1"
-  },
-  "dependencies": {
+    "vue-quill-editor": "^2.2.1",
     "echarts": "^3.7.1",
     "marked": "^0.3.6",
-    "node-sass": "^4.5.3"
+    "css-loader": "0.28.4",
+    "express": "4.15.3",
+    "node-sass": "^4.5.0",
+    "qiniu-js": "^1.0.22"
+  },
+  "dependencies": {
+
   }
 }

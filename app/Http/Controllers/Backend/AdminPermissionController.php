@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Backend;
 use App\Repositories\Backend\AdminPermissionRepository;
 use Illuminate\Http\Request;
 
-class AdminController extends BaseController
+class AdminPermissionController extends BaseController
 {
     /**
      * Display a listing of the resource.
