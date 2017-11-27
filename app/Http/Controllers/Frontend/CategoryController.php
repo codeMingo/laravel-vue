@@ -13,10 +13,9 @@ class CategoryController extends BaseController
     }
 
     // 列表
-    public function lists(Request $request)
+    public function articleCategoryLists(Request $request)
     {
-        $input  = json_decode($request->input('data'), true);
-        $result = CategoryRepository::getInstance()->lists($input);
+        $result = CategoryRepository::getInstance()->getArticleCategoryLists();
         return response()->json($result);
     }
 }

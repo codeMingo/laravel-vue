@@ -17,6 +17,13 @@ class CategoryRepository extends BaseRepository
         return $this->responseResult(true, $result);
     }
 
+    public function getArticleCategoryLists()
+    {
+        $search['type']  = 'article';
+        $result['lists'] = $this->getCategoryLists($search);
+        return $this->responseResult(true, $result);
+    }
+
     /**
      * 列表
      * @param  Array $search [type]
@@ -31,6 +38,7 @@ class CategoryRepository extends BaseRepository
         $dicts                   = $this->getRedisDictLists(['category' => [$type]]);
         $search['category_type'] = $dicts['category']['article'];
         $search['status']        = 1;
-        return Category::parseWhere($search)->get();
+        $params                  = $this->parseParams('categories', $search);
+        return Category::parseWheres($params)->get();
     }
 }

@@ -195,7 +195,7 @@ export default {
                     }).then(() => {
                         _this.leave_form.leave_id = '';
                         _this.leave_form.content = _this.leave_form.input_content;
-                        axios.put('/leave/publish', { 'data': _this.leave_form }).then(response => {
+                        axios.post('/leave', { 'data': _this.leave_form }).then(response => {
                             let { data, message, status } = response.data;
                             if (!status) {
                                 _this.$message.error(message);
@@ -219,7 +219,7 @@ export default {
                         return false;
                     }
                     _this.leave_form.content = _this.leave_form.input_content.replace(/<p>(.+?)<\/p>/, '');
-                    axios.put('/leave/publish', { 'data': _this.leave_form }).then(response => {
+                    axios.post('/leave', { 'data': _this.leave_form }).then(response => {
                         let { data, message, status } = response.data;
                         if (!status) {
                             _this.$message.error(message);
@@ -241,7 +241,7 @@ export default {
                 }
             } else {
                 _this.leave_form.content = _this.leave_form.input_content;
-                axios.put('/leave/publish', { 'data': _this.leave_form }).then(response => {
+                axios.post('/leave', { 'data': _this.leave_form }).then(response => {
                     let { data, message, status } = response.data;
                     if (!status) {
                         _this.$message.error(message);
@@ -258,8 +258,6 @@ export default {
             }
         },
         addResponse(username, leave_id) {
-            /*console.log(document.getElementById('response-box').offsetTop);
-            window.scrollTo(0, document.body.scrollHeight);*/
             window.scrollTo(0, document.getElementById('leave-box').offsetTop);
             this.$refs.leaveQuillEditor.quill.setContents([{
                     insert: '回复：' + username + '：',

@@ -19,10 +19,10 @@ class LeaveController extends BaseController
         return response()->json($result);
     }
 
-    public function publish(Request $request)
+    public function leave(Request $request)
     {
         $input  = $request->input('data');
-        $result = LeaveRepository::getInstance()->publish($input);
+        $result = LeaveRepository::getInstance()->leave($input);
         return response()->json($result);
     }
 }

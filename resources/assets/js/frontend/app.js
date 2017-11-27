@@ -100,8 +100,7 @@ const app = new Vue({
     beforeCreate() {
         window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
         // 获取首页技术篇菜单
-        let paramsData = {'data': {'search': {'type': 'article'}}};
-        axios.get('/category', { params: paramsData }).then(response => {
+        axios.get('/article-category').then(response => {
             let {status, data, message} = response.data;
             if (status && Object.keys(data).length > 0) {
                 store.commit('setStateValue', {'article_category': data.lists});

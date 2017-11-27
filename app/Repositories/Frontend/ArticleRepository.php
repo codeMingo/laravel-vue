@@ -13,11 +13,11 @@ class ArticleRepository extends BaseRepository
 {
 
     /**
-     * 文章列表页面
+     * 文章列表
      * @param  Array $input [search]
      * @return Array
      */
-    public function index($input)
+    public function lists($input)
     {
         $search                        = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists']               = $this->getArticleLists($search);

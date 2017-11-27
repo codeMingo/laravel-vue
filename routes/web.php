@@ -22,14 +22,14 @@ Route::group(['namespace' => 'Frontend'], function () {
     // 公共模块
     Route::get('/test', 'TestController@index');
     Route::post('/sendEmail', 'CommonController@sendEmail');
-    Route::get('/category', 'CategoryController@lists');
+    Route::get('/article-category', 'CategoryController@articleCategoryLists');
 
     // 注册模块
     Route::post('/register', 'RegisterController@register');
     Route::get('/active', 'RegisterController@active');
 
     // 文章模块
-    Route::get('/article/index', 'ArticleController@lists');
+    Route::get('/article/lists', 'ArticleController@lists');
     Route::get('/article/detail/{article_id}', 'ArticleController@detail');
     Route::get('/article/comment-lists/{article_id}', 'ArticleController@commentLists');
 
@@ -44,7 +44,7 @@ Route::group(['namespace' => 'Frontend'], function () {
         Route::put('/article/collect/{article_id}', 'ArticleController@collect');
 
         // 留言
-        Route::put('/leave/publish', 'LeaveController@publish');
+        Route::post('/leave', 'LeaveController@leave');
 
         // 用户模块
         Route::get('/user/show', 'UserController@show');

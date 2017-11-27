@@ -2,6 +2,7 @@
 namespace App\Repositories\Frontend;
 
 use App\Models\Leave;
+use Illuminate\Support\Facades\DB;
 
 class LeaveRepository extends BaseRepository
 {
@@ -27,7 +28,7 @@ class LeaveRepository extends BaseRepository
         $dicts  = $this->getRedisDictLists(['audit' => ['pass']]);
         $result = Leave::where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate();
         if ($result->isEmpty()) {
-            return [];
+            return $result;
         }
 
         $leave_ids = [];
@@ -55,7 +56,7 @@ class LeaveRepository extends BaseRepository
      * @param  Array $input [leave_id, content] 留言数据
      * @return Array
      */
-    public function publish($input)
+    public function leave($input)
     {
         $leave_id = isset($input['leave_id']) ? intval($input['leave_id']) : 0;
         $content  = isset($input['content']) ? strval($input['content']) : '';

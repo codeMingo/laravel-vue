@@ -13,10 +13,10 @@ class ArticleController extends BaseController
     }
 
     // 文章列表
-    public function index(Request $request)
+    public function lists(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = ArticleRepository::getInstance()->index($input);
+        $result = ArticleRepository::getInstance()->lists($input);
         return response()->json($result);
     }
 
