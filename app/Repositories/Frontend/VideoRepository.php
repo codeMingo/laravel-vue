@@ -13,7 +13,8 @@ class VideoRepository extends BaseRepository
      */
     public function index($input)
     {
-        $result['lists']               = $this->getVideoLists($input['search']);
+        $search                        = isset($input['search']) ? (array) $input['search'] : [];
+        $result['lists']               = $this->getVideoLists($search);
         $result['options']['category'] = CategoryRepository::getInstance()->getCategoryLists(['type' => 'video']);
         return $this->responseResult(true, $result);
     }

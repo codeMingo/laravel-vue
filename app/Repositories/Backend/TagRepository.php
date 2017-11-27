@@ -2,7 +2,6 @@
 namespace App\Repositories\Backend;
 
 use App\Models\Tag;
-use App\Repositories\Backend\DictRepository;
 
 class TagRepository extends BaseRepository
 {
@@ -21,11 +20,11 @@ class TagRepository extends BaseRepository
             return $this->responseResult(false, [], '新增失败，参数错误，请刷新重试');
         }
 
-        $dicts = $this->getRedisDictLists(['category' => [$type]]);
+        $dicts  = $this->getRedisDictLists(['category' => [$type]]);
         $result = Tag::create([
-            'admin_id' => Auth::guard('admin')->id(),
+            'admin_id'      => Auth::guard('admin')->id(),
             'category_type' => $dicts['category'][$type],
-            'tag_name' => $tag_name,
+            'tag_name'      => $tag_name,
         ]);
 
         // 记录操作日志

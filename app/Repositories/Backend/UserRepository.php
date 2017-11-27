@@ -14,7 +14,8 @@ class UserRepository extends BaseRepository
      */
     public function lists($input)
     {
-        $result['lists']   = $this->getUserLists($input['search']);
+        $search            = isset($input['search']) ? (array) $input['search'] : [];
+        $result['lists']   = $this->getUserLists($search);
         $result['options'] = $this->getOptions();
         return $this->responseResult(true, $result);
     }

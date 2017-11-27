@@ -19,7 +19,8 @@ class ArticleRepository extends BaseRepository
      */
     public function index($input)
     {
-        $result['lists']               = $this->getArticleLists($input['search']);
+        $search                        = isset($input['search']) ? (array) $input['search'] : [];
+        $result['lists']               = $this->getArticleLists($search);
         $result['options']['category'] = CategoryRepository::getInstance()->getCategoryLists(['type' => 'article']);
         return $this->responseResult(true, $result);
     }

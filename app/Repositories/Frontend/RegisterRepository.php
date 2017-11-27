@@ -1,7 +1,6 @@
 <?php
 namespace App\Repositories\Frontend;
 
-use App\Models\Dict;
 use App\Models\EmailRecord;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -39,7 +38,7 @@ class RegisterRepository extends BaseRepository
             'password' => $password,
         ]);
 
-        $dicts = $this->getRedisDictLists(['email_type' => 'register_active']);
+        $dicts        = $this->getRedisDictLists(['email_type' => 'register_active']);
         $email_record = EmailRecord::create([
             'type_id'     => $dicts['email_type']['register_active'],
             'user_id'     => $result->id,
@@ -72,7 +71,7 @@ class RegisterRepository extends BaseRepository
         }
 
         $list = User::where('id', $user_id)->first();
-        if (empty($list) ) {
+        if (empty($list)) {
             return $this->responseResult(false, [], '激活失败，不存在此用户');
         }
 

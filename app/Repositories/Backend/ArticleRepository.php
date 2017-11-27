@@ -18,7 +18,8 @@ class ArticleRepository extends BaseRepository
      */
     public function lists($input)
     {
-        $result['lists']   = $this->getArticleLists($input['search']);
+        $search            = isset($input['search']) ? (array) $input['search'] : [];
+        $result['lists']   = $this->getArticleLists($search);
         $result['options'] = $this->getOptions();
         return $this->responseResult(true, $result);
     }
@@ -247,7 +248,7 @@ class ArticleRepository extends BaseRepository
      */
     public function getOptions()
     {
-        $dicts = $this->getRedisDictLists(['category_type' => 'article']);
+        $dicts               = $this->getRedisDictLists(['category_type' => 'article']);
         $result['category']  = CategoryRepository::getInstance()->getCategoryLists(['category_type' => $dicts['category_type']['article']]);
         $result['status']    = DictRepository::getInstance()->getDictListsByCode('article_status');
         $result['recommend'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];

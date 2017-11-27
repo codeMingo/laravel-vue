@@ -30,7 +30,7 @@ class LoginRepository extends BaseRepository
         if (!$flag) {
             return $this->responseResult(false, [], '登录失败，用户名或密码错误');
         }
-        $user         = Auth::guard('web')->user();
+        $user = Auth::guard('web')->user();
         User::where('id', $user['id'])->update([
             'last_login_time' => date('Y-m-d H:i:s', time()),
             'last_login_ip'   => getClientIp(),

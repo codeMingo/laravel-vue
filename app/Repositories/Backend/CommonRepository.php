@@ -1,7 +1,6 @@
 <?php
 namespace App\Repositories\Backend;
 
-use App\Models\Category;
 use Illuminate\Support\Facades\DB;
 
 class CommonRepository extends BaseRepository

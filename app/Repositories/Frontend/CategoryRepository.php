@@ -10,9 +10,10 @@ class CategoryRepository extends BaseRepository
      * @param  Array $input [search]
      * @return Array
      */
-    public function lists($input)
+    public function index($input)
     {
-        $result['lists'] = $this->getCategoryLists($input['search']);
+        $search          = isset($input['search']) ? (array) $input['search'] : [];
+        $result['lists'] = $this->getCategoryLists($search);
         return $this->responseResult(true, $result);
     }
 
@@ -27,7 +28,9 @@ class CategoryRepository extends BaseRepository
         if (!$type) {
             return [];
         }
-        $dicts = $this->getRedisDictLists(['category' => [$type]]);
-        return Category::where('category_type', $dicts['category']['article'])->where('status', 1)->get();
+        $dicts                   = $this->getRedisDictLists(['category' => [$type]]);
+        $search['category_type'] = $dicts['category']['article'];
+        $search['status']        = 1;
+        return Category::parseWhere($search)->get();
     }
 }
