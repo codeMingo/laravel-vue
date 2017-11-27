@@ -13,12 +13,12 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 文章列表
-     * @param  Array $input [search_form]
+     * @param  Array $input [search]
      * @return Array
      */
     public function lists($input)
     {
-        $result['lists']   = $this->getArticleLists($input['search_form']);
+        $result['lists']   = $this->getArticleLists($input['search']);
         $result['options'] = $this->getOptions();
         return $this->responseResult(true, $result);
     }
@@ -46,8 +46,7 @@ class ArticleRepository extends BaseRepository
         }
 
         // 是否存在这个dict
-        $flag = DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit]);
-        if (!$flag) {
+        if (!DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit])) {
             return $this->responseResult(false, [], '新增失败，参数错误，请刷新后重试');
         }
 
@@ -70,22 +69,21 @@ class ArticleRepository extends BaseRepository
             'params' => [
                 'input' => $input,
             ],
-            'text'   => !$result ? '新增失败，未知错误' : '新增成功',
-            'status' => !!$result,
+            'text'   => '新增成功',
         ]);
 
-        return $this->responseResult(!!$result, [], !$result ? '新增失败，未知错误' : '新增成功');
+        return $this->responseResult(true, $result, '新增成功');
     }
 
     /**
      * 编辑
-     * @param Int $article_id
+     * @param Int $id 文章id
      * @param  Array $input [category_id, title, auther, content, tag_ids, source, is_audit, recommend, status]
      * @return array
      */
-    public function update($article_id, $input)
+    public function update($id, $input)
     {
-        $articleList = Article::where('id', $article_id)->first();
+        $articleList = Article::where('id', $id)->first();
         if (empty($articleList)) {
             return $this->responseResult(false, [], '不存在这篇文章');
         }
@@ -106,12 +104,11 @@ class ArticleRepository extends BaseRepository
         }
 
         // 是否存在这个dict
-        $flag = DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit]);
-        if (!$flag) {
+        if (!DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit])) {
             return $this->responseResult(false, [], '更新失败，参数错误，请刷新后重试');
         }
 
-        $result = Article::where('id', $article_id)->update([
+        Article::where('id', $id)->update([
             'category_id' => $category_id,
             'title'       => $title,
             'thumbnail'   => $thumbnail,
@@ -128,36 +125,34 @@ class ArticleRepository extends BaseRepository
         Parent::saveOperateRecord([
             'action' => 'Article/update',
             'params' => [
-                'article_id' => $article_id,
+                'article_id' => $id,
                 'input'      => $input,
             ],
-            'text'   => !$result ? '更新文章失败，未知错误' : '更新文章成功',
-            'status' => !!$result,
+            'text'   => '更新文章成功',
         ]);
 
-        return $this->responseResult(!!$result, [], !$result ? '更新失败，未知错误' : '更新成功');
+        return $this->responseResult(true, [], '更新成功');
     }
 
     /**
      * 删除
-     * @param  Array $article_id
+     * @param  Array $id 文章id
      * @return Array
      */
-    public function destroy($article_id)
+    public function destroy($id)
     {
-        $result = Article::where('id', $article_id)->delete();
+        $result = Article::where('id', $id)->delete();
 
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'Article/update',
             'params' => [
-                'article_id' => $article_id,
+                'article_id' => $id,
             ],
-            'text'   => !$result ? '删除文章失败，未知错误' : '删除文章成功',
-            'status' => !!$result,
+            'text'   => '删除文章成功',
         ]);
 
-        return $this->responseResult(!!$result, [], !$result ? '删除失败，未知错误' : '删除成功');
+        return $this->responseResult(true, [], '删除成功');
     }
 
     /**
@@ -168,11 +163,10 @@ class ArticleRepository extends BaseRepository
     public function show($article_id)
     {
         $result['data'] = Article::where('id', $article_id)->first();
-        if (empty($result)) {
+        if (empty($result['data'])) {
             return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
         $result['options'] = $this->getOptions();
-
         return $this->responseResult(true);
     }
 
@@ -238,12 +232,12 @@ class ArticleRepository extends BaseRepository
 
     /**
      * 列表
-     * @param  Array $search_form [permission_id, status, username]
+     * @param  Array $search [permission_id, status, username]
      * @return Object              结果集
      */
-    public function getArticleLists($search_form)
+    public function getArticleLists($search)
     {
-        $where_params = $this->parseParams('articles', $search_form);
+        $where_params = $this->parseParams('articles', $search);
         return Article::parseWheres($where_params)->paginate();
     }
 
@@ -253,7 +247,8 @@ class ArticleRepository extends BaseRepository
      */
     public function getOptions()
     {
-        $result['category']  = CategoryRepository::getInstance()->getArticleCategories();
+        $dicts = $this->getRedisDictLists(['category_type' => 'article']);
+        $result['category']  = CategoryRepository::getInstance()->getCategoryLists(['category_type' => $dicts['category_type']['article']]);
         $result['status']    = DictRepository::getInstance()->getDictListsByCode('article_status');
         $result['recommend'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
         return $result;

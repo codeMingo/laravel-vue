@@ -42,6 +42,9 @@ return [
             'title'   => 'like',
             'auther'  => 'like',
             'tag_ids' => 'in',
+        ],
+        'categories' => [
+            'title' => 'like'
         ]
     ],
 ];

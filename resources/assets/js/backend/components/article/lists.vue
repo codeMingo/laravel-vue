@@ -5,7 +5,7 @@
             <el-input v-model="searchForm.auther" placeholder="请输入作者" style="width: 200px;"></el-input>
             <el-select v-model="searchForm.category_id" placeholder="请选择文章类别">
                 <el-option label="全部" value=""></el-option>
-                <el-option v-for="item in options.categories" :key="item.id" :label="item.category_name" :value="item.id"></el-option>
+                <el-option v-for="item in options.categories" :key="item.id" :label="item.title" :value="item.id"></el-option>
             </el-select>
             <el-select v-model="searchForm.status" placeholder="请选择状态">
                 <el-option label="全部" value=""></el-option>
@@ -16,7 +16,7 @@
             <el-table-column prop="title" label="标题"></el-table-column>
             <el-table-column label="类别">
                 <template slot-scope="scope">
-                    {{scope.row.category_id | formatByOptions(options.categories, 'id', 'category_name')}}
+                    {{scope.row.category_id | formatByOptions(options.categories, 'id', 'title')}}
                 </template>
             </el-table-column>
             <el-table-column prop="auther" label="作者"></el-table-column>

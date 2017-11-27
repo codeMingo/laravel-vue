@@ -17,7 +17,7 @@ class CreateCategoriesTable extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->integer('category_type')->comment('菜单类型');
-            $table->string('category_name')->comment('菜单名称');
+            $table->string('title')->comment('菜单名称');
             $table->string('instruction')->default('')->comment('说明');
             $table->integer('sort')->default(0)->comment('菜单排序，正序');
             $table->tinyInteger('status')->default(1)->comment('状态(0|1)');

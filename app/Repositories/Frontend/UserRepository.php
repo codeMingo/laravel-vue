@@ -1,8 +1,8 @@
 <?php
 namespace App\Repositories\Frontend;
 
-use App\Models\Interact;
 use App\Models\User;
+use App\Repositories\Frontend\InteractReposity;
 
 class UserRepository extends BaseRepository
 {
@@ -18,7 +18,7 @@ class UserRepository extends BaseRepository
     }
 
     /**
-     * 个人中心页面
+     * 个人中心
      * @return Array
      */
     public function index()
@@ -75,27 +75,16 @@ class UserRepository extends BaseRepository
     }
 
     /**
-     * 收藏列表页面
+     * 收藏列表
      * @param  Array $input []
      * @return Array
      */
     public function collect($input)
     {
-        $search          = isset($input['search']) ? $input['search'] : [];
-        $result['lists'] = $this->getCollectLists($this->getUserId(), $search);
+        $search           = isset($input['search']) ? $input['search'] : [];
+        $input['user_id'] = $this->getUserId();
+        $result['lists']  = InteractReposity::getInstance()->getInteractLists($search);
         return $this->responseResult(true, $result);
     }
 
-    /**
-     * 获取收藏列表
-     * @param  Int $user_id 用户id
-     * @return Object
-     */
-    public function getCollectLists($user_id, $search)
-    {
-        $search['user_id'] = $user_id;
-        $search['collect'] = 1;
-        $params            = $this->parseParams('interactes', $search);
-        return             = Interact::parseWheres($params)->with('article')->with('videoList')->paginate();
-    }
 }

@@ -64,20 +64,6 @@ abstract class BaseRepository
     }
 
     /**
-     * 获取字典数据
-     * @param  Array $code_arr
-     * @return Object
-     */
-    public function getDictsByCodeArr($code_arr)
-    {
-        $result = [];
-        if (!empty($code_arr) && is_array($code_arr)) {
-            $result = Dict::whereIn('code', $code_arr)->get();
-        }
-        return $result;
-    }
-
-    /**
      * 记录操作日志
      * @param  Array  $input [action, params, text, status]
      * @return Array

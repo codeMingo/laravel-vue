@@ -32,18 +32,25 @@ class DictRepository extends BaseRepository
      */
     public function existDict($code_value_arr)
     {
+        if (empty($code_value_arr)) {
+            return false;
+        }
+        $code_arr = [];
         foreach ($code_value_arr as $code => $value) {
             $code_arr[] = $code;
         }
-        $dictLists = Dict::where('status', 1)->whereIn('code', $code_arr)->get();
-        $count     = 0;
+        $lists = Dict::where('status', 1)->whereIn('code', $code_arr)->get();
+        if (empty($lists)) {
+            return false;
+        }
+        $count = 0;
         foreach ($code_value_arr as $code => $value) {
-            foreach ($dictLists as $key => $item) {
+            foreach ($lists as $key => $item) {
                 if ($code == $item->code && $value == $item->value) {
                     $count++;
                 }
             }
         }
-        return count($code_value_arr) === $count ? true : false;
+        return count($code_value_arr) == $count;
     }
 }

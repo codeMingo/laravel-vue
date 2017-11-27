@@ -6,7 +6,7 @@
                     <el-breadcrumb separator="/">
                         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
                         <el-breadcrumb-item :to="{ path: '/article/index' }">技术篇</el-breadcrumb-item>
-                        <el-breadcrumb-item v-if="article_data.category" :to="{ path: '/article/index/' + article_data.category.id }">{{article_data.category.category_name}}</el-breadcrumb-item>
+                        <el-breadcrumb-item v-if="article_data.category" :to="{ path: '/article/index/' + article_data.category.id }">{{article_data.category.title}}</el-breadcrumb-item>
                         <el-breadcrumb-item>{{article_data.title}}</el-breadcrumb-item>
                     </el-breadcrumb>
                 </div>

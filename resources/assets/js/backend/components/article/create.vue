@@ -8,7 +8,7 @@
                 <el-col :span="12">
                     <el-form-item label="类别" prop="category_id">
                         <el-select v-model="form.category_id" placeholder="请选择文章类别">
-                            <el-option v-for="item in options.categories" :key="item.id" :label="item.category_name" :value="item.id + ''"></el-option>
+                            <el-option v-for="item in options.categories" :key="item.id" :label="item.title" :value="item.id + ''"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
