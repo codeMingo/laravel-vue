@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Frontend;
 
 use App\Repositories\Frontend\RegisterRepository;
@@ -9,18 +8,18 @@ class RegisterController extends BaseController
 {
 
     // 创建用户
-    public function createUser(Request $request)
+    public function register(Request $request)
     {
-        $input  = $request->input('data');
-        $result = RegisterRepository::getInstance()->createUser($input);
+        $input  = json_decode($request->input('data'), true);
+        $result = RegisterRepository::getInstance()->register($input);
         return response()->json($result);
     }
 
     // 激活用户
-    public function activeUser(Request $request)
+    public function active(Request $request)
     {
-        $input  = $request->all();
-        $result = RegisterRepository::getInstance()->activeUser($input);
+        $input  = json_decode($request->input('data'), true);
+        $result = RegisterRepository::getInstance()->active($input);
         return response()->json($result);
     }
 }

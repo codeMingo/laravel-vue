@@ -12,9 +12,9 @@ class UserController extends BaseController
         parent::__construct();
     }
 
-    public function mainShow()
+    public function show()
     {
-        $result = UserRepository::getInstance()->mainShow();
+        $result = UserRepository::getInstance()->show();
         return response()->json($result);
     }
 
@@ -26,18 +26,18 @@ class UserController extends BaseController
     }
 
     // 更改用户资料
-    public function updateUser(Request $request, $user_id)
+    public function update(Request $request)
     {
         $input  = $request->input('data');
-        $result = UserRepository::getInstance()->updateUser($input, $user_id);
+        $result = UserRepository::getInstance()->update($input);
         return response()->json($result);
     }
 
     // 收藏列表
-    public function collectLists(Request $request)
+    public function collect(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = UserRepository::getInstance()->collectLists($input);
+        $result = UserRepository::getInstance()->collect($input);
         return response()->json($result);
     }
 }

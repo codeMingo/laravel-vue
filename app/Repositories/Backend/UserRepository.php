@@ -2,62 +2,57 @@
 namespace App\Repositories\Backend;
 
 use App\Models\User;
+use App\Repositories\Backend\DictRepository;
 
 class UserRepository extends BaseRepository
 {
 
     /**
      * 用户列表
-     * @param  Array $input [searchForm]
+     * @param  Array $input [search]
      * @return Array
      */
     public function lists($input)
     {
-        $resultData['lists'] = User::lists($input['searchForm']);
-        $dictLists           = Parent::getDicts(['status', 'active']);
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'dicts'   => $dictLists,
-            'message' => '数据获取成功',
-        ];
+        $result['lists']   = $this->getUserLists($input['search']);
+        $result['options'] = $this->getOptions();
+        return $this->responseResult(true, $result);
     }
 
     /**
      * 新增
-     * @param  Array $input [username, email, password, permission_id, status]
+     * @param  Array $input [username, email, password, status, active]
      * @return Array
      */
     public function create($input)
     {
-        $usernameUniqueData = User::where('username', $input['username'])->first();
-        if (!empty($usernameUniqueData)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '用户用户名已经存在',
-            ];
+        $username = isset($input['username']) ? strval($input['username']) : '';
+        $email    = isset($input['email']) ? strval($input['email']) : '';
+        $face     = isset($input['face']) ? strval($input['face']) : '';
+        $password = isset($input['password']) ? Hash::make(strval($input['password'])) : '';
+        $status   = isset($input['status']) ? intval($input['status']) : 0;
+        $active   = isset($input['active']) ? intval($input['active']) : 0;
+
+        if (!$username || !$email || !$password) {
+            return $this->responseResult(false, [], '新增失败，必填信息不得为空');
         }
-        $emailUniqueData = User::where('email', $input['email'])->first();
-        if (!empty($emailUniqueData)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '用户邮箱已经存在',
-            ];
+
+        $unique_list = User::where('username', $username)->whereOr('email', $email)->first();
+        if (!empty($unique_list)) {
+            $error_text = $unique_list->username == $username ? '新增失败，用户名已被新增' : '新增失败，邮箱已被新增';
+            return $this->responseResult(false, [], $error_text);
         }
-        $insertResult = User::create([
-            'username'      => $input['username'],
-            'email'         => $input['email'],
-            'password'      => md5($input['password'] . env('APP_PASSWORD_ENCRYPT')),
-            'permission_id' => $input['permission_id'],
-            'status'        => $input['status'],
+
+        $result = User::create([
+            'username' => $username,
+            'email'    => $email,
+            'face'     => $face,
+            'password' => $password,
+            'status'   => $status,
+            'active'   => $active,
         ]);
-        return [
-            'status'  => $insertResult ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
-            'data'    => [],
-            'message' => $insertResult ? '用户新增成功' : '用户新增失败',
-        ];
+
+        return $this->responseResult(true, $result, '新增成功');
     }
 
     /**
@@ -68,38 +63,74 @@ class UserRepository extends BaseRepository
      */
     public function update($input, $id)
     {
-        $UserData = User::where('id', $id)->first();
+        $list = $this->getUserList($id);
+        if (empty($list)) {
+            return $this->responseResult(false, [], '编辑失败，不存在此用户');
+        }
 
+        $username = isset($input['username']) ? strval($input['username']) : '';
+        $email    = isset($input['email']) ? strval($input['email']) : '';
+        $face     = isset($input['face']) ? strval($input['face']) : '';
+        $password = isset($input['password']) ? Hash::make(strval($input['password'])) : '';
+        $status   = isset($input['status']) ? intval($input['status']) : 0;
+        $active   = isset($input['active']) ? intval($input['active']) : 0;
+
+        if (!$username || !$email) {
+            return $this->responseResult(false, [], '编辑失败，必填信息不得为空');
+        }
+
+        $unique_list = User::where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
+        if (!empty($unique_list)) {
+            $error_text = $unique_list->username == $username ? '编辑失败，用户名已经存在' : '编辑失败，邮箱已经存在';
+            return $this->responseResult(false, [], $error_text);
+        }
+
+        $data = [
+            'username' => $username,
+            'email'    => $email,
+            'face'     => $face,
+            'status'   => $status,
+            'active'   => $active,
+        ];
+        if ($password) {
+            $data['password'] = $password
+        }
+
+        $result = User::where('id', $id)->save($data);
+
+        return $this->responseResult(true, $result, '编辑成功');
     }
 
     /**
      * 删除
-     * @param  Int $user_id
+     * @param  Int $id
      * @return Array
      */
-    public function delete($user_id)
+    public function delete($id)
     {
-        $deleteResult = User::where('id', $user_id)->delete();
-        return [
-            'status'  => $deleteResult ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
-            'data'    => [],
-            'message' => $deleteResult ? '用户删除成功' : '用户删除失败',
-        ];
+        $result = User::where('id', $id)->delete();
+        return $this->responseResult(true, $result, '删除成功');
     }
 
     /**
-     * 改变某一个字段的值
-     * @param  Int $id
-     * @param  Array $input [field, value]
+     * 获取一条用户数据
+     * @param  Int $id 用户id
+     * @return Object
+     */
+    public function getUserList($id)
+    {
+        return User::where('id', $id)->first();
+    }
+
+    /**
+     * 获取options
      * @return Array
      */
-    public function changeFieldValue($id, $input)
+    public function getOptions()
     {
-        $updateResult = User::where('id', $id)->update([$input['field'] => $input['value']]);
-        return [
-            'status'  => $updateResult ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
-            'data'    => [],
-            'message' => $updateResult ? '操作成功' : '操作失败',
-        ];
+        $result['gender'] = DictRepository::getInstance()->getDictListsByCode(['gender'])['gender'];
+        $result['status'] = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
+        $result['active'] = [['value' => 0, 'text' => '未激活'], ['value' => 1, 'text' => '已激活']];
+        return $result;
     }
 }

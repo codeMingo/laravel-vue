@@ -217,7 +217,7 @@ export default {
         getLists() {
             let _this = this;
             let paramsData = { 'data': { 'search': _this.search } };
-            axios.get('/article/lists?page=' + _this.pagination.current_page, { params: paramsData }).then(response => {
+            axios.get('/article/index?page=' + _this.pagination.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
                 _this.lists = data.lists.data;
                 _this.options = data.options;

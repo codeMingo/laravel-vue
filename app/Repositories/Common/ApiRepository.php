@@ -58,4 +58,6 @@ class ApiRepository extends BaseRepository
             'message' => '头像上传成功',
         ];
     }
+
+
 }

@@ -8,19 +8,19 @@ class DictRepository extends BaseRepository
 
     /**
      * 获取字典通过code
-     * @param  Array $code
+     * @param  Array $code_arr
      * @return Array [text, value]
      */
-    public function getDictListsByCode($code_arr)
+    public function getDictListsByCodeArr($code_arr)
     {
-        $dictLists = Dict::where('code', $code_arr)->get();
-        if ($dictLists->isEmpty()) {
+        $lists = Dict::whereIn('code', $code_arr)->where('status', 1)->get();
+        if ($lists->isEmpty()) {
             return [];
         }
-        foreach ($dictLists as $key => $item) {
-            $temp_list['value'] = $item->value;
-            $temp_list['text']  = $item->text;
-            $result[]           = $temp_list;
+        foreach ($lists as $key => $item) {
+            $temp['value']         = $item->value;
+            $temp['text']          = $item->text;
+            $result[$item->code][] = $temp;
         }
         return $result;
     }

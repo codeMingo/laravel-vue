@@ -25,13 +25,11 @@ Route::group(['namespace' => 'Frontend'], function () {
     Route::get('/category', 'CategoryController@lists');
 
     // 注册模块
-    Route::post('/register/create-user', 'RegisterController@createUser');
-
-    // 邮件， 激活
-    Route::post('/register-active/check', 'RegisterController@activeUser');
+    Route::post('/register', 'RegisterController@register');
+    Route::get('/active', 'RegisterController@active');
 
     // 文章模块
-    Route::get('/article/lists', 'ArticleController@lists');
+    Route::get('/article/index', 'ArticleController@lists');
     Route::get('/article/detail/{article_id}', 'ArticleController@detail');
     Route::get('/article/comment-lists/{article_id}', 'ArticleController@commentLists');
 
@@ -49,10 +47,10 @@ Route::group(['namespace' => 'Frontend'], function () {
         Route::put('/leave/publish', 'LeaveController@publish');
 
         // 用户模块
-        Route::get('/user/main-show', 'UserController@mainShow');
+        Route::get('/user/show', 'UserController@show');
         Route::get('/user/index', 'UserController@index');
-        Route::put('/user/update-user/{user_id}', 'UserController@updateUser');
-        Route::get('/user/collect/lists', 'UserController@collectLists');
+        Route::put('/user/update', 'UserController@update');
+        Route::get('/user/collect', 'UserController@collect');
     });
 });
 

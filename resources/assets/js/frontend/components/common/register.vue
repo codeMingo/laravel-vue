@@ -183,7 +183,7 @@ export default {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
                     _this.registerSubmitLoading = true;console.log(_this.registerForm);
-                    axios.post('/register/create-user', { 'data': _this.registerForm }).then(response => {
+                    axios.post('/register', { 'data': _this.registerForm }).then(response => {
                         let data = response.data;
                         if (!data.status) {
                             _this.$message.error(data.message);

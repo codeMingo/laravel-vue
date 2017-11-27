@@ -5,28 +5,29 @@ use App\Models\AdminPermission;
 
 class AdminPermissionRepository extends BaseRepository
 {
-
-    public $table_name   = 'admin_permissions';
-    public $params_rules = [
-        'id'                 => '=',
-        'text'               => 'like',
-        'permission_include' => 'in',
-        'status'             => '=',
-    ];
-
+    /**
+     * 获取权限节点数量
+     * @param  Int $id 权限id
+     * @return Array
+     */
     public function getPermissionNodeCount($id)
     {
-        $admin_permission_list = AdminPermission::find($id);
-        $count                 = 0;
-        if (!empty($admin_permission_list) && $admin_permission_list['permission_includes']) {
-            $count = count(implode(',', $admin_permission_list['permission_includes']));
+        $list = $this->getAdminPermissionList($id);
+        if (empty($list)) {
+            return $this->responseResult(false, [], '获取失败，不存在这个权限');
         }
+        $result['count'] = !empty($list['permission_includes']) ? count(implode(',', $list['permission_includes'])) : 0;
+        return $this->responseResult(true, $result);
+    }
 
-        return [
-            'status'  => !empty($admin_permission_list) ? Parent::ERROR_STATUS : Parent::SUCCESS_STATUS,
-            'data'    => $count,
-            'message' => !empty($admin_permission_list) ? '不存在这个权限' : '获取成功',
-        ];
+    /**
+     * 获取一条权限节点
+     * @param  Int $id 权限id
+     * @return Object
+     */
+    public function getAdminPermissionList($id)
+    {
+        return AdminPermission::where('id', $id)->where('status', 1)->first();
     }
 
 }
