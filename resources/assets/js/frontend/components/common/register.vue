@@ -10,11 +10,14 @@
                     <div class="register-body">
                         <el-form label-position="right" label-width="80px" :model="registerForm" :rules="registerRules" ref="registerForm">
                             <el-form-item label="头像" prop="face">
-                                <el-upload class="avatar-uploader" action="/api/upload-image" :show-file-list="false" :on-success="uploadFaceSuccess" :before-upload="beforeUploadFace" :headers="uploadHeaders">
-                                    <img v-if="registerForm.face" :src="registerForm.face" class="avatar">
-                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                                </el-upload>
-                                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb（不传默认使用系统头像）</div>
+                                <div id="container">
+                                    <div class="face-upload">
+                                        <a class="btn btn-default btn-lg" id="face-btn" href="#" v-show="!upload_status"><i class="el-icon-plus avatar-uploader-icon"></i></a>
+                                        <div class="upload-success" v-show="upload_status == 'success'"><img :src="registerForm.face" alt="头像"></div>
+                                        <div class="upload-process" v-show="upload_status == 'loading'">正在上传{{upload_process}}%</div>
+                                    </div>
+                                </div>
+                                <div class="el-upload__tip">只能上传jpg/png文件，且不超过500kb（不传默认使用系统头像）</div>
                             </el-form-item>
                             <el-form-item label="用户名" prop="username">
                                 <el-input v-model="registerForm.username" placeholder="登录账号，2-15个字符"></el-input>
@@ -79,28 +82,45 @@
         }
         .register-body {
             clear: both;
-            .avatar-uploader .el-upload {
+            .face-upload {
                 border: 1px dashed #d9d9d9;
-                border-radius: 3px;
+                border-radius: 6px;
                 cursor: pointer;
                 position: relative;
                 overflow: hidden;
-            }
-            .avatar-uploader .el-upload:hover {
-                border-color: #20a0ff;
-            }
-            .avatar-uploader-icon {
-                font-size: 18px;
-                color: #8c939d;
                 width: 100px;
                 height: 100px;
-                line-height: 100px;
-                text-align: center;
-            }
-            .avatar {
-                width: 100px;
-                height: 100px;
-                display: block;
+                i {
+                    display: inline-block;
+                    width: 100px;
+                    height: 100px;
+                    text-align: center;
+                    line-height: 100px;
+                    color: #9C9C9C;
+                    font-size: 20px;
+                }
+                .upload-process {
+                    position: absolute;
+                    width: 100px;
+                    height: 100px;
+                    line-height: 100px;
+                    top: 0;
+                    left: 0;
+                    font-size: 12px;
+                    text-align: center;
+                    color: #C1C1C1;
+                }
+                .upload-success {
+                    position: absolute;
+                    width: 100px;
+                    height: 100px;
+                    top: 0;
+                    left: 0;
+                    img {
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
             }
         }
     }
@@ -133,6 +153,7 @@
 }
 </style>
 <script type="text/javascript">
+import 'qiniu-js/dist/qiniu.js';
 export default {
     data() {
         var checkRepassword = (rule, value, callback) => {
@@ -143,6 +164,8 @@ export default {
             }
         };
         return {
+            upload_status: false,
+            upload_process: 0,
             registerSubmitLoading: false,
             registerForm: {
                 face: '',
@@ -175,14 +198,89 @@ export default {
         };
     },
     mounted() {
+        let _this = this;
+        var uploader = Qiniu.uploader({
+            runtimes: 'html5,flash,html4', //上传模式,依次退化
+            browse_button: 'face-btn', //上传选择的点选按钮，**必需**
+            uptoken_url: '/api/qiniu/token', //Ajax请求upToken的Url，**强烈建议设置**（服务端提供）
+            // uptoken : '', //若未指定uptoken_url,则必须指定 uptoken ,uptoken由其他程序生成
+             unique_names: true, // 默认 false，key为文件名。若开启该选项，SDK为自动生成上传成功后的key（文件名）。
+            // save_key: true,   // 默认 false。若在服务端生成uptoken的上传策略中指定了 `sava_key`，则开启，SDK会忽略对key的处理
+            domain: 'http://owmb1f0qu.bkt.clouddn.com', //bucket 域名，下载资源时用到，**必需**
+            get_new_uptoken: false, //设置上传文件的时候是否每次都重新获取新的token
+            container: 'container', //上传区域DOM ID，默认是browser_button的父元素，
+            max_file_size: '100mb', //最大文件体积限制
+            flash_swf_url: '/plupload-2.1.3/js/Moxie.swf', //引入flash,相对路径
+            max_retries: 3, //上传失败最大重试次数
+            dragdrop: true, //开启可拖曳上传
+            drop_element: 'container', //拖曳上传区域元素的ID，拖曳文件或文件夹后可触发上传
+            chunk_size: '4mb', //分块上传时，每片的体积
+            auto_start: true, //选择文件后自动上传，若关闭需要自己绑定事件触发上传
+            init: {
+                'FilesAdded': function(up, files) {
+                    plupload.each(files, function(file) {
+                        // 文件添加进队列后,处理相关的事情
+                        _this.upload_status = 'loading';
+                    });
+                },
+                'BeforeUpload': function(up, file) {
+                    // 每个文件上传前,处理相关的事情
+                    
+                    // var progress = new FileProgress(file, 'fsUploadProgress');
+                    // var chunk_size = plupload.parseSize(this.getOption(
+                    //     'chunk_size'));
+                    // if (up.runtime === 'html5' && chunk_size) {
+                    //     progress.setChunkProgess(chunk_size);
+                    // }
+                },
+                'UploadProgress': function(up, file) {
+                    // 每个文件上传时,处理相关的事情
+                    // var progress = new FileProgress(file, 'fsUploadProgress');
+                    // var chunk_size = plupload.parseSize(this.getOption(
+                    //     'chunk_size'));
+                    // progress.setProgress(file.percent + "%", file.speed,
+                    //     chunk_size);
+                    _this.upload_process = file.percent;
+                },
+                'FileUploaded': function(up, file, info) {
+                    // 每个文件上传成功后,处理相关的事情
+                    // 其中 info.response 是文件上传成功后，服务端返回的json，形式如
+                    // {
+                    //    "hash": "Fh8xVqod2MQ1mocfI4S4KpRL6D98",
+                    //    "key": "gogopher.jpg"
+                    //  }
+                    // 参考http://developer.qiniu.com/docs/v6/api/overview/up/response/simple-response.html
 
+                    let domain = up.getOption('domain');
+                    let response = JSON.parse(info.response);
+                    _this.registerForm.face = domain + '/' + response.key; // 获取上传成功后的文件的Url
+                    console.log(_this.registerForm.face);
+                    _this.upload_status = 'success';
+                },
+                'Error': function(up, err, errTip) {
+                    //上传出错时,处理相关的事情
+                },
+                'UploadComplete': function() {
+                    //队列文件处理完毕后,处理相关的事情
+                },
+                'Key': function(up, file) {
+                    // 若想在前端对每个文件的key进行个性化处理，可以配置该函数
+                    // 该配置必须要在 unique_names: false , save_key: false 时才生效
+
+                    var key = "";
+                    // do something with key here
+                    return key
+                }
+            }
+        });
     },
     methods: {
         registerSubmit(formName) {
             let _this = this;
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    _this.registerSubmitLoading = true;console.log(_this.registerForm);
+                    _this.registerSubmitLoading = true;
+                    console.log(_this.registerForm);
                     axios.post('/register/create-user', { 'data': _this.registerForm }).then(response => {
                         let data = response.data;
                         if (!data.status) {

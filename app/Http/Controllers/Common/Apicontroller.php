@@ -9,10 +9,9 @@ use Illuminate\Http\Request;
 class Apicontroller extends Controller
 {
 
-    public function uploadImage(Request $request)
+    public function uploadToken(Request $request)
     {
-        $input  = $request->file('file');
-        $result = ApiRepository::getInstance()->uploadImage($input);
+        $result = ApiRepository::getInstance()->createToken();
         return response()->json($result);
     }
 }
