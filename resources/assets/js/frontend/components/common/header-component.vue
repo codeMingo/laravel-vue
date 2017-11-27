@@ -19,7 +19,7 @@
                             <template slot="title">技术篇</template>
                             <template v-for="(item, index) in $store.state.article_category">
                                 <el-menu-item :index="'3-' +index">
-                                    <router-link :to="{ path: '/article/index/' + item.id }">{{item.category_name}}</router-link>
+                                    <router-link :to="{ path: '/article/index/' + item.id }">{{item.title}}</router-link>
                                 </el-menu-item>
                             </template>
                         </el-submenu>

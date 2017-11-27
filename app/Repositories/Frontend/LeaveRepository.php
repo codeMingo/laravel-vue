@@ -13,7 +13,8 @@ class LeaveRepository extends BaseRepository
      */
     public function lists($input)
     {
-        $result['lists'] = $this->getLeaveLists($input['search']);
+        $search          = isset($input['search']) ? (array) $input['search'] : [];
+        $result['lists'] = $this->getLeaveLists($search);
         return $this->responseResult(true, $result);
     }
 
@@ -23,7 +24,7 @@ class LeaveRepository extends BaseRepository
      */
     public function getLeaveLists($search)
     {
-        $dicts = $this->getRedisDictLists(['audit' => ['pass']]);
+        $dicts  = $this->getRedisDictLists(['audit' => ['pass']]);
         $result = Leave::where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate();
         if ($result->isEmpty()) {
             return [];

@@ -10,12 +10,13 @@ class AdminRepository extends BaseRepository
 
     /**
      * 管理员列表
-     * @param  Array $input [search_form]
+     * @param  Array $input [search]
      * @return Array
      */
     public function index($input)
     {
-        $result['lists']                 = $this->getAdminLists($input['search_form']);
+        $search                          = isset($input['search']) ? (array) $input['search'] : [];
+        $result['lists']                 = $this->getAdminLists($search);
         $result['options']['permission'] = DB::table('admin_permissions')->where('status', 1)->get();
         $result['options']['status']     = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
         return $this->responseResult(true, $result);
@@ -146,12 +147,12 @@ class AdminRepository extends BaseRepository
 
     /**
      * 列表
-     * @param  Array $search_form [permission_id, status, username]
+     * @param  Array $search [permission_id, status, username]
      * @return Object              结果集
      */
-    public function getAdminLists($search_form)
+    public function getAdminLists($search)
     {
-        $where_params = $this->parseParams('admins', $search_form);
+        $where_params = $this->parseParams('admins', $search);
         return Admin::parseWheres($where_params)->paginate();
     }
 }

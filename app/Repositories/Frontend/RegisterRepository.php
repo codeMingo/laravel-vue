@@ -1,7 +1,6 @@
 <?php
 namespace App\Repositories\Frontend;
 
-use App\Models\Dict;
 use App\Models\EmailRecord;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +14,7 @@ class RegisterRepository extends BaseRepository
      * @param  Array $input [username, email, password, face]
      * @return Array
      */
-    public function createUser($input)
+    public function register($input)
     {
         $username = isset($input['username']) ? strval($input['username']) : '';
         $email    = isset($input['email']) ? strval($input['email']) : '';
@@ -39,7 +38,7 @@ class RegisterRepository extends BaseRepository
             'password' => $password,
         ]);
 
-        $dicts = $this->getRedisDictLists(['email_type' => 'register_active']);
+        $dicts        = $this->getRedisDictLists(['email_type' => 'register_active']);
         $email_record = EmailRecord::create([
             'type_id'     => $dicts['email_type']['register_active'],
             'user_id'     => $result->id,
@@ -55,15 +54,7 @@ class RegisterRepository extends BaseRepository
             'username' => $result->username,
         ], 'register');
 
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => [
-                'id'       => base64_encode($insertResult->id),
-                'username' => $insertResult->username,
-                'email'    => $insertResult->email,
-            ],
-            'message' => '注册成功，请于一小时内激活账号',
-        ];
+        return $this->responseResult(true, $result, '注册成功，请在24小时内激活账号');
     }
 
     /**
@@ -71,25 +62,25 @@ class RegisterRepository extends BaseRepository
      * @param  Array $code 加密字符
      * @return Array
      */
-    public function activeUser($input)
+    public function active($input)
     {
-        $mail_id = authcode($input['mail_id'], 'decrypt');
-        $user_id = authcode($input['user_id'], 'decrypt');
+        $mail_id = isset($input['mail_id']) ? authcode($input['mail_id'], 'decrypt') : '';
+        $user_id = isset($input['user_id']) ? authcode($input['user_id'], 'decrypt') : '';
         if (!$mail_data || !$user_id) {
-            return $this->responseResult(false, [], '地址不存在或邮件已经失效');
+            return $this->responseResult(false, [], '激活失败，地址不存在或邮件已经失效');
         }
 
         $list = User::where('id', $user_id)->first();
-        if (empty($list) ) {
-            return $this->responseResult(false, [], '不存在此用户');
+        if (empty($list)) {
+            return $this->responseResult(false, [], '激活失败，不存在此用户');
         }
 
         if ($list->active) {
-            return $this->responseResult(false, [], '账户已经激活，请不要重复操作');
+            return $this->responseResult(false, [], '激活失败，账户已经激活，请不要重复操作');
         }
 
         $list->active = 1;
         $result       = $list->save();
-        return $this->responseResult(true, $result, '恭喜您，账户激活成功');
+        return $this->responseResult(true, $result, '激活成功，恭喜您，账户激活成功');
     }
 }

@@ -153,13 +153,13 @@ function checkSubstrs($list, $str)
  */
 function sendEmail($mail_data, $type)
 {
-    switch($type) {
+    switch ($type) {
         case 'register':
             $mail = new App\Mail\Register($mail_data);
-        break;
+            break;
         case 'reset_password':
             $mail = new App\Mail\ResetPassword($mail_data);
-        break;
+            break;
     }
     Illuminate\Support\Facades\Mail::to($mail_data['to'])->queue($mail);
     return true;
@@ -183,14 +183,14 @@ function authcode($string, $operation = '', $expiry = 0)
     // 密匙b会用来做数据完整性验证
     $keyb = md5(substr($key, 16, 16));
     // 密匙c用于变化生成的密文
-    $keyc = $ckey_length ? ($operation == 'decrypt' ? substr($string, 0, $ckey_length) : substr(md5(microtime()), - $ckey_length)) : '';
+    $keyc = $ckey_length ? ($operation == 'decrypt' ? substr($string, 0, $ckey_length) : substr(md5(microtime()), -$ckey_length)) : '';
     // 参与运算的密匙
     $cryptkey   = $keya . md5($keya . $keyc);
     $key_length = strlen($cryptkey);
     // 明文，前10位用来保存时间戳，解密时验证数据有效性，10到26位用来保存$keyb(密匙b)，
     // 解密时会通过这个密匙验证数据完整性
     // 如果是解码的话，会从第$ckey_length位开始，因为密文前$ckey_length位保存 动态密匙，以保证解密正确
-    $string = $operation == 'decrypt' ? base64_decode(substr($string, $ckey_length)) : sprintf('%010d', $expiry ? $expiry + time() : 0) . substr(md5($string . $keyb), 0, 16) . $string;
+    $string        = $operation == 'decrypt' ? base64_decode(substr($string, $ckey_length)) : sprintf('%010d', $expiry ? $expiry + time() : 0) . substr(md5($string . $keyb), 0, 16) . $string;
     $string_length = strlen($string);
     $result        = '';
     $box           = range(0, 255);

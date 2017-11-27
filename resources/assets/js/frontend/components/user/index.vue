@@ -113,7 +113,7 @@ export default {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
                     let params = { 'data': _this.user_data };
-                    axios.put('/user/update-user/' + _this.user_data.id, params).then(response => {
+                    axios.put('/user/update', params).then(response => {
                         _this.update_submit_loading = false;
                         let { status, data, message } = response.data;
                         if (!status) {

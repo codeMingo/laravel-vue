@@ -13,13 +13,14 @@ class ArticleRepository extends BaseRepository
 {
 
     /**
-     * 文章列表
+     * 文章列表页面
      * @param  Array $input [search]
      * @return Array
      */
-    public function lists($input)
+    public function index($input)
     {
-        $result['lists']               = $this->getArticleLists($input['search'])->toArray();
+        $search                        = isset($input['search']) ? (array) $input['search'] : [];
+        $result['lists']               = $this->getArticleLists($search);
         $result['options']['category'] = CategoryRepository::getInstance()->getCategoryLists(['type' => 'article']);
         return $this->responseResult(true, $result);
     }
@@ -374,7 +375,7 @@ class ArticleRepository extends BaseRepository
         $dicts              = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $search['status']   = $dicts['article_status']['show'];
         $search['is_audit'] = $dicts['audit']['pass'];
-        $where_params       = $this->parseParams('articles', $search);
-        return Article::parseWheres($where_params)->with('comment')->with('read')->with('interact')->paginate();
+        $params             = $this->parseParams('articles', $search);
+        return Article::parseWheres($params)->with('comment')->with('read')->with('interact')->paginate();
     }
 }

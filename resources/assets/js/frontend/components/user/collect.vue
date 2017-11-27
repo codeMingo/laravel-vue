@@ -63,7 +63,7 @@ export default {
         getCollectLists() {
             let _this = this;
             let paramsData = { 'data': { 'search_form': _this.search_form } };
-            axios.get('/user/collect/lists?page=' + _this.collect_pagination.current_page, { params: paramsData }).then(response => {
+            axios.get('/user/collect-lists?page=' + _this.collect_pagination.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
                 _this.collect_data = data.lists.data;
                 _this.collect_pagination.per_page = parseInt(data.lists.per_page);

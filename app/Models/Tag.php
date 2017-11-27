@@ -6,7 +6,7 @@ class Tag extends Base
 {
 
     protected $fillable = [
-        'admin_id', 'tag_name', 'category_type', 'status',
+        'admin_id', 'title', 'category_type', 'status',
     ];
 
 }

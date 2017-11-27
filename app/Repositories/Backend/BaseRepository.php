@@ -64,20 +64,6 @@ abstract class BaseRepository
     }
 
     /**
-     * 获取字典数据
-     * @param  Array $code_arr
-     * @return Object
-     */
-    public function getDictsByCodeArr($code_arr)
-    {
-        $result = [];
-        if (!empty($code_arr) && is_array($code_arr)) {
-            $result = Dict::whereIn('code', $code_arr)->get();
-        }
-        return $result;
-    }
-
-    /**
      * 记录操作日志
      * @param  Array  $input [action, params, text, status]
      * @return Array
@@ -107,38 +93,24 @@ abstract class BaseRepository
         }
         $flag = true;
         foreach ($key_arr as $redis_key => $item) {
-            // 表示为 string 类型
-            if (is_string($item)) {
-                // 如果redis值为空，则清除所有缓存，重新生成
-                if ($flag && !Redis::exists($item)) {
+            $field_arr = array_values($item);
+            foreach ($field_arr as $field) {
+                if ($flag && !Redis::hexists($redis_key, $field)) {
                     $flag = false;
-                    $this->refreshRedisCache();
+                    $this->refreshDictRedisCache();
                 }
-                $result[$item] = Redis::get($item);
-            } else {
-                // 表示为 hash
-                $field_arr = array_values($item);
-                foreach ($field_arr as $field) {
-                    if ($flag && !Redis::hexists($redis_key, $field)) {
-                        $flag = false;
-                        $this->refreshRedisCache();
-                    }
-                    $result[$redis_key][$field] = Redis::hget($redis_key, $field);
-                }
+                $result[$redis_key][$field] = Redis::hget($redis_key, $field);
             }
         }
         return $result;
     }
 
     /**
-     * 清空redis缓存，并且重新生成缓存
+     * 清空dict redis缓存，并且重新生成缓存
      * @return [type] [description]
      */
-    public function refreshRedisCache()
+    public function refreshDictRedisCache()
     {
-        Redis::flushdb();
-
-        // dicts字典表缓存
         $dict_lists = DB::table('dicts')->where('status', 1)->get();
         if (!empty($dict_lists)) {
             $dict_redis_key = 'dicts_';

@@ -8,19 +8,19 @@ class DictRepository extends BaseRepository
 
     /**
      * 获取字典通过code
-     * @param  Array $code
+     * @param  Array $code_arr
      * @return Array [text, value]
      */
-    public function getDictListsByCode($code_arr)
+    public function getDictListsByCodeArr($code_arr)
     {
-        $dictLists = Dict::where('code', $code_arr)->get();
-        if ($dictLists->isEmpty()) {
+        $lists = Dict::whereIn('code', $code_arr)->where('status', 1)->get();
+        if ($lists->isEmpty()) {
             return [];
         }
-        foreach ($dictLists as $key => $item) {
-            $temp_list['value'] = $item->value;
-            $temp_list['text']  = $item->text;
-            $result[]           = $temp_list;
+        foreach ($lists as $key => $item) {
+            $temp['value']         = $item->value;
+            $temp['text']          = $item->text;
+            $result[$item->code][] = $temp;
         }
         return $result;
     }
@@ -32,18 +32,25 @@ class DictRepository extends BaseRepository
      */
     public function existDict($code_value_arr)
     {
+        if (empty($code_value_arr)) {
+            return false;
+        }
+        $code_arr = [];
         foreach ($code_value_arr as $code => $value) {
             $code_arr[] = $code;
         }
-        $dictLists = Dict::where('status', 1)->whereIn('code', $code_arr)->get();
-        $count     = 0;
+        $lists = Dict::where('status', 1)->whereIn('code', $code_arr)->get();
+        if (empty($lists)) {
+            return false;
+        }
+        $count = 0;
         foreach ($code_value_arr as $code => $value) {
-            foreach ($dictLists as $key => $item) {
+            foreach ($lists as $key => $item) {
                 if ($code == $item->code && $value == $item->value) {
                     $count++;
                 }
             }
         }
-        return count($code_value_arr) === $count ? true : false;
+        return count($code_value_arr) == $count;
     }
 }

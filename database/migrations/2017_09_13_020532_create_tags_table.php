@@ -18,7 +18,7 @@ class CreateTagsTable extends Migration
             $table->increments('id');
             $table->integer('admin_id')->comment('创建用户');
             $table->integer('category_type')->comment('菜单类型');
-            $table->string('tag_name')->comment('标签名称');
+            $table->string('title')->comment('标签名称');
             $table->tinyInteger('status')->default(1)->comment('状态(0|1)');
             $table->timestamps();
         });

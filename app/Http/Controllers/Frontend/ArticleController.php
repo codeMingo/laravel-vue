@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Frontend;
 
 use App\Repositories\Frontend\ArticleRepository;
@@ -14,10 +13,10 @@ class ArticleController extends BaseController
     }
 
     // 文章列表
-    public function lists(Request $request)
+    public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = ArticleRepository::getInstance()->lists($input);
+        $result = ArticleRepository::getInstance()->index($input);
         return response()->json($result);
     }
 

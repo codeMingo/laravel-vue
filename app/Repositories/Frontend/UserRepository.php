@@ -1,39 +1,30 @@
 <?php
 namespace App\Repositories\Frontend;
 
-use App\Models\Interact;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Repositories\Frontend\InteractReposity;
 
 class UserRepository extends BaseRepository
 {
 
-    public $table_name = 'users';
-
-    public function mainShow()
+    /**
+     * 用户信息
+     * @return Array
+     */
+    public function show()
     {
-        $user_id        = Auth::guard('web')->id();
-        $result['list'] = User::select(['username', 'last_login_time', 'sign', 'face'])->where('id', $user_id)->where('status', 1)->first();
-        return [
-            'status'  => Parent::ERROR_STATUS,
-            'data'    => $result,
-            'message' => '数据获取成功',
-        ];
+        $result['list'] = $this->getUserList($this->getUserId());
+        return $this->responseResult(true, $result);
     }
 
     /**
-     * 个人中心页面
+     * 个人中心
      * @return Array
      */
     public function index()
     {
-        $user_id        = Auth::guard('web')->id();
-        $result['list'] = $this->getUserList($user_id);
-        return [
-            'status'  => Parent::ERROR_STATUS,
-            'data'    => $result,
-            'message' => '数据获取成功',
-        ];
+        $result['list'] = $this->getUserList($this->getUserId());
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -43,82 +34,57 @@ class UserRepository extends BaseRepository
      */
     public function getUserList($user_id)
     {
-        return User::select(['id', 'username', 'email', 'sign', 'web_url'])->where('id', $user_id)->where('status', 1)->where('active', 1)->first();
+        return User::where('id', $user_id)->where('status', 1)->where('active', 1)->first();
     }
 
     /**
-     * 更新用户资料
+     * 更新资料
      * @param  Array $input   用户资料
-     * @param  Int $user_id 用户id
      * @return Array
      */
-    public function updateUser($input, $user_id)
+    public function update($input)
     {
         $username = isset($input['username']) ? strval($input['username']) : '';
         $sign     = isset($input['sign']) ? strval($input['sign']) : '';
         $web_url  = isset($input['web_url']) ? strval($input['web_url']) : '';
 
         if (!$username) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '必填信息不得为空',
-            ];
+            return $this->responseResult(false, [], '更新失败，必填信息不得为空');
         }
-        $user_repeat = User::where('username', $username)->where('id', '!=', $user_id)->first();
-        if (!empty($user_repeat)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '用户名已经存在',
-            ];
+        $user_id = $this->getUserId();
+
+        $unique_list = User::where('username', $username)->where('id', '!=', $user_id)->first();
+        if (!empty($unique_list)) {
+            return $this->responseResult(false, [], '更新失败，用户名已经存在');
         }
-        $update_result = User::where('id', $user_id)->update([
+
+        User::where('id', $user_id)->update([
             'username' => $username,
             'sign'     => $sign,
             'web_url'  => $web_url,
         ]);
 
         // 记录操作日志
-        Parent::saveUserOperateRecord([
-            'action' => 'User/update-user',
+        Parent::saveOperateRecord([
+            'action' => 'User/update',
             'params' => $input,
-            'text'   => $update_result ? '修改成功' : '修改失败',
-            'status' => !!$update_result,
+            'text'   => '更新成功',
         ]);
 
-        $result['list'] = [];
-        if ($update_result) {
-            $result['list'] = $this->getUserList($user_id);
-        }
-
-        return [
-            'status'  => $update_result ? Parent::SUCCESS_STATUS : Parent::ERROR_STATUS,
-            'data'    => $update_result ? $result : [],
-            'message' => $update_result ? '修改成功' : '修改失败，未知错误',
-        ];
+        return $this->responseResult(true, [], '更新成功');
     }
 
-    public function collectLists($input)
+    /**
+     * 收藏列表
+     * @param  Array $input []
+     * @return Array
+     */
+    public function collect($input)
     {
-        $user_id             = Auth::guard('web')->id();
-        $resultData['lists'] = $this->getCollectLists($user_id);
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $resultData,
-            'message' => '获取收藏列表成功',
-        ];
+        $search           = isset($input['search']) ? $input['search'] : [];
+        $input['user_id'] = $this->getUserId();
+        $result['lists']  = InteractReposity::getInstance()->getInteractLists($search);
+        return $this->responseResult(true, $result);
     }
 
-    public function getCollectLists($user_id)
-    {
-        $user_id        = Auth::guard('web')->id();
-        $dictListsValue = DictRepository::getInstance()->getDictListsByTextEnArr(['article_is_show', 'audit_pass']);
-        $collect_lists  = Interact::where('user_id', $user_id)->where('collect', 1)->with(['article' => function ($query) use ($dictListsValue) {
-            $query->where('status', $dictListsValue['article_is_show']);
-        }])->with(['videoList' => function ($query) {
-            $query->where('status', 1);
-        }])->orderby('created_at', 'desc')->paginate();
-        return $collect_lists;
-    }
 }

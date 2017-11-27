@@ -7,7 +7,7 @@
                         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
                         <template v-if="$route.params.category_id">
                             <el-breadcrumb-item :to="{ path: '/article/index' }">全部文章</el-breadcrumb-item>
-                            <el-breadcrumb-item>{{search.category_id | formatByOptions(options.category, 'id', 'category_name')}}</el-breadcrumb-item>
+                            <el-breadcrumb-item>{{search.category_id | formatByOptions(options.category, 'id', 'title')}}</el-breadcrumb-item>
                         </template>
                         <template v-else>
                             <el-breadcrumb-item>全部文章</el-breadcrumb-item>
@@ -19,7 +19,7 @@
                         <div class='article-picture' v-show="item.thumbnail"><img :src="item.thumbnail"></div>
                         <div class="article-word" :class="item.thumbnail ? '' : 'article-all'">
                             <h2 class='article-title'>
-                                <el-tag type="primary">{{item.category_id | formatByOptions(options.category, 'id', 'category_name')}}</el-tag>
+                                <el-tag type="primary">{{item.category_id | formatByOptions(options.category, 'id', 'title')}}</el-tag>
                                 <router-link :to="{ path: '/article/detail/' + item.id }">{{item.title}}</router-link>
                             </h2>
                             <div class='article-right'>
@@ -217,7 +217,7 @@ export default {
         getLists() {
             let _this = this;
             let paramsData = { 'data': { 'search': _this.search } };
-            axios.get('/article/lists?page=' + _this.pagination.current_page, { params: paramsData }).then(response => {
+            axios.get('/article/index?page=' + _this.pagination.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
                 _this.lists = data.lists.data;
                 _this.options = data.options;

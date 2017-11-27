@@ -22,7 +22,7 @@ class TagSeeder extends Seeder
             $data[] = [
                 'admin_id' => 1,
                 'category_type'    => ($i % 2 == 0) ? 10 : 20,
-                'tag_name'     => ($i % 2 == 0) ? $article_category_type[$rand] : $video_category_type[$rand],
+                'title'     => ($i % 2 == 0) ? $article_category_type[$rand] : $video_category_type[$rand],
                 'status'   => 1,
             ];
         }
