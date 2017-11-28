@@ -2,22 +2,22 @@
 
 return [
     // 网站名称
-    'website_name'             => 'ububs编程',
+    'website_name'          => env('WEBSITE_NAME', 'ububs编程'),
     // 网站地址
-    'website_url'              => 'http://www.ububs.com',
+    'website_url'           => env('WEBSITE_URL', 'http://www.ububs.com'),
     // 网站密匙
-    'website_encrypt'          => '$1$D.1.QW1.$cA1J0g5JjRf0Li0WHBhnQ1',
+    'website_encrypt'       => env('WEBSITE_ENCRYPT', '$1$D.1.QW1.$cA1J0g5JjRf0Li0WHBhnQ1'),
     // 七牛参数
-    'qiniuAccessKey'           => env('QINIU_ACCESS_KEY', ''),
-    'qiniuSecretKey'           => env('QINIU_SECRET_KEY', ''),
-    'qiniuImageBucket'         => env('QINIU_IMAGE_BUCKET', ''),
-    'qiniuBucketUrl'           => env('QINIU_BUCKET_URL', ''),
+    'qiniu_access_key'      => env('QINIU_ACCESS_KEY', ''),
+    'qiniu_secret_key'      => env('QINIU_SECRET_KEY', ''),
+    'qiniu_face_bucket'     => env('QINIU_FACE_BUCKET', ''),
+    'qiniu_face_bucket_url' => env('QINIU_FACE_BUCKET_URL', ''),
     // 重复请求限制次数
-    'repeat_more_operate'      => 10,
-    'repeat_more_operate_time' => 3600,
+    'repeat_max_limit'      => env('REPEAT_MAX_LIMIT', 10),
+    'repeat_max_time_limit' => env('REPEAT_MAX_TIME_LIMIT', 3600),
     // 重复请求限制时间
     // 过滤参数规则， 默认就是 = ，不用写
-    'param_rules'              => [
+    'param_rules'           => [
         // 管理员
         'admins'            => [
             'username' => 'like',
@@ -35,16 +35,16 @@ return [
             'tag_ids' => 'in',
         ],
         // 互动
-        'interactes' => [
+        'interactes'        => [
         ],
         // 视频
-        'videos' => [
+        'videos'            => [
             'title'   => 'like',
             'auther'  => 'like',
             'tag_ids' => 'in',
         ],
-        'categories' => [
-            'title' => 'like'
-        ]
+        'categories'        => [
+            'title' => 'like',
+        ],
     ],
 ];

@@ -97,11 +97,4 @@ class UserController extends BaseRepository
         ]);
         return response()->json($result);
     }
-
-    public function changeFieldValue($id, Request $request)
-    {
-        $input  = $request->input('data');
-        $result = UserRepository::getInstance()->changeFieldValue($id, $input);
-        return response()->json($result);
-    }
 }

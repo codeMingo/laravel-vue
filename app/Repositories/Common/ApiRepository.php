@@ -26,8 +26,8 @@ class ApiRepository extends BaseRepository
      */
     public function createToken()
     {
-        $auth   = new Auth(config('ububs.qiniuAccessKey'), config('ububs.qiniuSecretKey'));
-        $bucket = 'linlm1994';
+        $auth   = new Auth(config('ububs.qiniu_access_key'), config('ububs.qiniu_secret_key'));
+        $bucket = config('ububs.qiniu_face_bucket');
         $token  = $auth->uploadToken($bucket);
         return [
             'uptoken' => $token,

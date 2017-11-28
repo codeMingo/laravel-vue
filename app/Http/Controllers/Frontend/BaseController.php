@@ -38,12 +38,12 @@ class BaseController extends Controller
         }
 
         $redis_key = 'repeat_more:' . getClientIp() . ':' . $request->path();
-        if (Redis::exists($redis_key) && Redis::get($redis_key) > config('ububs.repeat_more_operate')) {
+        if (Redis::exists($redis_key) && Redis::get($redis_key) > config('ububs.repeat_max_limit')) {
             return false;
         }
         Redis::setnx($redis_key, 1);
         Redis::incr($redis_key);
-        Redis::expire($redis_key, config('ububs.repeat_more_operate_time'));
+        Redis::expire($redis_key, config('ububs.repeat_max_time_limit'));
         return true;
     }
 }
