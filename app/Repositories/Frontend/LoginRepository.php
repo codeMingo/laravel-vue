@@ -4,7 +4,7 @@ namespace App\Repositories\Frontend;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-class LoginRepository extends BaseRepository
+class LoginRepository extends CommonRepository
 {
 
     /**

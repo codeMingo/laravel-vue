@@ -3,7 +3,7 @@ namespace App\Repositories\Backend;
 
 use App\Models\AdminPermission;
 
-class AdminPermissionRepository extends BaseRepository
+class AdminPermissionRepository extends CommonRepository
 {
     /**
      * 获取权限节点数量

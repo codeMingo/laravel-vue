@@ -4,7 +4,7 @@ namespace App\Repositories\Frontend;
 use App\Models\User;
 use App\Repositories\Frontend\InteractReposity;
 
-class UserRepository extends BaseRepository
+class UserRepository extends CommonRepository
 {
 
     /**
@@ -13,7 +13,7 @@ class UserRepository extends BaseRepository
      */
     public function show()
     {
-        $result['list'] = $this->getUserList($this->getUserId());
+        $result['list'] = $this->getUserList($this->getCurrentId());
         return $this->responseResult(true, $result);
     }
 
@@ -23,7 +23,7 @@ class UserRepository extends BaseRepository
      */
     public function index()
     {
-        $result['list'] = $this->getUserList($this->getUserId());
+        $result['list'] = $this->getUserList($this->getCurrentId());
         return $this->responseResult(true, $result);
     }
 
@@ -51,7 +51,7 @@ class UserRepository extends BaseRepository
         if (!$username) {
             return $this->responseResult(false, [], '更新失败，必填信息不得为空');
         }
-        $user_id = $this->getUserId();
+        $user_id = $this->getCurrentId();
 
         $unique_list = User::where('username', $username)->where('id', '!=', $user_id)->first();
         if (!empty($unique_list)) {
@@ -82,7 +82,7 @@ class UserRepository extends BaseRepository
     public function collect($input)
     {
         $search           = isset($input['search']) ? $input['search'] : [];
-        $input['user_id'] = $this->getUserId();
+        $input['user_id'] = $this->getCurrentId();
         $result['lists']  = InteractReposity::getInstance()->getInteractLists($search);
         return $this->responseResult(true, $result);
     }

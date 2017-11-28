@@ -15,6 +15,7 @@ Route::group(['namespace' => 'Auth'], function () {
 // 前后台公共api
 Route::group(['namespace' => 'Common', 'prefix' => '/api'], function () {
     Route::get('/qiniu/token', 'ApiController@uploadToken');
+    Route::get('/refreshCache', 'ApiController@refreshCache');
 });
 
 // 前台

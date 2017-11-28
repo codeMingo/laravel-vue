@@ -12,6 +12,7 @@ class LeaveController extends BaseController
         parent::__construct();
     }
 
+    // 留言列表
     public function lists(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
@@ -19,6 +20,7 @@ class LeaveController extends BaseController
         return response()->json($result);
     }
 
+    // 留言
     public function leave(Request $request)
     {
         $input  = $request->input('data');

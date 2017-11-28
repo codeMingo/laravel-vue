@@ -3,7 +3,7 @@ namespace App\Repositories\Backend;
 
 use App\Models\Dict;
 
-class DictRepository extends BaseRepository
+class DictRepository extends CommonRepository
 {
 
     /**

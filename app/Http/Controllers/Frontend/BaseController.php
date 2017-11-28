@@ -2,12 +2,17 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\Common\ApiRepository;
 use Illuminate\Support\Facades\Redis;
 
 class BaseController extends Controller
 {
     public function __construct()
     {
+        // 判断是否生成缓存
+        if (!Redis::exist('has_cache')) {
+            ApiRepository::getInstance()->refreshCache();
+        }
         $this->middleware(function ($request, $next) {
             // 请求频繁直接返回
             if (!$this->repeatMoreOperate($request)) {

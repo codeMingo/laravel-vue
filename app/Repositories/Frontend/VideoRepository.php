@@ -3,7 +3,7 @@ namespace App\Repositories\Frontend;
 
 use App\Models\Video;
 
-class VideoRepository extends BaseRepository
+class VideoRepository extends CommonRepository
 {
 
     /**

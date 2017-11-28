@@ -4,7 +4,7 @@ namespace App\Repositories\Frontend;
 use App\Models\Leave;
 use Illuminate\Support\Facades\DB;
 
-class LeaveRepository extends BaseRepository
+class LeaveRepository extends CommonRepository
 {
 
     /**
@@ -73,7 +73,7 @@ class LeaveRepository extends BaseRepository
             }
         }
         $result['list'] = Leave::create([
-            'user_id'    => $this->getUserId(),
+            'user_id'    => $this->getCurrentId(),
             'parent_id'  => $leave_id,
             'content'    => $content,
             'is_audit'   => $dicts['system']['leave_audit'] ? $dicts['audit']['loading'] : $dicts['audit']['pass'],
@@ -89,7 +89,7 @@ class LeaveRepository extends BaseRepository
 
         $result['list']['response']      = [];
         $result['list']['show_response'] = true;
-        $result['list']['user']          = DB::table('users')->where('id', $this->getUserId())->first();
+        $result['list']['user']          = DB::table('users')->where('id', $this->getCurrentId())->first();
         return $this->responseResult(true, $result, $leave_id ? '回复成功' : '留言成功');
     }
 }

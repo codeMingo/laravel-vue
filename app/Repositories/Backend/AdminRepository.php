@@ -5,7 +5,7 @@ use App\Models\Admin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-class AdminRepository extends BaseRepository
+class AdminRepository extends CommonRepository
 {
 
     /**
@@ -50,36 +50,34 @@ class AdminRepository extends BaseRepository
             'status'        => $status,
         ]);
 
-        // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'Admin/store',
             'params' => [
                 'input' => $input,
             ],
-            'text'   => !$result ? '新增管理员失败，未知错误' : '新增管理员成功',
-            'status' => !!$result,
+            'text'   => '新增管理员成功',
         ]);
         return $this->responseResult(!!$result, !$result ? [] : $result, !$result ? '新增失败，未知错误' : '新增成功');
     }
 
     /**
      * 详情
-     * @param  Int $admin_id
+     * @param  Int $id
      * @return Array
      */
-    public function show($admin_id)
+    public function show($id)
     {
-        $result['list'] = Admin::where('id', $admin_id)->with('adminPermission')->with('adminLoginReocrd')->with('adminOperateRecord')->first();
+        $result['list'] = Admin::where('id', $id)->with('adminPermission')->with('adminLoginReocrd')->with('adminOperateRecord')->first();
         return $this->responseResult(!!$result, !$result ? [] : $result, !$result ? '不存在这条数据' : '获取成功');
     }
 
     /**
      * 编辑
      * @param  Array $input [username, email, password, permission_id, status]
-     * @param  Int $admin_id
+     * @param  Int $id
      * @return Array
      */
-    public function update($input, $admin_id)
+    public function update($input, $id)
     {
         $username      = isset($input['username']) ? strval($input['username']) : '';
         $email         = isset($input['email']) ? strval($input['email']) : '';
@@ -91,11 +89,11 @@ class AdminRepository extends BaseRepository
             return $this->responseResult(false, [], '必填字段不得为空');
         }
 
-        $admin_list = Admin::where('id', $admin_id)->first();
+        $admin_list = Admin::where('id', $id)->first();
         if (empty($admin_list)) {
             return $this->responseResult(false, [], '管理员不存在');
         }
-        $unique_list = Admin::where('username', $username)->whereOr('email', $email)->where('id', '!=', $admin_id)->first();
+        $unique_list = Admin::where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
         if (!empty($unique_list)) {
             return $this->responseResult(false, [], $unique_list->username == $username ? '用户名被注册' : '邮箱被注册');
         }
@@ -108,7 +106,7 @@ class AdminRepository extends BaseRepository
         if ($password) {
             $updateData['password'] = $password;
         };
-        $result = Admin::where('id', $admin_id)->update($updateData);
+        $result = Admin::where('id', $id)->update($updateData);
 
         // 记录操作日志
         Parent::saveOperateRecord([
@@ -116,8 +114,7 @@ class AdminRepository extends BaseRepository
             'params' => [
                 'input' => $input,
             ],
-            'text'   => !$result ? '更新管理员失败，未知错误' : '更新管理员成功',
-            'status' => !!$result,
+            'text'   => '更新管理员成功',
         ]);
 
         return $this->responseResult(!!$result, !$result ? [] : $result, !$result ? '更新失败，未知错误' : '更新成功');
@@ -125,21 +122,20 @@ class AdminRepository extends BaseRepository
 
     /**
      * 删除
-     * @param  Int $admin_id
+     * @param  Int $id
      * @return Array
      */
-    public function destroy($admin_id)
+    public function destroy($id)
     {
-        $result = Admin::where('id', $admin_id)->delete();
+        $result = Admin::where('id', $id)->delete();
 
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'Admin/destroy',
             'params' => [
-                'admin_id' => $admin_id,
+                'admin_id' => $id,
             ],
-            'text'   => !$result ? '删除管理员失败，未知错误' : '删除管理员成功',
-            'status' => !!$result,
+            'text'   => '删除管理员成功',
         ]);
 
         return $this->responseResult(!!$result, !$result ? [] : $result, !$result ? '删除失败，未知错误' : '删除成功');

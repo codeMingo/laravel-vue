@@ -1,26 +1,39 @@
 <?php
 namespace App\Repositories\Backend;
 
-use Illuminate\Support\Facades\DB;
+use App\Repositories\Common\BaseRepository;
+use Illuminate\Support\Facades\Auth;
 
 class CommonRepository extends BaseRepository
 {
-    /**
-     * 清空redis缓存，并且重新生成缓存
-     * @return [type] [description]
-     */
-    public function refreshAllRedisCache()
-    {
-        Redis::flushdb();
 
-        // dicts字典表缓存
-        $dict_lists = DB::table('dicts')->where('status', 1)->get();
-        if (!empty($dict_lists)) {
-            $dict_redis_key = 'dicts_';
-            foreach ($dict_lists as $key => $dict) {
-                Redis::hset('dicts_' . $dict->code, $dict->text_en, $dict->value);
-            }
+    /**
+     * 获取当前用户id
+     * @return Int
+     */
+    public function getCurrentId()
+    {
+        if (Auth::guard('admin')->check()) {
+            return Auth::guard('admin')->id();
+        } else {
+            return 0;
         }
-        return true;
+    }
+
+    /**
+     * 记录操作日志
+     * @param  Array  $input [action, params, text, status]
+     * @return Array
+     */
+    public function saveOperateRecord($input)
+    {
+        AdminOperateRecord::create([
+            'admin_id'   => Auth::guard('admin')->id(),
+            'action'     => $input['action'],
+            'params'     => json_encode($input['params']),
+            'text'       => $input['text'],
+            'ip_address' => getClientIp(),
+            'status'     => $input['status'],
+        ]);
     }
 }

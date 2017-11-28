@@ -4,7 +4,7 @@ namespace App\Repositories\Backend;
 use App\Models\User;
 use App\Repositories\Backend\DictRepository;
 
-class UserRepository extends BaseRepository
+class UserRepository extends CommonRepository
 {
 
     /**
@@ -25,7 +25,7 @@ class UserRepository extends BaseRepository
      * @param  Array $input [username, email, password, status, active]
      * @return Array
      */
-    public function create($input)
+    public function store($input)
     {
         $username = isset($input['username']) ? strval($input['username']) : '';
         $email    = isset($input['email']) ? strval($input['email']) : '';
@@ -53,11 +53,19 @@ class UserRepository extends BaseRepository
             'active'   => $active,
         ]);
 
+        Parent::saveOperationRecord([
+            'action' => 'User/store',
+            'params' => [
+                'input' => $input,
+            ],
+            'text'   => '新增用户成功',
+        ]);
+
         return $this->responseResult(true, $result, '新增成功');
     }
 
     /**
-     * 编辑用户
+     * 更新用户
      * @param  Array $input [username, email, password, permission_id, status]
      * @param  Int $user_id
      * @return Array
@@ -66,7 +74,7 @@ class UserRepository extends BaseRepository
     {
         $list = $this->getUserList($id);
         if (empty($list)) {
-            return $this->responseResult(false, [], '编辑失败，不存在此用户');
+            return $this->responseResult(false, [], '更新失败，不存在此用户');
         }
 
         $username = isset($input['username']) ? strval($input['username']) : '';
@@ -77,12 +85,12 @@ class UserRepository extends BaseRepository
         $active   = isset($input['active']) ? intval($input['active']) : 0;
 
         if (!$username || !$email) {
-            return $this->responseResult(false, [], '编辑失败，必填信息不得为空');
+            return $this->responseResult(false, [], '更新失败，必填信息不得为空');
         }
 
         $unique_list = User::where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
         if (!empty($unique_list)) {
-            $error_text = $unique_list->username == $username ? '编辑失败，用户名已经存在' : '编辑失败，邮箱已经存在';
+            $error_text = $unique_list->username == $username ? '更新失败，用户名已经存在' : '更新失败，邮箱已经存在';
             return $this->responseResult(false, [], $error_text);
         }
 
@@ -96,10 +104,17 @@ class UserRepository extends BaseRepository
         if ($password) {
             $data['password'] = $password
         }
+        User::where('id', $id)->save($data);
 
-        $result = User::where('id', $id)->save($data);
+        Parent::saveOperationRecord([
+            'action' => 'User/store',
+            'params' => [
+                'input' => $input,
+            ],
+            'text'   => '更新用户成功',
+        ]);
 
-        return $this->responseResult(true, $result, '编辑成功');
+        return $this->responseResult(true, [], '更新成功');
     }
 
     /**
@@ -107,7 +122,7 @@ class UserRepository extends BaseRepository
      * @param  Int $id
      * @return Array
      */
-    public function delete($id)
+    public function destroy($id)
     {
         $result = User::where('id', $id)->delete();
         return $this->responseResult(true, $result, '删除成功');

@@ -36,7 +36,9 @@ class UserController extends BaseRepository
      */
     public function store(Request $request)
     {
-        //
+        $input  = $request->input('data');
+        $result = UserRepository::getInstance()->store($input);
+        return response()->json($result);
     }
 
     /**
@@ -47,7 +49,8 @@ class UserController extends BaseRepository
      */
     public function show($id)
     {
-        //
+        $result = UserRepository::getInstance()->show($id);
+        return response()->json($result);
     }
 
     /**
@@ -70,7 +73,9 @@ class UserController extends BaseRepository
      */
     public function update(Request $request, $id)
     {
-        //
+        $input  = $request->input('data');
+        $result = UserRepository::getInstance()->update($input, $id);
+        return response()->json($result);
     }
 
     /**
@@ -81,7 +86,16 @@ class UserController extends BaseRepository
      */
     public function destroy($id)
     {
-        //
+        $result = UserRepository::getInstance()->destroy($id);
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'User/destroy',
+            'params' => [
+                'admin_id' => $id,
+            ],
+            'text'   => '删除用户成功',
+        ]);
+        return response()->json($result);
     }
 
     public function changeFieldValue($id, Request $request)

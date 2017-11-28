@@ -4,7 +4,7 @@ namespace App\Repositories\Frontend;
 use App\Models\Dict;
 use Illuminate\Support\Facades\DB;
 
-class DictRepository extends BaseRepository
+class DictRepository extends CommonRepository
 {
 
     /**

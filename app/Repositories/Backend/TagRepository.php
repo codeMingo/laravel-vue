@@ -3,7 +3,7 @@ namespace App\Repositories\Backend;
 
 use App\Models\Tag;
 
-class TagRepository extends BaseRepository
+class TagRepository extends CommonRepository
 {
 
     /**

@@ -8,8 +8,8 @@
                     <el-breadcrumb-item :to="{ path: item.path }" v-if="item.path">{{item.text}}</el-breadcrumb-item>
                     <el-breadcrumb-item v-else>{{item.text}}</el-breadcrumb-item>
                 </template>
-
             </el-breadcrumb>
+            <!-- 浏览记录，模拟多窗口 -->
             <!-- <div class="sidebar-tag">
                 <el-tag v-for="tag in tags" :key="tag.name" :closable="true" :type="tag.type">
                     {{tag.name}}
@@ -18,7 +18,7 @@
             <el-submenu index="5" style="float: right;margin-right: 5px;">
                 <template slot="title">{{this.$store.state.admin_data.permission_text}}：{{this.$store.state.admin_data.username}}</template>
                 <el-menu-item index="5-1">个人中心</el-menu-item>
-                <el-menu-item index="5-1">刷新缓存</el-menu-item>
+                <el-menu-item index="5-1" @click="refreshCache">刷新缓存</el-menu-item>
                 <el-menu-item index="5-2">设置</el-menu-item>
                 <el-menu-item index="5-3" @click="logout">退出</el-menu-item>
             </el-submenu>
@@ -102,6 +102,15 @@ export default {
         }
     },
     methods: {
+        refreshCache() {
+            let _this = this;
+            axios.post('/api/refreshCache').then(function(res) {
+                let { status, data, message } = res.data;
+                _this.$message.success(message);
+            }).catch(function(err) {
+                _this.$message.error('网络连接失败');
+            });
+        },
         handleSelect(key, keyPath) {
             console.log(key, keyPath);
         },

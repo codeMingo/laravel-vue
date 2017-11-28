@@ -8,7 +8,7 @@ use App\Models\Category;
 use App\Repositories\Backend\CategoryRepository;
 use App\Repositories\Backend\DictRepository;
 
-class ArticleRepository extends BaseRepository
+class ArticleRepository extends CommonRepository
 {
 
     /**

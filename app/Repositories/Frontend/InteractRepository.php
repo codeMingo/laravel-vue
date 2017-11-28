@@ -3,7 +3,7 @@ namespace App\Repositories\Frontend;
 
 use App\Models\Interact;
 
-class InteractRepository extends BaseRepository
+class InteractRepository extends CommonRepository
 {
     /**
      * 获取收藏列表

@@ -9,7 +9,7 @@ use App\Repositories\Frontend\CategoryRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class ArticleRepository extends BaseRepository
+class ArticleRepository extends CommonRepository
 {
 
     /**
@@ -58,7 +58,7 @@ class ArticleRepository extends BaseRepository
     public function read($article_id)
     {
         ArticleRead::create([
-            'user_id'    => $this->getUserId(),
+            'user_id'    => $this->getCurrentId(),
             'article_id' => $article_id,
             'ip_address' => getClientIp(),
         ]);
@@ -137,7 +137,7 @@ class ArticleRepository extends BaseRepository
         if (empty($list)) {
             return $this->responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
         }
-        $user_id  = $this->getUserId();
+        $user_id  = $this->getCurrentId();
         $dataList = Interact::where('article_id', $article_id)->where('user_id', $user_id)->where($type, 1)->first();
         if (!empty($dataList)) {
             return $this->responseResult(false, [], $type_text . '失败，您已经操作过了');
@@ -204,7 +204,7 @@ class ArticleRepository extends BaseRepository
             'text'   => $comment_id ? '回复成功' : '评论成功',
         ]);
         $result['list']['response'] = [];
-        $result['list']['user']     = DB::table('users')->where('id', $this->getUserId())->first();
+        $result['list']['user']     = DB::table('users')->where('id', $this->getCurrentId())->first();
         return $this->responseResult(true, $result, $comment_id ? '回复成功' : '评论成功');
     }
 
@@ -342,7 +342,7 @@ class ArticleRepository extends BaseRepository
                 'message' => '参数错误，请联系管理员',
             ];
         }
-        $query = Interact::where('user_id', $this->getUserId())->where('status', 1);
+        $query = Interact::where('user_id', $this->getCurrentId())->where('status', 1);
 
         if (isset($interactive_type_arr['like'])) {
             $query = $query->orwhere('like', 1);

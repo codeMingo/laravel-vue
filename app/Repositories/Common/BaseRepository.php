@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Redis;
 abstract class BaseRepository
 {
     protected static $instance;
-    protected $user_id;
 
     //获取实例化
     public static function getInstance()
@@ -19,6 +18,12 @@ abstract class BaseRepository
         }
         return self::$instance[$class];
     }
+
+    // 记录操作日志
+    abstract protected function saveOperateRecord($input);
+
+    // 获取当前用户id
+    abstract protected function getCurrentId();
 
     /**
      * 响应返回
@@ -37,20 +42,7 @@ abstract class BaseRepository
     }
 
     /**
-     * 获取当前用户id
-     * @return Int
-     */
-    public function getUserId()
-    {
-        if (Auth::guard('web')->check()) {
-            return Auth::guard('web')->id();
-        } else {
-            return 0;
-        }
-    }
-
-    /**
-     * 获取redis的值，string  和 hash
+     * 获取redis的值，hash
      * @param  Array $key_arr [key => [filed1, filed2], key, ...]
      * @return Array
      */
@@ -62,46 +54,11 @@ abstract class BaseRepository
         }
         $flag = true;
         foreach ($key_arr as $key => $item) {
-            $redis_key = 'dicts_' . $key;
-            // 表示为 string 类型
-            if (is_string($item)) {
-                // 如果redis值为空，则清除所有缓存，重新生成
-                if ($flag && !Redis::exists($item)) {
-                    $flag = false;
-                    $this->refreshRedisCache();
-                }
-                $result[$item] = Redis::get($item);
-            } else {
-                // 表示为 hash
-                $field_arr = array_values($item);
-                foreach ($field_arr as $field) {
-                    if ($flag && !Redis::hexists($redis_key, $field)) {
-                        $flag = false;
-                        $this->refreshRedisCache();
-                    }
-                    $result[$key][$field] = Redis::hget($redis_key, $field);
-                }
+            $field_arr = array_values($item);
+            foreach ($field_arr as $field) {
+                $result[$key][$field] = Redis::hget('dicts_' . $key, $field);
             }
         }
         return $result;
-    }
-
-    /**
-     * 清空redis缓存，并且重新生成缓存
-     * @return [type] [description]
-     */
-    public function refreshRedisCache()
-    {
-        Redis::flushdb();
-
-        // dicts字典表缓存
-        $dict_lists = DB::table('dicts')->where('status', 1)->get();
-        if (!empty($dict_lists)) {
-            $dict_redis_key = 'dicts_';
-            foreach ($dict_lists as $key => $dict) {
-                Redis::hset('dicts_' . $dict->code, $dict->text_en, $dict->value);
-            }
-        }
-        return true;
     }
 }
