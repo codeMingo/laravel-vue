@@ -3,6 +3,7 @@ namespace App\Repositories\Frontend;
 
 use App\Repositories\Common\BaseRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CommonRepository extends BaseRepository
 {
@@ -26,7 +27,7 @@ class CommonRepository extends BaseRepository
      */
     public function saveOperateRecord($input)
     {
-        UserOperateRecord::create([
+        DB::table('user_operate_records')->insert([
             'user_id'    => $this->getCurrentId(),
             'action'     => isset($input['action']) ? strval($input['action']) : '',
             'params'     => isset($input['params']) ? json_encode($input['params']) : '',

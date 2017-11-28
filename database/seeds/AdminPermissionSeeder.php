@@ -1,8 +1,8 @@
 <?php
 namespace Database\Seeder;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class AdminPermissionSeeder extends Seeder
 {
@@ -15,16 +15,16 @@ class AdminPermissionSeeder extends Seeder
     {
         DB::table('admin_permissions')->truncate();
         \App\Models\AdminPermission::create([
-            'text'               => '超级管理员',
+            'text'                => '超级管理员',
             'permission_includes' => '',
-            'status'             => 1,
+            'status'              => 1,
         ]);
 
         for ($i = 1; $i < 10; $i++) {
             $data[] = [
-                'text'               => '管理员' . $i,
+                'text'                => '管理员' . $i,
                 'permission_includes' => $i,
-                'status'             => 1,
+                'status'              => 1,
             ];
         }
         \App\Models\AdminPermission::insert($data);
