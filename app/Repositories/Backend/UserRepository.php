@@ -125,6 +125,14 @@ class UserRepository extends CommonRepository
     public function destroy($id)
     {
         $result = User::where('id', $id)->delete();
+        // 记录操作日志
+        Parent::saveOperateRecord([
+            'action' => 'User/destroy',
+            'params' => [
+                'admin_id' => $id,
+            ],
+            'text'   => '删除用户成功',
+        ]);
         return $this->responseResult(true, $result, '删除成功');
     }
 

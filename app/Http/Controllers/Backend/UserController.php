@@ -87,14 +87,6 @@ class UserController extends BaseRepository
     public function destroy($id)
     {
         $result = UserRepository::getInstance()->destroy($id);
-        // 记录操作日志
-        Parent::saveOperateRecord([
-            'action' => 'User/destroy',
-            'params' => [
-                'admin_id' => $id,
-            ],
-            'text'   => '删除用户成功',
-        ]);
         return response()->json($result);
     }
 }

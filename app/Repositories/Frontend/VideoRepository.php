@@ -11,7 +11,7 @@ class VideoRepository extends CommonRepository
      * @param  Array $input [search]
      * @return Array
      */
-    public function index($input)
+    public function lists($input)
     {
         $search                        = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists']               = $this->getVideoLists($search);

@@ -13,10 +13,10 @@ class VideoController extends BaseController
     }
 
     // 视频列表
-    public function index()
+    public function lists()
     {
         $input  = json_decode($request->input('data'), true);
-        $result = VideoRepository::getInstance()->index($input);
+        $result = VideoRepository::getInstance()->lists($input);
         return response()->json($result);
     }
 
