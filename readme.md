@@ -58,4 +58,4 @@ if npm speeds slower，can do command（npm install -g cnpm --registry=https://r
 Now we can visit it, thanks for your reading!
 
 ## Preview ##
-The future update, thanks you!
+The future update, thank you!
