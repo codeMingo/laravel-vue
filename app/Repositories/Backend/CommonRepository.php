@@ -3,6 +3,7 @@ namespace App\Repositories\Backend;
 
 use App\Repositories\Common\BaseRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CommonRepository extends BaseRepository
 {
@@ -27,8 +28,8 @@ class CommonRepository extends BaseRepository
      */
     public function saveOperateRecord($input)
     {
-        AdminOperateRecord::create([
-            'admin_id'   => Auth::guard('admin')->id(),
+        DB::table('admin_operate_records')->insert([
+            'admin_id'   => $this->getCurrentId(),
             'action'     => $input['action'],
             'params'     => json_encode($input['params']),
             'text'       => $input['text'],

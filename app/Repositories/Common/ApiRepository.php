@@ -1,6 +1,7 @@
 <?php
 namespace App\Repositories\Common;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Qiniu\Auth;
 
@@ -11,14 +12,16 @@ class ApiRepository extends BaseRepository
      * 获取当前用户id
      * @return Int
      */
-    public function getCurrentId(){}
+    public function getCurrentId()
+    {}
 
     /**
      * 记录操作日志
      * @param  Array  $input [action, params, text, status]
      * @return Array
      */
-    public function saveOperateRecord($input){}
+    public function saveOperateRecord($input)
+    {}
 
     /**
      * 生成七牛上传的token

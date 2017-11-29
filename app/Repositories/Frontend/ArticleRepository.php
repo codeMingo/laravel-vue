@@ -120,38 +120,40 @@ class ArticleRepository extends CommonRepository
 
     /**
      * 点赞 or 反对 or 收藏
-     * @param  Array $input [article_id, type]
+     * @param  Array $input [id, type]
      * @return Array
      */
-    public function interactive($input, $article_id)
+    public function interactive($input, $id)
     {
         $type      = isset($input['type']) ? strval($input['type']) : '';
         $type_text = !$type ? '' : ($type == 'like' ? '点赞' : ($type == 'hate' ? '反对' : ($type == 'collect' ? '收藏' : '')));
-        if (!$article_id || !$type || !$type_text) {
+        if (!$id || !$type || !$type_text) {
             return $this->responseResult(false, [], $type_text . '失败，发生未知错误');
         }
 
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
 
-        $list = Article::where('id', $article_id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
+        $list = Article::where('id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
         if (empty($list)) {
             return $this->responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
         }
         $user_id  = $this->getCurrentId();
-        $dataList = Interact::where('article_id', $article_id)->where('user_id', $user_id)->where($type, 1)->first();
+        $dataList = Interact::where('article_id', $id)->where('user_id', $user_id)->where($type, 1)->first();
         if (!empty($dataList)) {
             return $this->responseResult(false, [], $type_text . '失败，您已经操作过了');
         }
         $result = Interact::create([
             'user_id'    => $user_id,
-            'article_id' => $article_id,
+            'article_id' => $id,
             $type        => 1,
         ]);
 
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'Article/interactive',
-            'params' => $input,
+            'params' => [
+                'input' => $input
+            ],
             'text'   => $type_text . '成功',
         ]);
         return $this->responseResult(true, $result, $type_text . '成功');

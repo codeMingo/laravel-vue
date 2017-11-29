@@ -308,24 +308,6 @@ export default {
         },
         registerReset(formName) {
             this.$refs[formName].resetFields();
-        },
-        uploadFaceSuccess(res, file) {
-            this.registerForm.face = res.data.faceUrl;
-        },
-        beforeUploadFace(file) {
-            let _this = this,
-                fileType = file.type,
-                fileSize = file.size / 1024,
-                truePictureType = ['image/jpeg', 'image/jpg', 'image/png', 'image/x-png'];
-            if (truePictureType.indexOf(fileType) == -1) {
-                _this.$message.error('请上传正确的头像图片的格式（jpg/png）');
-                return false;
-            }
-            if (fileSize > 500) {
-                _this.$message.error('上传头像图片大小不能超过 500KB');
-                return false;
-            }
-            return true;
         }
     }
 }

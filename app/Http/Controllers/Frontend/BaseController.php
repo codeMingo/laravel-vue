@@ -10,7 +10,7 @@ class BaseController extends Controller
     public function __construct()
     {
         // 判断是否生成缓存
-        if (!Redis::exist('has_cache')) {
+        if (!Redis::exists('has_cache')) {
             ApiRepository::getInstance()->refreshCache();
         }
         $this->middleware(function ($request, $next) {
