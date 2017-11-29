@@ -4,13 +4,13 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 require('./bootstrap.js');
-import store from './store.js';
-import router from './router.js';
-import plugins from './plugins.js';
-import * as filters from './filters.js';
+import store from './vuex';
+import router from './router';
+import plugins from './plugin';
+import * as filters from './filter';
 import ElementUI from 'element-ui';
-import NProgress from 'nprogress'; 
-import 'nprogress/nprogress.css'; 
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 import 'element-ui/lib/theme-default/index.css';
 
 Vue.use(ElementUI);

@@ -142,8 +142,7 @@ export default {
                 _this.$router.push({ path: '/index' });
             }
         }).catch(response => {
-            console.log('error');
-            _this.$router.push({ path: '/index' });
+            _this.$message.error('未知错误，请刷新后重试');
         });
     },
     mounted() {
@@ -153,7 +152,7 @@ export default {
         sendEmail() {
             let _this = this;
             _this.sendEmailing = 'doing';
-            axios.post('/sendEmail', { 'data': { email: _this.email } }).then(response => {
+            axios.post('/send-active-email', { 'data': { email: _this.email } }).then(response => {
                 _this.sendEmailing = 'yes';
                 let mailTimeEvent = setInterval(() => {
                     _this.loadingSecond--;
@@ -165,6 +164,7 @@ export default {
                 }, 1000);
             }).catch(response => {
                 _this.sendEmailing = 'fail';
+                _this.$message.error('未知错误，请刷新后重试');
             });
         }
     }

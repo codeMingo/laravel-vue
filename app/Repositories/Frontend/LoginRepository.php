@@ -54,7 +54,7 @@ class LoginRepository extends CommonRepository
      */
     public function loginStatus()
     {
-        $resultData = [];
+        $result = [];
         if (Auth::guard('web')->check()) {
             $userList = Auth::guard('web')->user();
             $userData = [
@@ -62,9 +62,9 @@ class LoginRepository extends CommonRepository
                 'email'    => $userList->email,
                 'face'     => $userList->face,
             ];
-            $resultData['data'] = $userData;
+            $result['list'] = $userData;
         }
-        return $this->responseResult(true, $resultData);
+        return $this->responseResult(true, $result);
     }
 
     /**

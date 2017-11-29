@@ -29,7 +29,7 @@
                         <el-menu-item index="5">
                             <router-link to="/leave/index" class='menu-link'>留言板</router-link>
                         </el-menu-item>
-                        <template v-if="this.$store.state.user_data.username">
+                        <template v-if="this.$store.state.is_login">
                             <el-submenu index="6" class="user-menu">
                                 <template slot="title"><img :src="this.$store.state.user_data.face" class="user-face">{{this.$store.state.user_data.username | subString(0, 5)}}</template>
                                 <el-menu-item index="6-1">
@@ -55,7 +55,7 @@
                     </el-menu>
                 </div>
                 <div class="web-search">
-                    <el-input placeholder="请输入内容" v-model="searchContent">
+                    <el-input placeholder="请输入内容" v-model="search_from.content">
                         <el-button slot="append" icon="search"></el-button>
                     </el-input>
                 </div>
@@ -122,27 +122,26 @@
 export default {
     data() {
         return {
-            menuDefaultActive: '1',
-            searchContent: '',
-            searchSelect: '',
+            active: 1,
+            search_form: {
+                type: '',
+                content: ''
+            },
         };
     },
     mounted() {
 
     },
     methods: {
-        menuSelect(key, keyPath) {
-
-        },
         logout() {
             let _this = this;
-            axios.post('/logout').then(function(res) {
-                let { status, data, message } = res.data;
-                _this.$store.commit('setUserData', { username: '', email: '', face: '' });
+            axios.post('/logout').then(response => {
+                let { status, data, message } = response.data;
+                _this.$store.commit('setStateValue', {'is_login': false, 'user_data': { username: '', email: '', face: '' }});
                 _this.$message.success(message);
                 _this.$router.push({ path: '/index' });
-            }).catch(function(err) {
-                _this.$message.error('网络连接失败');
+            }).catch(response => {
+                _this.$message.error('未知错误，请刷新后重试');
             });
         }
     }

@@ -8,32 +8,32 @@
                         <a href="javascript:;"><i class="fa fa-mobile-phone"></i>手机注册</a>
                     </div>
                     <div class="register-body">
-                        <el-form label-position="right" label-width="80px" :model="registerForm" :rules="registerRules" ref="registerForm">
+                        <el-form label-position="right" label-width="80px" :model="register_form" :rules="register_rules" ref="register_form">
                             <el-form-item label="头像" prop="face">
                                 <div id="container">
                                     <div class="face-upload">
                                         <a class="btn btn-default btn-lg" id="face-btn" href="#" v-show="!upload_status"><i class="el-icon-plus avatar-uploader-icon"></i></a>
-                                        <div class="upload-success" v-show="upload_status == 'success'"><img :src="registerForm.face" alt="头像"></div>
+                                        <div class="upload-success" v-show="upload_status == 'success'"><img :src="register_form.face" alt="头像"></div>
                                         <div class="upload-process" v-show="upload_status == 'loading'">正在上传{{upload_process}}%</div>
                                     </div>
                                 </div>
                                 <div class="el-upload__tip">只能上传jpg/png文件，且不超过500kb（不传默认使用系统头像）</div>
                             </el-form-item>
                             <el-form-item label="用户名" prop="username">
-                                <el-input v-model="registerForm.username" placeholder="登录账号，2-15个字符"></el-input>
+                                <el-input v-model="register_form.username" placeholder="登录账号，2-15个字符"></el-input>
                             </el-form-item>
                             <el-form-item label="电子邮件" prop="email">
-                                <el-input v-model="registerForm.email" placeholder="电子邮件，使用常用的邮箱"></el-input>
+                                <el-input v-model="register_form.email" placeholder="电子邮件，使用常用的邮箱"></el-input>
                             </el-form-item>
                             <el-form-item label="密码" prop="password">
-                                <el-input type="password" v-model="registerForm.password" placeholder="登录密码，6-30个字符"></el-input>
+                                <el-input type="password" v-model="register_form.password" placeholder="登录密码，6-30个字符"></el-input>
                             </el-form-item>
                             <el-form-item label="确认密码" prop="repassword">
-                                <el-input type="password" v-model="registerForm.repassword" placeholder="再次输入密码"></el-input>
+                                <el-input type="password" v-model="register_form.repassword" placeholder="再次输入密码"></el-input>
                             </el-form-item>
                             <el-form-item>
-                                <el-button type="primary" @click="registerSubmit('registerForm')" :loading="registerSubmitLoading">立即注册</el-button>
-                                <el-button @click="registerReset('registerForm')">重置</el-button>
+                                <el-button type="primary" @click="register('register_form')" :loading="loading">立即注册</el-button>
+                                <el-button @click="reset('register_form')">重置</el-button>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -157,7 +157,7 @@ import 'qiniu-js/dist/qiniu.js';
 export default {
     data() {
         var checkRepassword = (rule, value, callback) => {
-            if (value !== this.registerForm.password) {
+            if (value !== this.register_form.password) {
                 callback(new Error('密码输入不一致!'));
             } else {
                 callback();
@@ -166,18 +166,15 @@ export default {
         return {
             upload_status: false,
             upload_process: 0,
-            registerSubmitLoading: false,
-            registerForm: {
+            loading: false,
+            register_form: {
                 face: '',
                 username: '',
                 email: '',
                 password: '',
                 repassword: ''
             },
-            uploadHeaders: {
-                'X-CSRF-TOKEN': window.laravelCsrfToken
-            },
-            registerRules: {
+            register_rules: {
                 username: [
                     { required: true, message: '请输入用户名', trigger: 'blur' },
                     { min: 2, max: 20, message: '长度在 2 到 15 个字符', trigger: 'blur' }
@@ -225,7 +222,7 @@ export default {
                 },
                 'BeforeUpload': function(up, file) {
                     // 每个文件上传前,处理相关的事情
-                    
+
                     // var progress = new FileProgress(file, 'fsUploadProgress');
                     // var chunk_size = plupload.parseSize(this.getOption(
                     //     'chunk_size'));
@@ -253,8 +250,7 @@ export default {
 
                     let domain = up.getOption('domain');
                     let response = JSON.parse(info.response);
-                    _this.registerForm.face = domain + '/' + response.key; // 获取上传成功后的文件的Url
-                    console.log(_this.registerForm.face);
+                    _this.register_form.face = domain + '/' + response.key; // 获取上传成功后的文件的Url
                     _this.upload_status = 'success';
                 },
                 'Error': function(up, err, errTip) {
@@ -275,38 +271,32 @@ export default {
         });
     },
     methods: {
-        registerSubmit(formName) {
+        register(formName) {
             let _this = this;
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    _this.registerSubmitLoading = true;
-                    axios.post('/register', { 'data': _this.registerForm }).then(response => {
-                        let data = response.data;
+                    _this.loading = true;
+                    axios.post('/register', { 'data': _this.register_form }).then(response => {
+                        let {status, data, message} = response.data;
                         if (!data.status) {
-                            _this.$message.error(data.message);
-                            _this.registerSubmitLoading = false;
+                            _this.$message.error(message);
+                            _this.loading = false;
                             return false;
                         }
-                        _this.$notify({
-                            title: '成功',
-                            message: data.message,
-                            type: 'success'
-                        });
+                        _this.$message.success(message);
                         let params = {
                             'id': data.data.id,
                             'email': data.data.email
                         };
                         _this.$router.push({ path: '/register-active', query: params });
                     }).catch(function(response) {
-                        _this.registerSubmitLoading = false;
+                        _this.loading = false;
+                        _this.$message.error('未知错误，请刷新后重试');
                     });
-                } else {
-                    console.log('error submit!!');
-                    return false;
                 }
             });
         },
-        registerReset(formName) {
+        reset(formName) {
             this.$refs[formName].resetFields();
         }
     }

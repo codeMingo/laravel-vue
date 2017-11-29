@@ -22,4 +22,12 @@ class RegisterController extends BaseController
         $result = RegisterRepository::getInstance()->active($input);
         return response()->json($result);
     }
+
+    // 发送激活邮件
+    public function sendActiveEmail(Request $request)
+    {
+        $input  = $request->input('data');
+        $result = RegisterRepository::getInstance()->sendActiveEmail($input);
+        return response()->json($result);
+    }
 }

@@ -83,4 +83,9 @@ class RegisterRepository extends CommonRepository
         $result       = $list->save();
         return $this->responseResult(true, $result, '激活成功，恭喜您，账户激活成功');
     }
+
+    public function sendActiveEmail($input)
+    {
+
+    }
 }

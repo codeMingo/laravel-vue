@@ -22,12 +22,12 @@ Route::group(['namespace' => 'Common', 'prefix' => '/api'], function () {
 Route::group(['namespace' => 'Frontend'], function () {
     // 公共模块
     Route::get('/test', 'TestController@index');
-    Route::post('/sendEmail', 'CommonController@sendEmail');
     Route::get('/article-category', 'CategoryController@articleCategoryLists');
 
     // 注册模块
     Route::post('/register', 'RegisterController@register');
     Route::get('/active', 'RegisterController@active');
+    Route::post('/send-active-email', 'RegisterController@sendActiveEmail');
 
     // 文章模块
     Route::get('/article/lists', 'ArticleController@lists');
