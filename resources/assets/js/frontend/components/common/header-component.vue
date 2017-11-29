@@ -8,7 +8,7 @@
             </el-col>
             <el-col :xs="18" :sm="18" :md="18" :lg="18">
                 <div class="web-menu">
-                    <el-menu theme="dark" :default-active="1" class="el-menu-demo" mode="horizontal" @select="menuSelect">
+                    <el-menu theme="dark" :default-active="default_active" class="el-menu-demo" mode="horizontal">
                         <el-menu-item index="1">
                             <router-link to="/" class='menu-link'>首页</router-link>
                         </el-menu-item>
@@ -55,7 +55,7 @@
                     </el-menu>
                 </div>
                 <div class="web-search">
-                    <el-input placeholder="请输入内容" v-model="search_from.content">
+                    <el-input placeholder="请输入内容" v-model="search_form.content">
                         <el-button slot="append" icon="search"></el-button>
                     </el-input>
                 </div>
@@ -122,7 +122,7 @@
 export default {
     data() {
         return {
-            active: 1,
+            default_active: '1',
             search_form: {
                 type: '',
                 content: ''

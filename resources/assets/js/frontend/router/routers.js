@@ -1,31 +1,30 @@
 
-const _import = file => () => import('@/views/' + file + '.vue')
 // 公共组件
-import Main from './components/common/main.vue';
-import Register from './components/common/register.vue';
-import RegisterActive from './components/common/registerActive.vue';
-import Login from './components/common/login.vue';
+import Main from '../components/common/main.vue';
+import Register from '../components/common/register.vue';
+import RegisterActive from '../components/common/registerActive.vue';
+import Login from '../components/common/login.vue';
 
 // 首页
-import Index from './components/index/index.vue';
+import Index from '../components/index/index.vue';
 
 // 视频列表
-import Video from './components/video/index.vue';
-import VideoDetail from './components/video/detail.vue';
-import VideoPlay from './components/video/play.vue';
+import Video from '../components/video/index.vue';
+import VideoDetail from '../components/video/detail.vue';
+import VideoPlay from '../components/video/play.vue';
 
 // 技术篇
-import Article from './components/article/index.vue';
-import ArticleDetail from './components/article/detail.vue';
+import Article from '../components/article/index.vue';
+import ArticleDetail from '../components/article/detail.vue';
 
 // 留言
-import Leave from './components/leave/index.vue';
+import Leave from '../components/leave/index.vue';
 
 // 用户模块
-import User from './components/common/user.vue';
-import UserIndex from './components/user/index.vue';
-import UserCollect from './components/user/collect.vue';
-import UserInteractive from './components/user/interactive.vue';
+import User from '../components/common/user.vue';
+import UserIndex from '../components/user/index.vue';
+import UserCollect from '../components/user/collect.vue';
+import UserInteractive from '../components/user/interactive.vue';
 
 export default [{
     path: '/',

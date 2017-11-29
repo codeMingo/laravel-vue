@@ -22,7 +22,6 @@ const store = new Vuex.Store({
     }
 });
 
-
 // 获取登录信息
 axios.get('/login-status').then(response => {
     let { status, data, message } = response.data;
@@ -39,4 +38,5 @@ axios.get('/article-category').then(response => {
         store.commit('setStateValue', { 'article_category': data.lists });
     }
 });
+
 export default store;

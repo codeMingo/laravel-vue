@@ -3,8 +3,9 @@
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
+window._ = require('lodash');
 window.Vue = require('vue');
-require('./bootstrap.js');
+import './axios';
 import store from './vuex';
 import router from './router';
 import './plugin';
