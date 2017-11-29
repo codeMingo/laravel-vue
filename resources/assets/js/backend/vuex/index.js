@@ -1,15 +1,11 @@
-// vue
 import Vue from 'vue';
-
-// vuex
 import Vuex from 'vuex';
-
 
 Vue.use(Vuex);
 
-
 const store = new Vuex.Store({
     state: {
+        is_login: false,
         submitLoading: false,
 
         // 面包屑{{path: '', text: ''}, {path: '', text: ''}}
@@ -47,7 +43,21 @@ const store = new Vuex.Store({
         },
         changeBreadcrumb(state, data) {
             state.breadcrumb = data;
+        },
+        setStateValue(state, data) {
+            for (var item in data) {
+                state[item] = data[item];
+            }
         }
     }
 });
+
+// 获取登录信息
+axios.get('/backend/login-status').then(response => {
+    let { status, data, message } = response.data;
+    if (status && Object.keys(data).length > 0) {
+        store.commit('setStateValue', { 'is_login': true, 'user_data': data.list });
+    }
+});
+
 export default store;

@@ -97,7 +97,7 @@ class LoginRepository extends CommonRepository
             'status'     => 1,
         ]);
 
-        $result['data'] = [
+        $result['list'] = [
             'username'        => $list->username,
             'email'           => $list->email,
             'permission_text' => DB::table('admin_permissions')->where('id', $list->permission_id)->where('status', 1)->value('text'),

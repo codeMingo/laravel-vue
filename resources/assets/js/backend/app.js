@@ -3,109 +3,26 @@
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
+window._ = require('lodash');
 window.Vue = require('vue');
-
-// axios
-window.axios = require('axios');
-
-// vue-router
-import VueRouter from 'vue-router';
-
-// vue的router规则
-import routes from './routers.js';
-
-// elementui
+import './axios';
+import store from './vuex';
+import router from './router';
+import './plugin';
+import * as filters from './filter';
 import ElementUI from 'element-ui';
-
-// elementui的css
 import 'element-ui/lib/theme-default/index.css';
 
-// Progress 进度条
-import NProgress from 'nprogress';
-
-// Progress 进度条 样式
-import 'nprogress/nprogress.css';
-
-// vue插件
-import plugins from './plugins.js';
-
-// vue过滤函数
-import * as filters from './filters.js';
-
-// vuex
-import store from './store.js';
-
-Vue.use(VueRouter);
 Vue.use(ElementUI);
-Vue.use(plugins);
 
 //注册全局的过滤函数
 Object.keys(filters).forEach(key => {
     Vue.filter(key, filters[key]);
 });
 
-
-//vue-router
-const router = new VueRouter({
-    routes
-});
-
-//vue-router拦截器
-router.beforeEach((to, from, next) => {
-    // 判断是否登录
-    let _this = this;
-    if ((!store.state.admin_data.username || !store.state.admin_data.permission_text) && to.path != '/login') {
-        axios.get('/backend/login-status').then(response => {
-            let { status, data, message } = response.data;
-            if (status && Object.keys(data).length > 0) {
-                store.commit('setAdminData', data.list);
-                next();
-            } else {
-                next({
-                    path: '/login'
-                });
-            }
-        }).catch(response => {
-            console.log('未知错误');
-        });
-        return false;
-    }
-
-    if (to.path == '/login') {
-        store.commit('setAdminData', {
-            username: '',
-            permission_text: ''
-        });
-    }
-    next();
-});
-router.afterEach((to, from, next) => {
-    // 获取面包屑
-    let breadcrumb_data = [
-        {path: to.path, text: to.name}
-    ];
-    store.commit('changeBreadcrumb', breadcrumb_data);
-});
-
-//axios拦截器
-axios.interceptors.request.use(function(config) {
-    NProgress.start();
-    return config;
-}, function(error) {
-    return Promise.reject(error);
-});
-axios.interceptors.response.use(function(response) {
-    NProgress.done();
-    return response;
-}, function(error) {
-    return Promise.reject(error);
-});
-
 //注入
 const app = new Vue({
     beforeCreate() {
-        window.laravelCsrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
-
         // 记忆sidebar是否收缩
         if (sessionStorage.getItem('sidebarCollapse')) {
             store.state.sidebarCollapse = true;

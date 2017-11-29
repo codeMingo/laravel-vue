@@ -1,28 +1,28 @@
 // 公共
-import Login from './components/common/login.vue';
-import Main from './components/common/main.vue';
+import Login from '../components/common/login.vue';
+import Main from '../components/common/main.vue';
 
 // 首页
-import Index from './components/index/index.vue';
+import Index from '../components/index/index.vue';
 
 // 管理员管理
-import Lists from './components/admin/index.vue';
+import Lists from '../components/admin/index.vue';
 
 // 管理員權限
-import Permission from './components/permission/index.vue';
-import Permission_detail from './components/permission/index.vue';
-import Permission_create from './components/permission/form.vue';
+import Permission from '../components/permission/index.vue';
+import Permission_detail from '../components/permission/index.vue';
+import Permission_create from '../components/permission/form.vue';
 
 // 用户管理
-import UserLists from './components/user/lists.vue';
-import UserDetail from './components/user/detail.vue';
-import UserNoActive from './components/user/noActive.vue';
+import UserLists from '../components/user/lists.vue';
+import UserDetail from '../components/user/detail.vue';
+import UserNoActive from '../components/user/noActive.vue';
 
 // 文章管理
-import ArticleLists from './components/article/lists.vue';
-import ArticleCreate from './components/article/create.vue';
-import ArticleDetail from './components/article/detail.vue';
-import ArticleEdit from './components/article/edit.vue';
+import ArticleLists from '../components/article/lists.vue';
+import ArticleCreate from '../components/article/create.vue';
+import ArticleDetail from '../components/article/detail.vue';
+import ArticleEdit from '../components/article/edit.vue';
 
 export default [{
         path: '/login',

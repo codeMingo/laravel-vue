@@ -1,12 +1,6 @@
-// vue
 import Vue from 'vue';
 
-// vue-router
-import VueRouter from 'vue-router';
-
-Vue.use(VueRouter);
-
-export default {
+const plugins = {
     install: function(Vue, options) {
         Vue.resetForm = function(form) {
             for (let key in form) {
@@ -85,10 +79,11 @@ export default {
         };
 
         //获取Y轴坐标
-
         Vue.getY = function(evt) {
             evt = evt || window.event;
             return Vue.mousePosition(evt).y;
         };
     }
 };
+Vue.use(plugins);
+export default plugins;

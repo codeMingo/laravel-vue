@@ -110,7 +110,7 @@ export default {
                             _this.$message.error(message);
                             return false;
                         }
-                        _this.$store.commit('setAdminData', data.data);
+                        _this.$store.commit('setStateValue', { 'is_login': true, 'admin_data': data.list });
                         _this.$message.success(message);
                         _this.$router.push({ path: '/index/index' });
                     }).catch(function(err) {
