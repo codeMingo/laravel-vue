@@ -1,3 +1,5 @@
+
+const _import = file => () => import('@/views/' + file + '.vue')
 // 公共组件
 import Main from './components/common/main.vue';
 import Register from './components/common/register.vue';
@@ -29,54 +31,44 @@ export default [{
     path: '/',
     component: Main,
     name: '首页',
-    iconCls: '', //图标样式class
-    noDropdown: true,
     children: [
-        { path: 'index', component: Index, name: '首页', iconCls: 'el-icon-edit' },
-        { path: 'register', component: Register, name: '注册页面', iconCls: 'el-icon-edit' },
-        { path: 'register-active', component: RegisterActive, name: '邮箱激活页面', iconCls: 'el-icon-edit' },
-        { path: 'login', component: Login, name: '登录页面', iconCls: 'el-icon-edit' },
+        { path: 'index', component: Index, name: '首页' },
+        { path: 'register', component: Register, name: '注册页面' },
+        { path: 'register-active', component: RegisterActive, name: '邮箱激活页面' },
+        { path: 'login', component: Login, name: '登录页面' },
     ]
 }, {
     path: '/video',
     component: Main,
     name: '视频列表',
-    iconCls: '', //图标样式class
-    noDropdown: true,
     children: [
-        { path: 'index', component: Video, name: '视频列表', iconCls: '' },
-        { path: 'detail', component: VideoDetail, name: '视频详情', iconCls: '' },
-        { path: 'play/:id', component: VideoPlay, name: '在线观看', iconCls: '' },
+        { path: 'index', component: Video, name: '视频列表' },
+        { path: 'detail', component: VideoDetail, name: '视频详情' },
+        { path: 'play/:id', component: VideoPlay, name: '在线观看' },
     ]
 }, {
     path: '/article',
     component: Main,
     name: '技术篇',
-    iconCls: '', //图标样式class
-    noDropdown: true,
     children: [
-        { path: 'index/:category_id', component: Article, name: '技术篇', iconCls: '' },
-        { path: 'index', component: Article, name: '技术篇', iconCls: '' },
-        { path: 'detail/:id', component: ArticleDetail, name: '技术篇详情', iconCls: '' }
+        { path: 'index/:category_id', component: Article, name: '技术篇' },
+        { path: 'index', component: Article, name: '技术篇' },
+        { path: 'detail/:id', component: ArticleDetail, name: '技术篇详情' }
     ]
 }, {
     path: '/leave',
     component: Main,
     name: '留言板',
-    iconCls: '', //图标样式class
-    noDropdown: true,
     children: [
-        { path: 'index', component: Leave, name: '留言板', iconCls: '' },
+        { path: 'index', component: Leave, name: '留言板' },
     ]
 }, {
     path: '/user',
     component: User,
     name: '用户中心',
-    iconCls: '', //图标样式class
-    noDropdown: true,
     children: [
-        { path: 'index', component: UserIndex, name: '个人中心', iconCls: '' },
-        { path: 'collect', component: UserCollect, name: '我的收藏', iconCls: '' },
-        { path: 'interactive', component: UserInteractive, name: '我的动态', iconCls: '' },
+        { path: 'index', component: UserIndex, name: '个人中心', s_login: true },
+        { path: 'collect', component: UserCollect, name: '我的收藏', s_login: true },
+        { path: 'interactive', component: UserInteractive, name: '我的动态', s_login: true },
     ]
 }];

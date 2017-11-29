@@ -9,12 +9,19 @@ const router = new VueRouter({
     routes
 });
 
+// 访问权限
+function canVisit(to) {
+    return true;
+}
+
 //vue-router拦截器
 router.beforeEach((to, from, next) => {
     if (to.path == '/') {
-        next({
-            path: '/index'
-        });
+        next({ path: '/index' });
+        return false;
+    }
+    if (!canVisit(to)) {
+        next({ path: '/404' });
         return false;
     }
     next();

@@ -5,7 +5,6 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
     state: {
-        menu_active: '1',
         is_login: false,
         user_data: {
             username: '',
@@ -16,20 +15,28 @@ const store = new Vuex.Store({
     },
     mutations: {
         setStateValue(state, data) {
-            for(var item in data){
+            for (var item in data) {
                 state[item] = data[item];
             }
         }
     }
 });
 
-// 判断是否登录
-if (!store.state.user_data.is_login) {
-    axios.get('/login-status').then(response => {
-        let { status, data, message } = response.data;
-        if (status && Object.keys(data).length > 0) {
-            store.commit('setStateValue', { 'is_login': true, 'user_data': data.list});
-        }
-    });
-}
+
+// 获取登录信息
+axios.get('/login-status').then(response => {
+    let { status, data, message } = response.data;
+    if (status && Object.keys(data).length > 0) {
+        store.commit('setStateValue', { 'is_login': true, 'user_data': data.list });
+    }
+});
+
+
+// 获取菜单
+axios.get('/article-category').then(response => {
+    let { status, data, message } = response.data;
+    if (status && Object.keys(data).length > 0) {
+        store.commit('setStateValue', { 'article_category': data.lists });
+    }
+});
 export default store;

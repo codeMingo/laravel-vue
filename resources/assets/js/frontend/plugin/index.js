@@ -1,4 +1,6 @@
-export default {
+import Vue from 'vue';
+
+const plugins = {
     install: function(Vue, options) {
         Vue.resetForm = function(form) {
             for (let key in form) {
@@ -23,7 +25,9 @@ export default {
         };
         Vue.formatDate = function(time, format) {
             var t = new Date(time);
-            var tf = function(i) { return (i < 10 ? '0' : '') + i };
+            var tf = function(i) {
+                return (i < 10 ? '0' : '') + i
+            };
             return format.replace(/yyyy|MM|dd|HH|mm|ss/g, function(a) {
                 switch (a) {
                     case 'yyyy':
@@ -64,23 +68,24 @@ export default {
                 }
             });
         };
-
         Vue.mousePosition = function(evt) {
             evt = evt || window.event;
-            return { x: evt.clientX, y: evt.clientY };
+            return {
+                x: evt.clientX,
+                y: evt.clientY
+            };
         };
-
         //获取X轴坐标
         Vue.getX = function(evt) {
             evt = evt || window.event;
             return Vue.mousePosition(evt).x;
         };
-
         //获取Y轴坐标
-
         Vue.getY = function(evt) {
             evt = evt || window.event;
             return Vue.mousePosition(evt).y;
         };
     }
 };
+Vue.use(plugins);
+export default plugins;
