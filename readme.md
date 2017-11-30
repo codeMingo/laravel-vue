@@ -1,12 +1,12 @@
 ## ububs Blog ##
-- It's for learning
+- The purpose of this project is to learn and communicate
+- This project is still in the development stage, with frequent updates, there may be many wrong places, thanks for your support！Keep updating！Thank you！（2017-08-20）
 - Home page address：**xxx.com**
-- admin page address：**xxx.com/backend**
-- QQ：**292304400**，gmail：**linlm1994@gmail.com**，
-- 项目更新频繁，时常报错，感谢支持！持续更新ing！（2017-08-20）
+- Admin page address：**xxx.com/backend**
+- QQ：**292304400**，gmail：**linlm1994@gmail.com**
 
 ## Main module ##
-- 用户注册、登录、退出
+- 用户和管理员注册、登录、退出、改密等
 - 文章管理、点赞、评论、回复、收藏、分享朋友圈空间等
 - 视频管理、抢购、添加活动、在线观看、收藏、限时观看等
 - Markdown编辑器、echarts图表、excel导入导出
@@ -55,7 +55,7 @@ if npm speeds slower，can do command（npm install -g cnpm --registry=https://r
 
 > yarn run dev
 
-Now we can visit it, thanks for your reading!
+Now we can visit it, thank you for your reading!
 
 ## Preview ##
 The future update, thank you!
