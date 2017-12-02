@@ -15,7 +15,7 @@ Route::group(['namespace' => 'Auth'], function () {
 // 前后台公共api
 Route::group(['namespace' => 'Common', 'prefix' => '/api'], function () {
     Route::get('/qiniu/token', 'ApiController@uploadToken');
-    Route::get('/refreshCache', 'ApiController@refreshCache');
+    Route::post('/refresh-cache', 'ApiController@refreshCache');
 });
 
 // 前台
@@ -26,7 +26,7 @@ Route::group(['namespace' => 'Frontend'], function () {
 
     // 注册模块
     Route::post('/register', 'RegisterController@register');
-    Route::get('/active', 'RegisterController@active');
+    Route::get('/register-active/check', 'RegisterController@active');
     Route::post('/send-active-email', 'RegisterController@sendActiveEmail');
 
     // 文章模块

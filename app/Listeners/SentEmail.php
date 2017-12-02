@@ -26,6 +26,7 @@ class SentEmail
      */
     public function handle(MessageSending $event)
     {
-        file_put_contents('e:/mail_test.txt', '发送###', FILE_APPEND);
+        // 发送邮件监听操作
+        // file_put_contents('f:/mail_test.txt', '发送###', FILE_APPEND);
     }
 }

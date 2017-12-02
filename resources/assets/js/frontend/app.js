@@ -17,7 +17,7 @@ Vue.use(ElementUI);
 
 //注册全局的过滤函数
 Object.keys(filters).forEach(key => {
-    Vue.filter(key, filters[key])
+    Vue.filter(key, filters[key]);
 });
 
 const app = new Vue({

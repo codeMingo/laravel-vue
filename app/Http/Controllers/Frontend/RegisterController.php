@@ -10,7 +10,7 @@ class RegisterController extends BaseController
     // 创建用户
     public function register(Request $request)
     {
-        $input  = json_decode($request->input('data'), true);
+        $input  = $request->input('data');
         $result = RegisterRepository::getInstance()->register($input);
         return response()->json($result);
     }
@@ -18,9 +18,12 @@ class RegisterController extends BaseController
     // 激活用户
     public function active(Request $request)
     {
-        $input  = json_decode($request->input('data'), true);
-        $result = RegisterRepository::getInstance()->active($input);
-        return response()->json($result);
+        $input = $request->all();
+        $result =  RegisterRepository::getInstance()->active($input);
+        return view('frontend.active', [
+            'status' => $result['status'],
+            'message' => $result['message'],
+        ]);
     }
 
     // 发送激活邮件

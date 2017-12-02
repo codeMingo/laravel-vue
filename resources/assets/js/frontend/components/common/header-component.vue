@@ -3,7 +3,7 @@
         <el-row :gutter="10" style="margin: 0;">
             <el-col :xs="6" :sm="6" :md="6" :lg="6">
                 <div class="web-logo">
-                    <router-link to="/">quickzz博客</router-link>
+                    <router-link to="/">ububs 个人博客</router-link>
                 </div>
             </el-col>
             <el-col :xs="18" :sm="18" :md="18" :lg="18">

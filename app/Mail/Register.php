@@ -12,6 +12,8 @@ class Register extends Mailable
 
     private $data;
 
+    public $subject;
+
     /**
      * Create a new message instance.
      *
@@ -20,6 +22,7 @@ class Register extends Mailable
     public function __construct($data)
     {
         $this->data = $data;
+        $this->subject = config('ububs.website_name') . '-账户注册激活邮件';
     }
 
     /**
@@ -31,8 +34,8 @@ class Register extends Mailable
     {
         return $this->view('emails.register')->with([
             'title'    => config('ububs.website_name') . '-账户注册激活邮件',
-            'url'      => config('ububs.website_url') . '/register-active/check?mail_id=' . authcode($this->data['mail_id'], 'encrypt', 3600) . '&user_id=' authcode($this->data['user_id'], 'encrypt', 3600),
+            'url'      => config('ububs.website_url') . '/register-active/check?mail_id=' . authcode($this->data['mail_id'], 'encrypt', 3600) . '&user_id=' . authcode($this->data['user_id'], 'encrypt', 3600),
             'username' => $this->data['username'],
-        ])->subject(config('ububs.website_name') . '-账户注册激活邮件');
+        ]);
     }
 }

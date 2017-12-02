@@ -38,7 +38,7 @@ class RegisterRepository extends CommonRepository
             'password' => $password,
         ]);
 
-        $dicts        = $this->getRedisDictLists(['email_type' => 'register_active']);
+        $dicts        = $this->getRedisDictLists(['email_type' => ['register_active']]);
         $email_record = EmailRecord::create([
             'type_id'     => $dicts['email_type']['register_active'],
             'user_id'     => $result->id,
@@ -49,7 +49,7 @@ class RegisterRepository extends CommonRepository
         // 发送邮件
         sendEmail([
             'mail_id'  => $email_record->id,
-            'user_id'  => $result->user_id,
+            'user_id'  => $result->id,
             'to'       => $result->email,
             'username' => $result->username,
         ], 'register');
@@ -64,9 +64,10 @@ class RegisterRepository extends CommonRepository
      */
     public function active($input)
     {
-        $mail_id = isset($input['mail_id']) ? authcode($input['mail_id'], 'decrypt') : '';
-        $user_id = isset($input['user_id']) ? authcode($input['user_id'], 'decrypt') : '';
-        if (!$mail_data || !$user_id) {
+        // url + 号会被自动转化成空格
+        $mail_id = isset($input['mail_id']) ? authcode(str_replace(' ', '+', $input['mail_id']), 'decrypt') : '';
+        $user_id = isset($input['user_id']) ? authcode(str_replace(' ', '+', $input['user_id']), 'decrypt') : '';
+        if (!$mail_id || !$user_id) {
             return $this->responseResult(false, [], '激活失败，地址不存在或邮件已经失效');
         }
 

@@ -13,7 +13,7 @@ return [
     'qiniu_face_bucket'     => env('QINIU_FACE_BUCKET', ''),
     'qiniu_face_bucket_url' => env('QINIU_FACE_BUCKET_URL', ''),
     // 重复请求限制次数
-    'repeat_max_limit'      => env('REPEAT_MAX_LIMIT', 10),
+    'repeat_max_limit'      => env('REPEAT_MAX_LIMIT', 100),
     // 重复请求限制时间
     'repeat_max_time_limit' => env('REPEAT_MAX_TIME_LIMIT', 3600),
 

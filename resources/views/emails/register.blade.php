@@ -6,7 +6,7 @@
 </head>
 <body>
     <div class="mail-box">
-        <h3>hello <strong>{{$name}}</strong>：</h3>
+        <h3>hello <strong>{{$username}}</strong>：</h3>
         <p>感谢您来到<strong>ububs.com</strong>，点击以下链接激活您的账户（有效期：<strong class="active-time">24小时</strong>）：</p>
         <p><a href="{{$url}}" class="active-url">{{$url}}</a></p>
         <p>谢谢！</p>
