@@ -15,10 +15,9 @@ class AdminRepository extends CommonRepository
      */
     public function lists($input)
     {
-        $search                          = isset($input['search']) ? (array) $input['search'] : [];
-        $result['lists']                 = $this->getAdminLists($search);
-        $result['options']['permission'] = DB::table('admin_permissions')->where('status', 1)->get();
-        $result['options']['status']     = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
+        $search            = isset($input['search']) ? (array) $input['search'] : [];
+        $result['lists']   = $this->getAdminLists($search);
+        $result['options'] = $this->getOptions();
         return $this->responseResult(true, $result);
     }
 
@@ -128,6 +127,9 @@ class AdminRepository extends CommonRepository
     public function destroy($id)
     {
         $result = Admin::where('id', $id)->delete();
+        if (!$result) {
+            return $this->responseResult(false, [], '该管理员不存在或已被删除');
+        }
 
         // 记录操作日志
         Parent::saveOperateRecord([
@@ -137,8 +139,7 @@ class AdminRepository extends CommonRepository
             ],
             'text'   => '删除管理员成功',
         ]);
-
-        return $this->responseResult(!!$result, !$result ? [] : $result, !$result ? '删除失败，未知错误' : '删除成功');
+        return $this->responseResult(true, [], '删除成功');
     }
 
     /**
@@ -150,5 +151,12 @@ class AdminRepository extends CommonRepository
     {
         $where_params = $this->parseParams('admins', $search);
         return Admin::parseWheres($where_params)->paginate();
+    }
+
+    public function getOptions()
+    {
+        $result['permission'] = DB::table('admin_permissions')->where('status', 1)->get();
+        $result['status']     = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
+        return $result;
     }
 }

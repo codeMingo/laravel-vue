@@ -22,8 +22,18 @@ router.beforeEach((to, from, next) => {
         return false;
     }
     if (!store.state.is_login) {
-        next({ path: '/login' });
-        return false;
+        // 获取登录信息
+        axios.get('/backend/login-status').then(response => {
+            let { status, data, message } = response.data;
+            if (status && Object.keys(data).length > 0) {
+                store.commit('setStateValue', { 'is_login': true, 'admin_data': data.list });
+                next();
+                return false;
+            } else {
+                next({ path: '/login' });
+                return false;
+            }
+        });
     }
     next();
 });

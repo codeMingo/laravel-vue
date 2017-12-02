@@ -17,6 +17,7 @@ const store = new Vuex.Store({
         // 管理员登录信息
         admin_data: {
             username: '',
+            email: '',
             permission_text: ''
         },
 
@@ -38,9 +39,6 @@ const store = new Vuex.Store({
                 sessionStorage.removeItem('sidebarCollapse');
             }
         },
-        setAdminData(state, data) {
-            state.admin_data = data;
-        },
         changeBreadcrumb(state, data) {
             state.breadcrumb = data;
         },
@@ -52,12 +50,6 @@ const store = new Vuex.Store({
     }
 });
 
-// 获取登录信息
-axios.get('/backend/login-status').then(response => {
-    let { status, data, message } = response.data;
-    if (status && Object.keys(data).length > 0) {
-        store.commit('setStateValue', { 'is_login': true, 'user_data': data.list });
-    }
-});
+
 
 export default store;

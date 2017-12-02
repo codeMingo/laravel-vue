@@ -2,6 +2,7 @@
 namespace App\Repositories\Backend;
 
 use App\Models\User;
+
 use App\Repositories\Backend\DictRepository;
 
 class UserRepository extends CommonRepository
@@ -102,7 +103,7 @@ class UserRepository extends CommonRepository
             'active'   => $active,
         ];
         if ($password) {
-            $data['password'] = $password
+            $data['password'] = $password;
         }
         User::where('id', $id)->save($data);
 
@@ -147,12 +148,23 @@ class UserRepository extends CommonRepository
     }
 
     /**
+     * 列表
+     * @param  Array $search [permission_id, status, username]
+     * @return Object              结果集
+     */
+    public function getUserLists($search)
+    {
+        $where_params = $this->parseParams('users', $search);
+        return User::parseWheres($where_params)->paginate();
+    }
+
+    /**
      * 获取options
      * @return Array
      */
     public function getOptions()
     {
-        $result['gender'] = DictRepository::getInstance()->getDictListsByCode(['gender'])['gender'];
+        $result = DictRepository::getInstance()->getListsByCodeArr(['gender']);
         $result['status'] = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
         $result['active'] = [['value' => 0, 'text' => '未激活'], ['value' => 1, 'text' => '已激活']];
         return $result;

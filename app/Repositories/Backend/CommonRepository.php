@@ -30,11 +30,11 @@ class CommonRepository extends BaseRepository
     {
         DB::table('admin_operate_records')->insert([
             'admin_id'   => $this->getCurrentId(),
-            'action'     => $input['action'],
-            'params'     => json_encode($input['params']),
-            'text'       => $input['text'],
+            'action'     => isset($input['action']) ? strval($input['action']) : '',
+            'params'     => isset($input['params']) ? json_encode($input['params']) : '',
+            'text'       => isset($input['text']) ? strval($input['text']) : '操作成功',
             'ip_address' => getClientIp(),
-            'status'     => $input['status'],
+            'status'     => isset($input['status']) ? intval($input['status']) : 1,
         ]);
     }
 }

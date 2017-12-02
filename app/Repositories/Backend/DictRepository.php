@@ -2,25 +2,20 @@
 namespace App\Repositories\Backend;
 
 use App\Models\Dict;
+use Illuminate\Support\Facades\DB;
 
 class DictRepository extends CommonRepository
 {
 
-    /**
-     * 获取字典通过code
-     * @param  Array $code_arr
-     * @return Array [text, value]
-     */
-    public function getDictListsByCodeArr($code_arr)
+    public function getListsByCodeArr($code_arr)
     {
-        $lists = Dict::whereIn('code', $code_arr)->where('status', 1)->get();
-        if ($lists->isEmpty()) {
-            return [];
+        $result = [];
+        if (empty($code_arr)) {
+            return $result;
         }
-        foreach ($lists as $key => $item) {
-            $temp['value']         = $item->value;
-            $temp['text']          = $item->text;
-            $result[$item->code][] = $temp;
+        $lists = DB::table('dicts')->whereIn('code', $code_arr)->where('status', 1)->get();
+        foreach ($lists as $key => $list) {
+            $result[$list->code][] = $list;
         }
         return $result;
     }

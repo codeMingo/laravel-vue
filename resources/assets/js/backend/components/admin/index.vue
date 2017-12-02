@@ -9,7 +9,7 @@
             <el-button type="primary" icon="search" @click="getLists">搜索</el-button>
             <el-button type="primary" icon="plus" @click="create">添加</el-button>
         </el-row>
-        <el-table :data="tableData" border style="width: 100%">
+        <el-table :data="admin_lists" border style="width: 100%">
             <el-table-column label="用户名" class-name="am-link-target-td">
                 <template slot-scope="scope">
                     <a href="javascript:;" class="block-data highlight-link" @click.stop="showShortBox($event, scope.row.id)" v-if="scope.row.status">{{scope.row.username}}</a>
@@ -89,7 +89,7 @@ export default {
             aaa: false,
             formTitle: '',
             formVisible: false,
-            tableData: [],
+            admin_lists: [],
             loadPermissionIconLoading: false,
             form: {
                 id: '',
@@ -144,7 +144,7 @@ export default {
             let paramsData = { 'data': { 'search_form': _this.search_form } };
             axios.get('/backend/admins?page=' + _this.$refs.pagination.pageData.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
-                _this.tableData = data.lists.data;
+                _this.admin_lists = data.lists.data;
                 _this.options = data.options;
                 _this.$refs.pagination.pageData.per_page = parseInt(data.lists.per_page);
                 _this.$refs.pagination.pageData.current_page = parseInt(data.lists.current_page);
@@ -156,7 +156,7 @@ export default {
             _this.formTitle = '修改';
             delete _this.rules.password;
             delete _this.rules.repassword;
-            _this.tableData.forEach(function(item) {
+            _this.admin_lists.forEach(function(item) {
                 if (item.id === id) {
                     item.password = '';
                     _this.form = Vue.copyObj(item);
@@ -203,8 +203,13 @@ export default {
                 type: 'warning'
             }).then(() => {
                 axios.delete('/backend/admins/' + id).then(response => {
+                    let { status, data, message } = response.data;
+                    if (!status) {
+                        _this.$message.error(response.data.message);
+                        return false;
+                    }
                     _this.$message.success(response.data.message);
-                    Vue.removeOneData(_this.tableData, id);
+                    Vue.removeOneData(_this.admin_lists, id);
                 });
             }).catch(response => {
 
@@ -234,7 +239,7 @@ export default {
         showShortBox(event, id) {
             let data = {};
             let _this = this;
-            _this.tableData.forEach(function(item) {
+            _this.admin_lists.forEach(function(item) {
                 if (item.id == id) {
                     data.id = item.id;
                     data.username = item.username;

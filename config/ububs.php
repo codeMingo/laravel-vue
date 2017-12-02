@@ -24,6 +24,11 @@ return [
             'username' => 'like',
             'email'    => 'like',
         ],
+        // 用户
+        'users'            => [
+            'username' => 'like',
+            'email'    => 'like',
+        ],
         // 管理员权限
         'admin_permissions' => [
             'text'               => 'like',

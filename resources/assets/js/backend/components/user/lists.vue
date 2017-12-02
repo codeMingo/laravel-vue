@@ -10,7 +10,7 @@
         </table-header-component>
         <!-- 用户快捷窗口 -->
         <shortcut-component ref="describtion"></shortcut-component>
-        <el-table :data="tableData" border style="width: 100%">
+        <el-table :data="user_lists" border style="width: 100%">
             <el-table-column label="用户名">
                 <template slot-scope="scope">
                     <a href="javascript:;" @click="getLinkDescribe(scope.row.id)">{{scope.row.username}}</a>
@@ -95,7 +95,7 @@ export default {
         return {
             formTitle: '',
             formVisible: false,
-            tableData: [],
+            user_lists: [],
             form: {
                 id: '',
                 username: '',
@@ -148,19 +148,19 @@ export default {
         getList() {
             let paramsData = { 'data': { 'searchForm': window._this.searchForm } };
             axios.get('/backend/users?page=' + window._this.$refs.pagination.pageData.current_page, { params: paramsData }).then(response => {
-                let data = response.data;
-                window._this.tableData = data.data.lists.data;
-                window._this.options = data.dicts;
-                window._this.$refs.pagination.pageData.per_page = parseInt(data.data.lists.per_page);
-                window._this.$refs.pagination.pageData.current_page = parseInt(data.data.lists.current_page);
-                window._this.$refs.pagination.pageData.total = parseInt(data.data.lists.total);
+                let {status, data, message} = response.data;
+                window._this.user_lists = data.lists.data;
+                window._this.options = data.options;
+                window._this.$refs.pagination.pageData.per_page = parseInt(data.lists.per_page);
+                window._this.$refs.pagination.pageData.current_page = parseInt(data.lists.current_page);
+                window._this.$refs.pagination.pageData.total = parseInt(data.lists.total);
             })
         },
         detail(id) {
             window._this.formTitle = '修改';
             delete window._this.rules.password;
             delete window._this.rules.repassword;
-            window._this.tableData.forEach(function(item) {
+            window._this.user_lists.forEach(function(item) {
                 if (item.id === id) {
                     item.password = '';
                     window._this.form = Vue.copyObj(item);
@@ -199,7 +199,7 @@ export default {
             window._this.$confirm('确定删除这个用户吗').then(() => {
                 axios.delete('/backend/users/' + id).then(data => {
                     window._this.$message.success(data.message);
-                    Vue.removeOneData(window._this.tableData, id);
+                    Vue.removeOneData(window._this.user_lists, id);
                 });
             });
         },
@@ -226,7 +226,7 @@ export default {
                     return false;
                 }
                 window._this.$message.success(response.data.message);
-                window._this.tableData.forEach((item, index) => {
+                window._this.user_lists.forEach((item, index) => {
                     if (item.id == id) {
                         item[field] = value;
                     }
@@ -241,7 +241,7 @@ export default {
                 window._this.$refs.describtion.describeData.show = false;
                 return false;
             }
-            window._this.tableData.forEach(function(item) {
+            window._this.user_lists.forEach(function(item) {
                 if (item.id === id) {
                     window._this.$refs.describtion.describeData.id = item.id;
                     window._this.$refs.describtion.describeData.username = item.username;
