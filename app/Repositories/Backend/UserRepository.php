@@ -3,7 +3,7 @@ namespace App\Repositories\Backend;
 
 use App\Models\User;
 
-use App\Repositories\Backend\DictRepository;
+use App\Repositories\Common\DictRepository;
 
 class UserRepository extends CommonRepository
 {
@@ -18,6 +18,7 @@ class UserRepository extends CommonRepository
         $search            = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists']   = $this->getUserLists($search);
         $result['options'] = $this->getOptions();
+
         return $this->responseResult(true, $result);
     }
 
@@ -155,6 +156,7 @@ class UserRepository extends CommonRepository
     public function getUserLists($search)
     {
         $where_params = $this->parseParams('users', $search);
+
         return User::parseWheres($where_params)->paginate();
     }
 
@@ -164,9 +166,10 @@ class UserRepository extends CommonRepository
      */
     public function getOptions()
     {
-        $result = DictRepository::getInstance()->getListsByCodeArr(['gender']);
+        $result['gender'] = DictRepository::getInstance()->getListsByCode('gender');
         $result['status'] = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
         $result['active'] = [['value' => 0, 'text' => '未激活'], ['value' => 1, 'text' => '已激活']];
+
         return $result;
     }
 }

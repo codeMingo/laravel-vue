@@ -22,29 +22,30 @@ class ArticleRepository extends CommonRepository
         $search                        = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists']               = $this->getArticleLists($search);
         $result['options']['category'] = CategoryRepository::getInstance()->getCategoryLists(['type' => 'article']);
+
         return $this->responseResult(true, $result);
     }
 
     /**
      * 文章详情
-     * @param  int $article_id
+     * @param  int $id 文章id
      * @return Array
      */
-    public function detail($article_id)
+    public function detail($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
 
-        $result['list'] = Article::where('id', $article_id)->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->with('read')->with('interact')->with('category')->first();
+        $result['list'] = Article::where('id', $id)->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->with('read')->with('interact')->with('category')->first();
         if (empty($result['list'])) {
             return $this->responseResult(false, $result, '获取失败，文章不存在或已被删除');
         }
 
         // 文章阅读量 +1
-        $this->read($article_id);
+        $this->read($id);
         // 获取上一篇文章
-        $result['prev_article'] = $this->getPrevlist($article_id);
+        $result['prev_article'] = $this->getPrevlist($id);
         // 获取下一篇文章
-        $result['next_article'] = $this->getNextlist($article_id);
+        $result['next_article'] = $this->getNextlist($id);
 
         // 文章标签
         if (!empty($result['list']->tag_ids)) {
@@ -55,44 +56,44 @@ class ArticleRepository extends CommonRepository
     }
 
     // 阅读数 + 1
-    public function read($article_id)
+    public function read($id)
     {
         ArticleRead::create([
             'user_id'    => $this->getCurrentId(),
-            'article_id' => $article_id,
+            'article_id' => $id,
             'ip_address' => getClientIp(),
         ]);
         return true;
     }
 
     // 获取上一篇文章
-    public function getPrevlist($article_id)
+    public function getPrevlist($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        return Article::where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '<', $article_id)->with('read')->with('interact')->with('comment')->orderBy('id', 'desc')->first();
+        return Article::where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '<', $id)->with('read')->with('interact')->with('comment')->orderBy('id', 'desc')->first();
     }
 
     // 获取下一篇文章
-    public function getNextlist($article_id)
+    public function getNextlist($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        return Article::where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '>', $article_id)->with('read')->with('interact')->with('comment')->orderBy('id', 'asc')->first();
+        return Article::where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '>', $id)->with('read')->with('interact')->with('comment')->orderBy('id', 'asc')->first();
     }
 
     /**
      * 获取文章评论列表
-     * @param  int $article_id 文章id
+     * @param  int $id 文章id
      * @return Object
      */
-    public function commentLists($article_id)
+    public function commentLists($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        $list  = Article::where('id', $article_id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
+        $list  = Article::where('id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
         if (empty($list)) {
             return $this->responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
         }
 
-        $result['lists'] = ArticleComment::where('article_id', $article_id)->where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate();
+        $result['lists'] = ArticleComment::where('article_id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate();
         if ($result['lists']->isEmpty()) {
             return $this->responseResult(true, $result);
         }
@@ -161,14 +162,14 @@ class ArticleRepository extends CommonRepository
 
     /**
      * 评论 or 回复
-     * @param  Array $input [article_id, comment_id, content]
+     * @param  Array $input [id, comment_id, content]
      * @return Array
      */
-    public function comment($input, $article_id)
+    public function comment($input, $id)
     {
         $comment_id = isset($input['comment_id']) ? intval($input['comment_id']) : '';
         $content    = isset($input['content']) ? strval($input['content']) : '';
-        if (!$article_id || !$content) {
+        if (!$id || !$content) {
             return $this->responseResult(false, [], '操作失败，参数错误，请刷新后重试');
         }
         $dicts = $this->getRedisDictLists([
@@ -177,7 +178,7 @@ class ArticleRepository extends CommonRepository
             'system'         => ['article_comment_audit'],
         ]);
 
-        $list = Article::where('id', $article_id)->where('status', $dicts['article_status']['show'])->first();
+        $list = Article::where('id', $id)->where('status', $dicts['article_status']['show'])->first();
         if (empty($list)) {
             return $this->responseResult(false, [], '操作失败，参数错误，请刷新后重试');
         }
@@ -193,7 +194,7 @@ class ArticleRepository extends CommonRepository
         $result['list'] = ArticleComment::create([
             'user_id'    => $user_id,
             'parent_id'  => $comment_id ? $comment_id : 0,
-            'article_id' => $article_id,
+            'article_id' => $id,
             'content'    => $content,
             'is_audit'   => $dicts['system']['article_comment_audit'] ? $dicts['audit']['loading'] : $dicts['audit']['pass'],
             'status'     => 1,
@@ -207,25 +208,27 @@ class ArticleRepository extends CommonRepository
         ]);
         $result['list']['response'] = [];
         $result['list']['user']     = DB::table('users')->where('id', $this->getCurrentId())->first();
+
         return $this->responseResult(true, $result, $comment_id ? '回复成功' : '评论成功');
     }
 
     /**
      * 获取点赞 or 反对 or 收藏详情
      * @param  Array $input [type]
-     * @param  int $article_id
+     * @param  int $id 文章id
      * @return Array
      */
-    public function interactiveDetail($input, $article_id)
+    public function interactiveDetail($input, $id)
     {
-        $list      = Article::where('id', $article_id)->where('status', 1)->first();
+        $list      = Article::where('id', $id)->where('status', 1)->first();
         $type      = isset($input['type']) ? strval($input['type']) : '';
         $type_text = !$type ? '' : ($type == 'like' ? '点赞' : ($type == 'hate' ? '反对' : ($type == 'collect' ? '收藏' : '')));
-        if (!$article_id || !$type_text) {
+        if (!$id || !$type_text) {
             return $this->responseResult(false, [], '操作失败，参数错误，请刷新后重试');
         }
 
-        $result['lists'] = Interact::where('article_id', $article_id)->where($type, 1)->where('status', 1)->with('user')->get();
+        $result['lists'] = Interact::where('article_id', $id)->where($type, 1)->where('status', 1)->with('user')->get();
+
         return $this->responseResult(true, $result);
     }
 
@@ -261,11 +264,7 @@ class ArticleRepository extends CommonRepository
                     $result['lists'] = $this->hotLists();
             }
         }
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $result,
-            'message' => '数据获取成功',
-        ];
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -338,11 +337,7 @@ class ArticleRepository extends CommonRepository
     {
         $interactive_type_arr = isset($input['interactive_type']) ? explode(',', strval($input['interactive_type'])) : [];
         if (empty($interactive_type_arr)) {
-            return [
-                'status'  => Parent::ERROR_STATUS,
-                'data'    => [],
-                'message' => '参数错误，请联系管理员',
-            ];
+            return $this->responseResult(false, [], '获取数据失败，参数错误，请刷新后重试');
         }
         $query = Interact::where('user_id', $this->getCurrentId())->where('status', 1);
 
@@ -360,11 +355,7 @@ class ArticleRepository extends CommonRepository
 
         $result['lists'] = $query->paginate();
 
-        return [
-            'status'  => Parent::SUCCESS_STATUS,
-            'data'    => $result,
-            'message' => '数据获取成功',
-        ];
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -378,6 +369,7 @@ class ArticleRepository extends CommonRepository
         $search['status']   = $dicts['article_status']['show'];
         $search['is_audit'] = $dicts['audit']['pass'];
         $params             = $this->parseParams('articles', $search);
+
         return Article::parseWheres($params)->with('comment')->with('read')->with('interact')->paginate();
     }
 }

@@ -6,7 +6,7 @@ use App\Models\ArticleComment;
 use App\Models\ArticleInteractive;
 use App\Models\Category;
 use App\Repositories\Backend\CategoryRepository;
-use App\Repositories\Backend\DictRepository;
+use App\Repositories\Common\DictRepository;
 
 class ArticleRepository extends CommonRepository
 {
@@ -84,9 +84,9 @@ class ArticleRepository extends CommonRepository
      */
     public function update($id, $input)
     {
-        $articleList = Article::where('id', $id)->first();
-        if (empty($articleList)) {
-            return $this->responseResult(false, [], '不存在这篇文章');
+        $list = Article::find($id);
+        if (empty($list)) {
+            return $this->responseResult(false, [], '更新失败，不存在这篇文章');
         }
 
         $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
@@ -144,6 +144,9 @@ class ArticleRepository extends CommonRepository
     {
         $result = Article::where('id', $id)->delete();
 
+        if (!$result) {
+            return $this->responseResult(false, [], '该文章不存在或已被删除');
+        }
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'Article/update',
@@ -163,38 +166,27 @@ class ArticleRepository extends CommonRepository
      */
     public function show($article_id)
     {
-        $result['data'] = Article::where('id', $article_id)->first();
-        if (empty($result['data'])) {
+        $result['list'] = Article::where('id', $article_id)->first();
+        if (empty($result['list'])) {
             return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
         $result['options'] = $this->getOptions();
+
         return $this->responseResult(true);
     }
 
     /**
      * 获取一篇文章所有的 点赞 or 反对 or 收藏
-     * @param  Array $article_id
+     * @param  Array $id
      * @return Array
      */
-    public function getInteractives($article_id)
+    public function getInteractives($id, $type)
     {
-        $list = Article::where('id', $article_id)->first();
+        $list = Article::where('id', $id)->first();
         if (empty($list)) {
             return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $lists           = ArticleInteractive::where('article_id', $article_id)->user()->get();
-        $result['lists'] = [];
-        if (!empty($lists)) {
-            foreach ($lists as $key => $item) {
-                if ($item->like) {
-                    $result['lists']['like'][] = $item;
-                } else if ($item->hate) {
-                    $result['lists']['hate'][] = $item;
-                } else if ($item->collect) {
-                    $result['lists']['collect'][] = $item;
-                }
-            }
-        }
+        $result['lists'] = ArticleInteractive::where('article_id', $id)->with('user')->get();
 
         return $this->responseResult(true, $result);
     }
@@ -210,7 +202,7 @@ class ArticleRepository extends CommonRepository
         if (empty($list)) {
             return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $result['lists'] = ArticleComment::where('article_id', $article_id)->user()->get();
+        $result['lists'] = ArticleComment::where('article_id', $article_id)->with('user')->get();
 
         return $this->responseResult(true, $result);
     }
@@ -226,7 +218,7 @@ class ArticleRepository extends CommonRepository
         if (empty($list)) {
             return $this->responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $result['lists'] = ArticleRead::where('article_id', $article_id)->user()->get();
+        $result['lists'] = ArticleRead::where('article_id', $article_id)->with('user')->get();
 
         return $this->responseResult(true, $result);
     }
@@ -239,6 +231,7 @@ class ArticleRepository extends CommonRepository
     public function getArticleLists($search)
     {
         $where_params = $this->parseParams('articles', $search);
+
         return Article::parseWheres($where_params)->paginate();
     }
 
@@ -250,8 +243,9 @@ class ArticleRepository extends CommonRepository
     {
         $dicts               = $this->getRedisDictLists(['category_type' => 'article']);
         $result['category']  = CategoryRepository::getInstance()->getCategoryLists(['category_type' => $dicts['category_type']['article']]);
-        $result['status']    = DictRepository::getInstance()->getDictListsByCode('article_status');
+        $result['status']    = DictRepository::getInstance()->getListsByCode('article_status');
         $result['recommend'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
+
         return $result;
     }
 }
