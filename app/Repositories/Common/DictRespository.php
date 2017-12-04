@@ -2,6 +2,7 @@
 namespace App\Repositories\Common;
 
 use App\Models\Dict;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DictRepository extends BaseRepository

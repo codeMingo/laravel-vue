@@ -92,4 +92,16 @@ class LeaveRepository extends CommonRepository
         $result['list']['user']          = DB::table('users')->where('id', $this->getCurrentId())->first();
         return $this->responseResult(true, $result, $leave_id ? '回复成功' : '留言成功');
     }
+
+    /**
+     * 获取最新的10条留言
+     * @return Array
+     */
+    public function getNewLeaveList()
+    {
+        $dicts  = $this->getRedisDictLists(['audit' => ['pass']]);
+        $result['list'] = Leave::where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->orderBy('created_at', 'desc')->limit(10)->with('user')->get();
+
+        return $this->responseResult(true, $result);
+    }
 }

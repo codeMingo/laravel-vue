@@ -18,6 +18,10 @@ class CategoryRepository extends CommonRepository
         return $this->responseResult(true, $result);
     }
 
+    /**
+     * 文章菜单列表
+     * @return Array
+     */
     public function getArticleCategoryLists()
     {
         $search['type']  = 'article';
