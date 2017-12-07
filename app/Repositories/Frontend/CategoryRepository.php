@@ -14,9 +14,14 @@ class CategoryRepository extends CommonRepository
     {
         $search          = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists'] = $this->getCategoryLists($search);
+
         return $this->responseResult(true, $result);
     }
 
+    /**
+     * 文章菜单列表
+     * @return Array
+     */
     public function getArticleCategoryLists()
     {
         $search['type']  = 'article';
@@ -39,6 +44,7 @@ class CategoryRepository extends CommonRepository
         $search['category_type'] = $dicts['category']['article'];
         $search['status']        = 1;
         $params                  = $this->parseParams('categories', $search);
+
         return Category::parseWheres($params)->get();
     }
 }

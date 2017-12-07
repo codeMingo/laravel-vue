@@ -56,7 +56,7 @@ class AdminRepository extends CommonRepository
             ],
             'text'   => '新增管理员成功',
         ]);
-        return $this->responseResult(!!$result, !$result ? [] : $result, !$result ? '新增失败，未知错误' : '新增成功');
+        return $this->responseResult(true, $result, '新增成功');
     }
 
     /**
@@ -67,7 +67,7 @@ class AdminRepository extends CommonRepository
     public function show($id)
     {
         $result['list'] = Admin::where('id', $id)->with('adminPermission')->with('adminLoginReocrd')->with('adminOperateRecord')->first();
-        return $this->responseResult(!!$result, !$result ? [] : $result, !$result ? '不存在这条数据' : '获取成功');
+        return $this->responseResult(true, $result);
     }
 
     /**
@@ -88,24 +88,22 @@ class AdminRepository extends CommonRepository
             return $this->responseResult(false, [], '必填字段不得为空');
         }
 
-        $admin_list = Admin::where('id', $id)->first();
-        if (empty($admin_list)) {
+        $list = Admin::find($id);
+        if (empty($list)) {
             return $this->responseResult(false, [], '管理员不存在');
         }
         $unique_list = Admin::where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
         if (!empty($unique_list)) {
             return $this->responseResult(false, [], $unique_list->username == $username ? '用户名被注册' : '邮箱被注册');
         }
-        $updateData = [
-            'username'      => $username,
-            'email'         => $email,
-            'permission_id' => $permission_id,
-            'status'        => $status,
-        ];
+        $list->username      = $username;
+        $list->email         = $email;
+        $list->permission_id = $permission_id;
+        $list->status        = $status;
         if ($password) {
-            $updateData['password'] = $password;
+            $list->password = $password;
         };
-        $result = Admin::where('id', $id)->update($updateData);
+        $result = $list->save();
 
         // 记录操作日志
         Parent::saveOperateRecord([
@@ -113,10 +111,10 @@ class AdminRepository extends CommonRepository
             'params' => [
                 'input' => $input,
             ],
-            'text'   => '更新管理员成功',
+            'text'   => '更新管理员资料成功',
         ]);
 
-        return $this->responseResult(!!$result, !$result ? [] : $result, !$result ? '更新失败，未知错误' : '更新成功');
+        return $this->responseResult(true, [], '更新成功');
     }
 
     /**

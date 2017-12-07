@@ -12,7 +12,7 @@ class CategoryController extends BaseController
         parent::__construct();
     }
 
-    // 列表
+    // 文章菜单列表
     public function articleCategoryLists(Request $request)
     {
         $result = CategoryRepository::getInstance()->getArticleCategoryLists();

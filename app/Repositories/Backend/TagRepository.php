@@ -33,6 +33,7 @@ class TagRepository extends CommonRepository
             'params' => $input,
             'text'   => '新增成功',
         ]);
+
         return $this->responseResult(true, $result);
     }
 }
