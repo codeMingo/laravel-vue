@@ -8,6 +8,11 @@ use Qiniu\Auth;
 class ApiRepository extends BaseRepository
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * 获取当前用户id
      * @return Int

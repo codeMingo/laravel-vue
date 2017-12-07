@@ -2,7 +2,6 @@
 namespace App\Repositories\Backend;
 
 use App\Models\User;
-
 use App\Repositories\Common\DictRepository;
 
 class UserRepository extends CommonRepository

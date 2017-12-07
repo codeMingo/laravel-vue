@@ -32,7 +32,7 @@ export default [{
     }, {
         path: '/',
         component: Main,
-        hidden: true
+        hidden: true,
     }, {
         path: '/index',
         component: Main,

@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\DB;
 class DictRepository extends BaseRepository
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * 获取当前用户id
      * @return Int

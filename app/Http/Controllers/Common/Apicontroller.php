@@ -13,7 +13,6 @@ class Apicontroller extends Controller
 
     public function __construct(ApiRepository $apiRepository)
     {
-        parent::__construct();
         $this->repository = $apiRepository;
     }
 
