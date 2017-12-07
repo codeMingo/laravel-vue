@@ -6,6 +6,11 @@ use App\Models\Tag;
 class TagRepository extends CommonRepository
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * 新增标签
      * @param  Array $input [type, title ]

@@ -11,6 +11,16 @@ use App\Repositories\Common\DictRepository;
 class ArticleRepository extends CommonRepository
 {
 
+    public $dictRepository;
+    public $categoryRepository;
+
+    public function __construct(CategoryRepository $categoryRepository, DictRepository $dictRepository)
+    {
+        parent::__construct();
+        $this->dictRepository = $dictRepository;
+        $this->categoryRepository = $categoryRepository;
+    }
+
     /**
      * 文章列表
      * @param  Array $input [search]
@@ -47,7 +57,7 @@ class ArticleRepository extends CommonRepository
         }
 
         // 是否存在这个dict
-        if (!DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit])) {
+        if (!$this->dictRepository->existDict(['article_status' => $status, 'audit' => $is_audit])) {
             return responseResult(false, [], '新增失败，参数错误，请刷新后重试');
         }
 
@@ -105,7 +115,7 @@ class ArticleRepository extends CommonRepository
         }
 
         // 是否存在这个dict
-        if (!DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit])) {
+        if (!$this->dictRepository->existDict(['article_status' => $status, 'audit' => $is_audit])) {
             return responseResult(false, [], '更新失败，参数错误，请刷新后重试');
         }
 
@@ -242,8 +252,8 @@ class ArticleRepository extends CommonRepository
     public function getOptions()
     {
         $dicts               = $this->getRedisDictLists(['category_type' => 'article']);
-        $result['category']  = CategoryRepository::getInstance()->getCategoryLists(['category_type' => $dicts['category_type']['article']]);
-        $result['status']    = DictRepository::getInstance()->getListsByCode('article_status');
+        $result['category']  = $this->categoryRepository->getCategoryLists(['category_type' => $dicts['category_type']['article']]);
+        $result['status']    = $this->dictRepository->getListsByCode('article_status');
         $result['recommend'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
 
         return $result;

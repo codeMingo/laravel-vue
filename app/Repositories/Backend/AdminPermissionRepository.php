@@ -5,6 +5,12 @@ use App\Models\AdminPermission;
 
 class AdminPermissionRepository extends CommonRepository
 {
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * 获取权限节点数量
      * @param  Int $id 权限id

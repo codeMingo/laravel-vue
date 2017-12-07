@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Redis;
 class LoginRepository extends CommonRepository
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * 登录
      * @param  Array $data [username, password]

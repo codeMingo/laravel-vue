@@ -8,6 +8,14 @@ use App\Repositories\Common\DictRepository;
 class UserRepository extends CommonRepository
 {
 
+    public $dictRepository;
+
+    public function __construct(DictRepository $dictRepository)
+    {
+        parent::__construct();
+        $this->dictRepository = $dictRepository;
+    }
+
     /**
      * 用户列表
      * @param  Array $input [search]
@@ -166,7 +174,7 @@ class UserRepository extends CommonRepository
      */
     public function getOptions()
     {
-        $result['gender'] = DictRepository::getInstance()->getListsByCode('gender');
+        $result['gender'] = $this->dictRepository->getListsByCode('gender');
         $result['status'] = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
         $result['active'] = [['value' => 0, 'text' => '未激活'], ['value' => 1, 'text' => '已激活']];
 

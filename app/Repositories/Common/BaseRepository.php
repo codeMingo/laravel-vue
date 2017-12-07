@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Schema;
 abstract class BaseRepository
 {
 
+    public function __construct()
+    {
+        
+    }
+
     // 记录操作日志
     abstract protected function saveOperateRecord($input);
 

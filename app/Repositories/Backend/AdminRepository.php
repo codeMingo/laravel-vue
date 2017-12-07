@@ -10,7 +10,7 @@ class AdminRepository extends CommonRepository
 
     public function __construct()
     {
-
+        parent::__construct();
     }
 
     /**
