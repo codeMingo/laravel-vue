@@ -5,6 +5,12 @@ use App\Models\Interact;
 
 class InteractRepository extends CommonRepository
 {
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+    
     /**
      * 获取收藏列表
      * @param  Int $user_id 用户id

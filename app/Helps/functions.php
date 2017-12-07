@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * 响应返回
+ * @param  bool $status  true or false
+ * @param  array  $data    返回结果集
+ * @param  string $message 消息提示
+ * @return Array
+ */
+function responseResult($status, $data = [], $message = '')
+{
+    return [
+        'status'  => $status,
+        'data'    => $data,
+        'message' => $message === '' ? (!$status ? '失败' : '成功') : $message,
+    ];
+}
+
 // 获取ip地址
 function getClientIp()
 {

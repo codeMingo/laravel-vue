@@ -7,22 +7,25 @@ use Illuminate\Http\Request;
 class UserController extends BaseController
 {
 
-    public function __construct()
+    public $repository;
+
+    public function __construct(UserRepository $userRepository)
     {
         parent::__construct();
+        $this->repository = $userRepository;
     }
-
+    
     // 用户信息
     public function show()
     {
-        $result = UserRepository::getInstance()->show();
+        $result = $this->repository->show();
         return response()->json($result);
     }
 
     // 个人中心
     public function index()
     {
-        $result = UserRepository::getInstance()->index();
+        $result = $this->repository->index();
         return response()->json($result);
     }
 
@@ -30,7 +33,7 @@ class UserController extends BaseController
     public function update(Request $request)
     {
         $input  = $request->input('data');
-        $result = UserRepository::getInstance()->update($input);
+        $result = $this->repository->update($input);
         return response()->json($result);
     }
 
@@ -38,7 +41,7 @@ class UserController extends BaseController
     public function collect(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = UserRepository::getInstance()->collect($input);
+        $result = $this->repository->collect($input);
         return response()->json($result);
     }
 }

@@ -19,7 +19,7 @@ class UserRepository extends CommonRepository
         $result['lists']   = $this->getUserLists($search);
         $result['options'] = $this->getOptions();
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -37,13 +37,13 @@ class UserRepository extends CommonRepository
         $active   = isset($input['active']) ? intval($input['active']) : 0;
 
         if (!$username || !$email || !$password) {
-            return $this->responseResult(false, [], '新增失败，必填信息不得为空');
+            return responseResult(false, [], '新增失败，必填信息不得为空');
         }
 
         $unique_list = User::where('username', $username)->whereOr('email', $email)->first();
         if (!empty($unique_list)) {
             $error_text = $unique_list->username == $username ? '新增失败，用户名已被新增' : '新增失败，邮箱已被新增';
-            return $this->responseResult(false, [], $error_text);
+            return responseResult(false, [], $error_text);
         }
 
         $result = User::create([
@@ -63,7 +63,7 @@ class UserRepository extends CommonRepository
             'text'   => '新增用户成功',
         ]);
 
-        return $this->responseResult(true, $result, '新增成功');
+        return responseResult(true, $result, '新增成功');
     }
 
     /**
@@ -76,7 +76,7 @@ class UserRepository extends CommonRepository
     {
         $list = $this->getUserList($id);
         if (empty($list)) {
-            return $this->responseResult(false, [], '更新失败，不存在此用户');
+            return responseResult(false, [], '更新失败，不存在此用户');
         }
 
         $username = isset($input['username']) ? strval($input['username']) : '';
@@ -87,13 +87,13 @@ class UserRepository extends CommonRepository
         $active   = isset($input['active']) ? intval($input['active']) : 0;
 
         if (!$username || !$email) {
-            return $this->responseResult(false, [], '更新失败，必填信息不得为空');
+            return responseResult(false, [], '更新失败，必填信息不得为空');
         }
 
         $unique_list = User::where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
         if (!empty($unique_list)) {
             $error_text = $unique_list->username == $username ? '更新失败，用户名已经存在' : '更新失败，邮箱已经存在';
-            return $this->responseResult(false, [], $error_text);
+            return responseResult(false, [], $error_text);
         }
 
         $data = [
@@ -116,7 +116,7 @@ class UserRepository extends CommonRepository
             'text'   => '更新用户成功',
         ]);
 
-        return $this->responseResult(true, [], '更新成功');
+        return responseResult(true, [], '更新成功');
     }
 
     /**
@@ -135,7 +135,7 @@ class UserRepository extends CommonRepository
             ],
             'text'   => '删除用户成功',
         ]);
-        return $this->responseResult(true, $result, '删除成功');
+        return responseResult(true, $result, '删除成功');
     }
 
     /**

@@ -7,6 +7,14 @@ use Illuminate\Http\Request;
 class VideoController extends BaseController
 {
 
+    public $repository;
+
+    public function __construct(VideoRepository $videoRepository)
+    {
+        parent::__construct();
+        $this->repository = $videoRepository;
+    }
+
     public function __construct()
     {
         parent::__construct();
@@ -16,21 +24,21 @@ class VideoController extends BaseController
     public function lists()
     {
         $input  = json_decode($request->input('data'), true);
-        $result = VideoRepository::getInstance()->lists($input);
+        $result = $this->repository->lists($input);
         return response()->json($result);
     }
 
     // 视频详情
     public function detail($video_id)
     {
-        $result = VideoRepository::getInstance()->getVideoDetail($video_id);
+        $result = $this->repository->getVideoDetail($video_id);
         return response()->json($result);
     }
 
     // 获取视频评论列表
     public function commentLists($video_id)
     {
-        $result = VideoRepository::getInstance()->commentLists($video_id);
+        $result = $this->repository->commentLists($video_id);
         return response()->json($result);
     }
 
@@ -38,7 +46,7 @@ class VideoController extends BaseController
     public function interactive(Request $request, $video_id)
     {
         $input  = $request->input('data');
-        $result = VideoRepository::getInstance()->interactive($video_id, $input);
+        $result = $this->repository->interactive($video_id, $input);
         return response()->json($result);
     }
 
@@ -46,7 +54,7 @@ class VideoController extends BaseController
     public function comment(Request $request, $video_id)
     {
         $input  = $request->input('data');
-        $result = VideoRepository::getInstance()->comment($video_id, $input);
+        $result = $this->repository->comment($video_id, $input);
         return response()->json($result);
     }
 }

@@ -6,6 +6,15 @@ use Illuminate\Http\Request;
 
 class AdminPermissionController extends BaseController
 {
+
+    public $repository;
+
+    public function __construct(AdminPermissionRepository $adminPermissionRepository)
+    {
+        parent::__construct();
+        $this->repository = $adminPermissionRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +23,7 @@ class AdminPermissionController extends BaseController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = AdminPermissionRepository::getInstance()->index($input);
+        $result = $this->repository->index($input);
         return response()->json($result);
     }
 
@@ -37,7 +46,7 @@ class AdminPermissionController extends BaseController
     public function store(Request $request)
     {
         $input  = $request->input('data');
-        $result = AdminPermissionRepository::getInstance()->store($input);
+        $result = $this->repository->store($input);
         return response()->json($result);
     }
 
@@ -49,7 +58,7 @@ class AdminPermissionController extends BaseController
      */
     public function show($id)
     {
-        $result = AdminPermissionRepository::getInstance()->show($id);
+        $result = $this->repository->show($id);
         return response()->json($result);
     }
 
@@ -74,7 +83,7 @@ class AdminPermissionController extends BaseController
     public function update(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = AdminPermissionRepository::getInstance()->update($input, $id);
+        $result = $this->repository->update($input, $id);
         return response()->json($result);
     }
 
@@ -86,7 +95,7 @@ class AdminPermissionController extends BaseController
      */
     public function destroy($id)
     {
-        $result = AdminPermissionRepository::getInstance()->destroy($id);
+        $result = $this->repository->destroy($id);
         return response()->json($result);
     }
 
@@ -97,7 +106,7 @@ class AdminPermissionController extends BaseController
      */
     public function getPermissionNodeCount($id)
     {
-        $result = AdminPermissionRepository::getInstance()->getPermissionNodeCount($id);
+        $result = $this->repository->getPermissionNodeCount($id);
         return response()->json($result);
     }
 }

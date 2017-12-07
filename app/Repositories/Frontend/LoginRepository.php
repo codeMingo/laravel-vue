@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Auth;
 class LoginRepository extends CommonRepository
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * 登录
      * @param  Array $data [account, password, remember]
@@ -19,7 +24,7 @@ class LoginRepository extends CommonRepository
         $remember = isset($input['remember']) ? (bool) $input['remember'] : false;
 
         if (!$account || !$password) {
-            return $this->responseResult(false, [], '登录失败，必填字段不得为空');
+            return responseResult(false, [], '登录失败，必填字段不得为空');
         }
         if (strpos($account, '@')) {
             //邮箱登录
@@ -28,7 +33,7 @@ class LoginRepository extends CommonRepository
             $flag = Auth::guard('web')->attempt(['username' => $account, 'password' => $password]);
         }
         if (!$flag) {
-            return $this->responseResult(false, [], '登录失败，用户名或密码错误');
+            return responseResult(false, [], '登录失败，用户名或密码错误');
         }
         $user = Auth::guard('web')->user();
         User::where('id', $user['id'])->update([
@@ -40,7 +45,7 @@ class LoginRepository extends CommonRepository
             'email'    => $user['email'],
             'face'     => $user['face'],
         ];
-        return $this->responseResult(true, $result, '登录成功');
+        return responseResult(true, $result, '登录成功');
     }
 
     public function reset($input)
@@ -64,7 +69,7 @@ class LoginRepository extends CommonRepository
             ];
             $result['list'] = $userData;
         }
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -76,6 +81,6 @@ class LoginRepository extends CommonRepository
         if (Auth::guard('web')->check()) {
             Auth::guard('web')->logout();
         }
-        return $this->responseResult(true, [], '退出成功');
+        return responseResult(true, [], '退出成功');
     }
 }

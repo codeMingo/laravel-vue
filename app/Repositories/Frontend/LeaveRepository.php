@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\DB;
 class LeaveRepository extends CommonRepository
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * 留言列表
      * @param  Array $input [search_form]
@@ -16,7 +21,7 @@ class LeaveRepository extends CommonRepository
     {
         $search          = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists'] = $this->getLeaveLists($search);
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -61,7 +66,7 @@ class LeaveRepository extends CommonRepository
         $leave_id = isset($input['leave_id']) ? intval($input['leave_id']) : 0;
         $content  = isset($input['content']) ? strval($input['content']) : '';
         if (!$content) {
-            return $this->responseResult(false, [], '留言失败，参数错误，请刷新后重试');
+            return responseResult(false, [], '留言失败，参数错误，请刷新后重试');
         }
 
         $dicts = $this->getRedisDictLists(['system' => ['leave_audit'], 'audit' => ['loading', 'pass']]);
@@ -69,7 +74,7 @@ class LeaveRepository extends CommonRepository
         if ($leave_id) {
             $list = Leave::where('id', $leave_id)->where('status', 1)->where('is_audit', $dicts['audit']['pass'])->first();
             if (empty($list)) {
-                return $this->responseResult(false, [], '留言失败，参数错误，请刷新后重试');
+                return responseResult(false, [], '留言失败，参数错误，请刷新后重试');
             }
         }
         $result['list'] = Leave::create([
@@ -90,7 +95,7 @@ class LeaveRepository extends CommonRepository
         $result['list']['response']      = [];
         $result['list']['show_response'] = true;
         $result['list']['user']          = DB::table('users')->where('id', $this->getCurrentId())->first();
-        return $this->responseResult(true, $result, $leave_id ? '回复成功' : '留言成功');
+        return responseResult(true, $result, $leave_id ? '回复成功' : '留言成功');
     }
 
     /**
@@ -102,6 +107,6 @@ class LeaveRepository extends CommonRepository
         $dicts  = $this->getRedisDictLists(['audit' => ['pass']]);
         $result['list'] = Leave::where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->orderBy('created_at', 'desc')->limit(10)->with('user')->get();
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 }

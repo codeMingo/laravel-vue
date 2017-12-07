@@ -62,7 +62,7 @@ class ApiRepository extends BaseRepository
         // 推荐文章缓存
         // 热门文章缓存
         // 视频列表缓存
-        return $this->responseResult(true);
+        return responseResult(true);
     }
 
 }

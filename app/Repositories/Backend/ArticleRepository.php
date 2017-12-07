@@ -21,7 +21,7 @@ class ArticleRepository extends CommonRepository
         $search            = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists']   = $this->getArticleLists($search);
         $result['options'] = $this->getOptions();
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -43,12 +43,12 @@ class ArticleRepository extends CommonRepository
         $status      = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$category_id || !$title || !$content) {
-            return $this->responseResult(false, [], '新增失败，必填字段不得为空');
+            return responseResult(false, [], '新增失败，必填字段不得为空');
         }
 
         // 是否存在这个dict
         if (!DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit])) {
-            return $this->responseResult(false, [], '新增失败，参数错误，请刷新后重试');
+            return responseResult(false, [], '新增失败，参数错误，请刷新后重试');
         }
 
         $result = Article::create([
@@ -73,7 +73,7 @@ class ArticleRepository extends CommonRepository
             'text'   => '新增成功',
         ]);
 
-        return $this->responseResult(true, $result, '新增成功');
+        return responseResult(true, $result, '新增成功');
     }
 
     /**
@@ -86,7 +86,7 @@ class ArticleRepository extends CommonRepository
     {
         $list = Article::find($id);
         if (empty($list)) {
-            return $this->responseResult(false, [], '更新失败，不存在这篇文章');
+            return responseResult(false, [], '更新失败，不存在这篇文章');
         }
 
         $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
@@ -101,12 +101,12 @@ class ArticleRepository extends CommonRepository
         $status      = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$category_id || !$title || !$content) {
-            return $this->responseResult(false, [], '更新失败，必填字段不得为空');
+            return responseResult(false, [], '更新失败，必填字段不得为空');
         }
 
         // 是否存在这个dict
         if (!DictRepository::getInstance()->existDict(['article_status' => $status, 'audit' => $is_audit])) {
-            return $this->responseResult(false, [], '更新失败，参数错误，请刷新后重试');
+            return responseResult(false, [], '更新失败，参数错误，请刷新后重试');
         }
 
         Article::where('id', $id)->update([
@@ -132,7 +132,7 @@ class ArticleRepository extends CommonRepository
             'text'   => '更新文章成功',
         ]);
 
-        return $this->responseResult(true, [], '更新成功');
+        return responseResult(true, [], '更新成功');
     }
 
     /**
@@ -145,7 +145,7 @@ class ArticleRepository extends CommonRepository
         $result = Article::where('id', $id)->delete();
 
         if (!$result) {
-            return $this->responseResult(false, [], '该文章不存在或已被删除');
+            return responseResult(false, [], '该文章不存在或已被删除');
         }
         // 记录操作日志
         Parent::saveOperateRecord([
@@ -156,7 +156,7 @@ class ArticleRepository extends CommonRepository
             'text'   => '删除文章成功',
         ]);
 
-        return $this->responseResult(true, [], '删除成功');
+        return responseResult(true, [], '删除成功');
     }
 
     /**
@@ -168,11 +168,11 @@ class ArticleRepository extends CommonRepository
     {
         $result['list'] = Article::where('id', $article_id)->first();
         if (empty($result['list'])) {
-            return $this->responseResult(false, [], '获取失败，不存在这篇文章');
+            return responseResult(false, [], '获取失败，不存在这篇文章');
         }
         $result['options'] = $this->getOptions();
 
-        return $this->responseResult(true);
+        return responseResult(true);
     }
 
     /**
@@ -184,11 +184,11 @@ class ArticleRepository extends CommonRepository
     {
         $list = Article::where('id', $id)->first();
         if (empty($list)) {
-            return $this->responseResult(false, [], '获取失败，不存在这篇文章');
+            return responseResult(false, [], '获取失败，不存在这篇文章');
         }
         $result['lists'] = ArticleInteractive::where('article_id', $id)->with('user')->get();
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -200,11 +200,11 @@ class ArticleRepository extends CommonRepository
     {
         $list = Article::where('id', $article_id)->first();
         if (empty($list)) {
-            return $this->responseResult(false, [], '获取失败，不存在这篇文章');
+            return responseResult(false, [], '获取失败，不存在这篇文章');
         }
         $result['lists'] = ArticleComment::where('article_id', $article_id)->with('user')->get();
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -216,11 +216,11 @@ class ArticleRepository extends CommonRepository
     {
         $list = Article::where('id', $article_id)->first();
         if (empty($list)) {
-            return $this->responseResult(false, [], '获取失败，不存在这篇文章');
+            return responseResult(false, [], '获取失败，不存在这篇文章');
         }
         $result['lists'] = ArticleRead::where('article_id', $article_id)->with('user')->get();
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**

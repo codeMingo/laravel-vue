@@ -6,6 +6,14 @@ use App\Repositories\Frontend\InteractReposity;
 
 class UserRepository extends CommonRepository
 {
+    
+    public $interactReposity;
+
+    public function __construct(InteractReposity $interactReposity)
+    {
+        parent::__construct();
+        $this->interactReposity = $interactReposity;
+    }
 
     /**
      * 用户信息
@@ -14,7 +22,7 @@ class UserRepository extends CommonRepository
     public function show()
     {
         $result['list'] = $this->getUserList($this->getCurrentId());
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -24,7 +32,7 @@ class UserRepository extends CommonRepository
     public function index()
     {
         $result['list'] = $this->getUserList($this->getCurrentId());
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -49,13 +57,13 @@ class UserRepository extends CommonRepository
         $web_url  = isset($input['web_url']) ? strval($input['web_url']) : '';
 
         if (!$username) {
-            return $this->responseResult(false, [], '更新失败，必填信息不得为空');
+            return responseResult(false, [], '更新失败，必填信息不得为空');
         }
         $user_id = $this->getCurrentId();
 
         $unique_list = User::where('username', $username)->where('id', '!=', $user_id)->first();
         if (!empty($unique_list)) {
-            return $this->responseResult(false, [], '更新失败，用户名已经存在');
+            return responseResult(false, [], '更新失败，用户名已经存在');
         }
 
         User::where('id', $user_id)->update([
@@ -71,7 +79,7 @@ class UserRepository extends CommonRepository
             'text'   => '更新成功',
         ]);
 
-        return $this->responseResult(true, [], '更新成功');
+        return responseResult(true, [], '更新成功');
     }
 
     /**
@@ -83,8 +91,8 @@ class UserRepository extends CommonRepository
     {
         $search           = isset($input['search']) ? $input['search'] : [];
         $input['user_id'] = $this->getCurrentId();
-        $result['lists']  = InteractReposity::getInstance()->getInteractLists($search);
-        return $this->responseResult(true, $result);
+        $result['lists']  = $this->interactReposity->getInteractLists($search);
+        return responseResult(true, $result);
     }
 
 }

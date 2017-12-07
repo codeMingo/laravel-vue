@@ -6,6 +6,15 @@ use Illuminate\Http\Request;
 
 class UserController extends BaseController
 {
+
+    public $repository;
+
+    public function __construct(UserRepository $userRepository)
+    {
+        parent::__construct();
+        $this->repository = $userRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +23,7 @@ class UserController extends BaseController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = UserRepository::getInstance()->lists($input);
+        $result = $this->repository->lists($input);
         return response()->json($result);
     }
 
@@ -37,7 +46,7 @@ class UserController extends BaseController
     public function store(Request $request)
     {
         $input  = $request->input('data');
-        $result = UserRepository::getInstance()->store($input);
+        $result = $this->repository->store($input);
         return response()->json($result);
     }
 
@@ -49,7 +58,7 @@ class UserController extends BaseController
      */
     public function show($id)
     {
-        $result = UserRepository::getInstance()->show($id);
+        $result = $this->repository->show($id);
         return response()->json($result);
     }
 
@@ -74,7 +83,7 @@ class UserController extends BaseController
     public function update(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = UserRepository::getInstance()->update($input, $id);
+        $result = $this->repository->update($input, $id);
         return response()->json($result);
     }
 
@@ -86,7 +95,7 @@ class UserController extends BaseController
      */
     public function destroy($id)
     {
-        $result = UserRepository::getInstance()->destroy($id);
+        $result = $this->repository->destroy($id);
         return response()->json($result);
     }
 }

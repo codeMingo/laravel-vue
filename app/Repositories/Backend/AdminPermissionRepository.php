@@ -14,10 +14,10 @@ class AdminPermissionRepository extends CommonRepository
     {
         $list = $this->getAdminPermissionList($id);
         if (empty($list)) {
-            return $this->responseResult(false, [], '获取失败，不存在这个权限');
+            return responseResult(false, [], '获取失败，不存在这个权限');
         }
         $result['count'] = !empty($list['permission_includes']) ? count(implode(',', $list['permission_includes'])) : 0;
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**

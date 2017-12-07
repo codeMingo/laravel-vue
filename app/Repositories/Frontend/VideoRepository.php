@@ -6,6 +6,14 @@ use App\Models\Video;
 class VideoRepository extends CommonRepository
 {
 
+    public $categoryRepository;
+
+    public function __construct(CategoryRepository $categoryRepository)
+    {
+        parent::__construct();
+        $this->categoryRepository = $categoryRepository;
+    }
+
     /**
      * 视频列表页面
      * @param  Array $input [search]
@@ -15,8 +23,8 @@ class VideoRepository extends CommonRepository
     {
         $search                        = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists']               = $this->getVideoLists($search);
-        $result['options']['category'] = CategoryRepository::getInstance()->getCategoryLists(['type' => 'video']);
-        return $this->responseResult(true, $result);
+        $result['options']['category'] = $this->categoryRepository->getCategoryLists(['type' => 'video']);
+        return responseResult(true, $result);
     }
 
     /**

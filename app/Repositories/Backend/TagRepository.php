@@ -17,7 +17,7 @@ class TagRepository extends CommonRepository
         $title = isset($input['title']) ? strval($input['title']) : '';
 
         if (!$type || !in_array($type, ['article', 'video']) || !$tag_name) {
-            return $this->responseResult(false, [], '新增失败，参数错误，请刷新重试');
+            return responseResult(false, [], '新增失败，参数错误，请刷新重试');
         }
 
         $dicts  = $this->getRedisDictLists(['category' => [$type]]);
@@ -34,6 +34,6 @@ class TagRepository extends CommonRepository
             'text'   => '新增成功',
         ]);
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 }

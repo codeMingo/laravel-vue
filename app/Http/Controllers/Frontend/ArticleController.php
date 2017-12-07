@@ -6,31 +6,33 @@ use Illuminate\Http\Request;
 
 class ArticleController extends BaseController
 {
+    public $repository;
 
-    public function __construct()
+    public function __construct(ArticleRepository $articleRepository)
     {
         parent::__construct();
+        $this->repository = $articleRepository;
     }
 
     // 文章列表
     public function lists(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = ArticleRepository::getInstance()->lists($input);
+        $result = $this->repository->lists($input);
         return response()->json($result);
     }
 
     // 文章详情
     public function detail($article_id)
     {
-        $result = ArticleRepository::getInstance()->detail($article_id);
+        $result = $this->repository->detail($article_id);
         return response()->json($result);
     }
 
     // 获取评论列表
     public function commentLists($article_id)
     {
-        $result = ArticleRepository::getInstance()->commentLists($article_id);
+        $result = $this->repository->commentLists($article_id);
         return response()->json($result);
     }
 
@@ -38,7 +40,7 @@ class ArticleController extends BaseController
     public function interactive(Request $request, $article_id)
     {
         $input  = $request->input('data');
-        $result = ArticleRepository::getInstance()->interactive($input, $article_id);
+        $result = $this->repository->interactive($input, $article_id);
         return response()->json($result);
     }
 
@@ -46,7 +48,7 @@ class ArticleController extends BaseController
     public function comment(Request $request, $article_id)
     {
         $input  = $request->input('data');
-        $result = ArticleRepository::getInstance()->comment($input, $article_id);
+        $result = $this->repository->comment($input, $article_id);
         return response()->json($result);
     }
 
@@ -54,7 +56,7 @@ class ArticleController extends BaseController
     public function interactiveDetail(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = ArticleRepository::getInstance()->interactiveDetail($input, $id);
+        $result = $this->repository->interactiveDetail($input, $id);
         return response()->json($result);
     }
 
@@ -62,7 +64,7 @@ class ArticleController extends BaseController
     public function recommendLists(Request $request)
     {
         $input  = $request->input('data');
-        $result = ArticleRepository::getInstance()->recommendList($input);
+        $result = $this->repository->recommendList($input);
         return response()->json($result);
     }
 
@@ -70,7 +72,7 @@ class ArticleController extends BaseController
     public function interativeLists(Request $request)
     {
         $input  = $request->input('data');
-        $result = ArticleRepository::getInstance()->interativeLists($input);
+        $result = $this->repository->interativeLists($input);
         return response()->json($result);
     }
 }

@@ -5,6 +5,12 @@ use App\Models\Category;
 
 class CategoryRepository extends CommonRepository
 {
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * 列表
      * @param  Array $input [search]
@@ -15,7 +21,7 @@ class CategoryRepository extends CommonRepository
         $search          = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists'] = $this->getCategoryLists($search);
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -26,7 +32,7 @@ class CategoryRepository extends CommonRepository
     {
         $search['type']  = 'article';
         $result['lists'] = $this->getCategoryLists($search);
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**

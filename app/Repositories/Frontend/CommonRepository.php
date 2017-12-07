@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class CommonRepository extends BaseRepository
 {
+
+    public function __construct()
+    {
+
+    }
+    
     /**
      * 获取当前用户id
      * @return Int

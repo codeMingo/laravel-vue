@@ -12,6 +12,14 @@ use Illuminate\Support\Facades\DB;
 class ArticleRepository extends CommonRepository
 {
 
+    public $categoryRepository;
+
+    public function __construct(CategoryRepository $categoryRepository)
+    {
+        parent::__construct();
+        $this->categoryRepository = $categoryRepository;
+    }
+
     /**
      * 文章列表
      * @param  Array $input [search]
@@ -21,9 +29,9 @@ class ArticleRepository extends CommonRepository
     {
         $search                        = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists']               = $this->getArticleLists($search);
-        $result['options']['category'] = CategoryRepository::getInstance()->getCategoryLists(['type' => 'article']);
+        $result['options']['category'] = $this->categoryRepository->getCategoryLists(['type' => 'article']);
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -37,7 +45,7 @@ class ArticleRepository extends CommonRepository
 
         $result['list'] = Article::where('id', $id)->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->with('read')->with('interact')->with('category')->first();
         if (empty($result['list'])) {
-            return $this->responseResult(false, $result, '获取失败，文章不存在或已被删除');
+            return responseResult(false, $result, '获取失败，文章不存在或已被删除');
         }
 
         // 文章阅读量 +1
@@ -52,7 +60,7 @@ class ArticleRepository extends CommonRepository
             $tag_id_arr                = explode(',', $result['list']->tag_ids);
             $result['list']->tag_lists = DB::table('tags')->whereIn('id', $tag_id_arr)->where('status', 1)->get();
         }
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     // 阅读数 + 1
@@ -90,12 +98,12 @@ class ArticleRepository extends CommonRepository
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $list  = Article::where('id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
         if (empty($list)) {
-            return $this->responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
+            return responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
         }
 
         $result['lists'] = ArticleComment::where('article_id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate();
         if ($result['lists']->isEmpty()) {
-            return $this->responseResult(true, $result);
+            return responseResult(true, $result);
         }
         $comment_ids = [];
         foreach ($result['lists'] as $index => $comment) {
@@ -116,7 +124,7 @@ class ArticleRepository extends CommonRepository
                 }
             }
         }
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -129,19 +137,19 @@ class ArticleRepository extends CommonRepository
         $type      = isset($input['type']) ? strval($input['type']) : '';
         $type_text = !$type ? '' : ($type == 'like' ? '点赞' : ($type == 'hate' ? '反对' : ($type == 'collect' ? '收藏' : '')));
         if (!$id || !$type || !$type_text) {
-            return $this->responseResult(false, [], $type_text . '失败，发生未知错误');
+            return responseResult(false, [], $type_text . '失败，发生未知错误');
         }
 
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
 
         $list = Article::where('id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
         if (empty($list)) {
-            return $this->responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
+            return responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
         }
         $user_id  = $this->getCurrentId();
         $dataList = Interact::where('article_id', $id)->where('user_id', $user_id)->where($type, 1)->first();
         if (!empty($dataList)) {
-            return $this->responseResult(false, [], $type_text . '失败，您已经操作过了');
+            return responseResult(false, [], $type_text . '失败，您已经操作过了');
         }
         $result = Interact::create([
             'user_id'    => $user_id,
@@ -157,7 +165,7 @@ class ArticleRepository extends CommonRepository
             ],
             'text'   => $type_text . '成功',
         ]);
-        return $this->responseResult(true, $result, $type_text . '成功');
+        return responseResult(true, $result, $type_text . '成功');
     }
 
     /**
@@ -170,7 +178,7 @@ class ArticleRepository extends CommonRepository
         $comment_id = isset($input['comment_id']) ? intval($input['comment_id']) : '';
         $content    = isset($input['content']) ? strval($input['content']) : '';
         if (!$id || !$content) {
-            return $this->responseResult(false, [], '操作失败，参数错误，请刷新后重试');
+            return responseResult(false, [], '操作失败，参数错误，请刷新后重试');
         }
         $dicts = $this->getRedisDictLists([
             'audit'          => ['loading', 'pass'],
@@ -180,14 +188,14 @@ class ArticleRepository extends CommonRepository
 
         $list = Article::where('id', $id)->where('status', $dicts['article_status']['show'])->first();
         if (empty($list)) {
-            return $this->responseResult(false, [], '操作失败，参数错误，请刷新后重试');
+            return responseResult(false, [], '操作失败，参数错误，请刷新后重试');
         }
 
         // 表示回复
         if ($comment_id) {
             $comment_list = ArticleComment::where('id', $comment_id)->where('status', 1)->where('is_audit', $dicts['audit']['pass'])->first();
             if (empty($comment_list)) {
-                return $this->responseResult(false, [], '操作失败，参数错误，请刷新后重试');
+                return responseResult(false, [], '操作失败，参数错误，请刷新后重试');
             }
         }
         $user_id        = Auth::guard('web')->id();
@@ -209,7 +217,7 @@ class ArticleRepository extends CommonRepository
         $result['list']['response'] = [];
         $result['list']['user']     = DB::table('users')->where('id', $this->getCurrentId())->first();
 
-        return $this->responseResult(true, $result, $comment_id ? '回复成功' : '评论成功');
+        return responseResult(true, $result, $comment_id ? '回复成功' : '评论成功');
     }
 
     /**
@@ -224,12 +232,12 @@ class ArticleRepository extends CommonRepository
         $type      = isset($input['type']) ? strval($input['type']) : '';
         $type_text = !$type ? '' : ($type == 'like' ? '点赞' : ($type == 'hate' ? '反对' : ($type == 'collect' ? '收藏' : '')));
         if (!$id || !$type_text) {
-            return $this->responseResult(false, [], '操作失败，参数错误，请刷新后重试');
+            return responseResult(false, [], '操作失败，参数错误，请刷新后重试');
         }
 
         $result['lists'] = Interact::where('article_id', $id)->where($type, 1)->where('status', 1)->with('user')->get();
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -264,7 +272,7 @@ class ArticleRepository extends CommonRepository
                     $result['lists'] = $this->hotLists();
             }
         }
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**
@@ -337,7 +345,7 @@ class ArticleRepository extends CommonRepository
     {
         $interactive_type_arr = isset($input['interactive_type']) ? explode(',', strval($input['interactive_type'])) : [];
         if (empty($interactive_type_arr)) {
-            return $this->responseResult(false, [], '获取数据失败，参数错误，请刷新后重试');
+            return responseResult(false, [], '获取数据失败，参数错误，请刷新后重试');
         }
         $query = Interact::where('user_id', $this->getCurrentId())->where('status', 1);
 
@@ -355,7 +363,7 @@ class ArticleRepository extends CommonRepository
 
         $result['lists'] = $query->paginate();
 
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     /**

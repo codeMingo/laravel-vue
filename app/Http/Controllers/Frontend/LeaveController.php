@@ -7,16 +7,19 @@ use Illuminate\Http\Request;
 class LeaveController extends BaseController
 {
 
-    public function __construct()
+    public $repository;
+
+    public function __construct(LeaveRepository $leaveRepository)
     {
         parent::__construct();
+        $this->repository = $leaveRepository;
     }
 
     // 留言列表
     public function lists(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = LeaveRepository::getInstance()->lists($input);
+        $result = $this->repository->lists($input);
         return response()->json($result);
     }
 
@@ -24,7 +27,7 @@ class LeaveController extends BaseController
     public function leave(Request $request)
     {
         $input  = $request->input('data');
-        $result = LeaveRepository::getInstance()->leave($input);
+        $result = $this->repository->leave($input);
         return response()->json($result);
     }
 }

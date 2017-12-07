@@ -6,6 +6,15 @@ use Illuminate\Http\Request;
 
 class AdminController extends BaseController
 {
+
+    public $repository;
+
+    public function __construct(AdminRepository $adminRepository)
+    {
+        parent::__construct();
+        $this->repository = $adminRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +23,7 @@ class AdminController extends BaseController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = AdminRepository::getInstance()->lists($input);
+        $result = $this->repository->lists($input);
         return response()->json($result);
     }
 
@@ -37,7 +46,7 @@ class AdminController extends BaseController
     public function store(Request $request)
     {
         $input  = $request->input('data');
-        $result = AdminRepository::getInstance()->store($input);
+        $result = $this->repository->store($input);
         return response()->json($result);
     }
 
@@ -49,7 +58,7 @@ class AdminController extends BaseController
      */
     public function show($id)
     {
-        $result = AdminRepository::getInstance()->show($id);
+        $result = $this->repository->show($id);
         return response()->json($result);
     }
 
@@ -74,7 +83,7 @@ class AdminController extends BaseController
     public function update(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = AdminRepository::getInstance()->update($input, $id);
+        $result = $this->repository->update($input, $id);
         return response()->json($result);
     }
 
@@ -86,7 +95,7 @@ class AdminController extends BaseController
      */
     public function destroy($id)
     {
-        $result = AdminRepository::getInstance()->destroy($id);
+        $result = $this->repository->destroy($id);
         return response()->json($result);
     }
 
@@ -95,7 +104,7 @@ class AdminController extends BaseController
      */
     public function options()
     {
-        $result = AdminRepository::getInstance()->getOptions();
+        $result = $this->repository->getOptions();
         return response()->json($result);
     }
 
@@ -107,7 +116,7 @@ class AdminController extends BaseController
     public function out(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = AdminRepository::getInstance()->out($input);
+        $result = $this->repository->out($input);
         return response()->json($result);
     }
 
@@ -117,7 +126,7 @@ class AdminController extends BaseController
     public function changeFieldValue($id, Request $request)
     {
         $input  = $request->input('data');
-        $result = AdminRepository::getInstance()->changeFieldValue($id, $input);
+        $result = $this->repository->changeFieldValue($id, $input);
         return response()->json($result);
     }
 }

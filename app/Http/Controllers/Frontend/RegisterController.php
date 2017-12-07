@@ -7,11 +7,19 @@ use Illuminate\Http\Request;
 class RegisterController extends BaseController
 {
 
+    public $repository;
+
+    public function __construct(RegisterRepository $registerRepository)
+    {
+        parent::__construct();
+        $this->repository = $registerRepository;
+    }
+
     // 创建用户
     public function register(Request $request)
     {
         $input  = $request->input('data');
-        $result = RegisterRepository::getInstance()->register($input);
+        $result = $this->repository->register($input);
         return response()->json($result);
     }
 
@@ -19,7 +27,7 @@ class RegisterController extends BaseController
     public function active(Request $request)
     {
         $input = $request->all();
-        $result =  RegisterRepository::getInstance()->active($input);
+        $result =  $this->repository->active($input);
         return view('frontend.active', [
             'status' => $result['status'],
             'message' => $result['message'],
@@ -30,7 +38,7 @@ class RegisterController extends BaseController
     public function sendActiveEmail(Request $request)
     {
         $input  = $request->input('data');
-        $result = RegisterRepository::getInstance()->sendActiveEmail($input);
+        $result = $this->repository->sendActiveEmail($input);
         return response()->json($result);
     }
 }

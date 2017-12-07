@@ -22,19 +22,19 @@ class LoginRepository extends CommonRepository
         $ip_address = getClientIp();
 
         if (!$username || !$password) {
-            return $this->responseResult(false, [], '登录失败，必填字段不得为空');
+            return responseResult(false, [], '登录失败，必填字段不得为空');
         }
 
         // redis 限制用户、ip不可登录
         if (Redis::sismember('limitBackendLoginUser', $username) || Redis::sismember('limitBackendLoginIp', $ip_address)) {
-            return $this->responseResult(false, [], '登录失败，您已被限制登录，请联系管理员');
+            return responseResult(false, [], '登录失败，您已被限制登录，请联系管理员');
         }
 
         // redis 连续登录错误超过10次，1小时内禁止登录
         $redisKey   = 'backednLoginTimes:' . $ip_address;
         $redisExist = Redis::exists($redisKey);
         if ($redisExist && Redis::get($redisKey) > 10) {
-            return $this->responseResult(false, [], '登录失败，登录次数超过限制，请稍后操作');
+            return responseResult(false, [], '登录失败，登录次数超过限制，请稍后操作');
         }
 
         if (!Auth::guard('admin')->attempt(['username' => $username, 'password' => $password])) {
@@ -52,7 +52,7 @@ class LoginRepository extends CommonRepository
                 'ip_address' => $ip_address,
                 'status'     => 0,
             ]);
-            return $this->responseResult(false, [], '登录失败，用户名或密码错误');
+            return responseResult(false, [], '登录失败，用户名或密码错误');
         }
 
         // 登录成功
@@ -102,7 +102,7 @@ class LoginRepository extends CommonRepository
             'email'           => $list->email,
             'permission_text' => DB::table('admin_permissions')->where('id', $list->permission_id)->where('status', 1)->value('text'),
         ];
-        return $this->responseResult(true, $result, '登录成功');
+        return responseResult(true, $result, '登录成功');
     }
 
     /**
@@ -120,7 +120,7 @@ class LoginRepository extends CommonRepository
                 'permission_text' => DB::table('admin_permissions')->where('id', $list->permission_id)->where('status', 1)->value('text'),
             ];
         }
-        return $this->responseResult(true, $result);
+        return responseResult(true, $result);
     }
 
     public function reset($input)
@@ -137,6 +137,6 @@ class LoginRepository extends CommonRepository
         if (Auth::guard('admin')->check()) {
             Auth::guard('admin')->logout();
         }
-        return $this->responseResult(true, [], '退出成功');
+        return responseResult(true, [], '退出成功');
     }
 }

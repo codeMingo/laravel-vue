@@ -7,6 +7,7 @@ use App\Repositories\Frontend\CommonRepository;
 use Qiniu\Auth;
 use Qiniu\Storage\UploadManager;
 use App\Models\EmailRecord;
+
 class TestController extends Controller
 {
     // 测试

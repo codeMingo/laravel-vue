@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\Backend\LoginRepository as AdminLoginRepository;
+use App\Repositories\Frontend\LoginRepository as UserLoginRepository;
 
 class LoginController extends Controller
 {
@@ -29,16 +31,18 @@ class LoginController extends Controller
      */
     protected $redirectTo = '/home';
 
+
+    public $adminLoginRepository;
+    public $userLoginRepository;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(AdminLoginRepository $adminLoginRepository, UserLoginRepository $userLoginRepository)
     {
-        // $this->middleware('guest', ['except' => 'logout']);
-        // $this->middleware('auth', ['only' => ['adminLogout']]);
-        // $this->beforeFilter('csrf', array('on' => 'post'));
+        $this->adminLoginRepository = $adminLoginRepository;
+        $this->userLoginRepository = $userLoginRepository;
     }
 
     // 后台登录界面
@@ -51,14 +55,14 @@ class LoginController extends Controller
     public function adminLogin(Request $request)
     {
         $input  = $request->input('data');
-        $result = \App\Repositories\Backend\LoginRepository::getInstance()->login($input);
+        $result = $this->adminLoginRepository->login($input);
         return response()->json($result);
     }
 
     // 后台注销
     public function adminLogout()
     {
-        $result = \App\Repositories\Backend\LoginRepository::getInstance()->logout();
+        $result = $this->adminLoginRepository->logout();
         return response()->json($result);
     }
 
@@ -66,14 +70,14 @@ class LoginController extends Controller
     public function adminReset(Request $request)
     {
         $input  = $request->input('data');
-        $result = \App\Repositories\Backend\LoginRepository::getInstance()->reset($input);
+        $result = $this->adminLoginRepository->reset($input);
         return response()->json($result);
     }
 
     // 后台获取初始用户数据
     public function adminLoginStatus(Request $request)
     {
-        $result = \App\Repositories\Backend\LoginRepository::getInstance()->loginStatus();
+        $result = $this->adminLoginRepository->loginStatus();
         return response()->json($result);
     }
 
@@ -87,14 +91,14 @@ class LoginController extends Controller
     public function userLogin(Request $request)
     {
         $input  = $request->input('data');
-        $result = \App\Repositories\Frontend\LoginRepository::getInstance()->login($input);
+        $result = $this->userLoginRepository->login($input);
         return response()->json($result);
     }
 
     // 前台注销
     public function userLogout()
     {
-        $result = \App\Repositories\Frontend\LoginRepository::getInstance()->logout();
+        $result = $this->userLoginRepository->logout();
         return response()->json($result);
     }
 
@@ -102,14 +106,14 @@ class LoginController extends Controller
     public function userReset(Request $request)
     {
         $input  = $request->input('data');
-        $result = App\Repositories\Frontend\LoginRepository::getInstance()->reset($input);
+        $result = $this->userLoginRepository->reset($input);
         return response()->json($result);
     }
 
     // 前台获取初始用户数据
     public function loginStatus(Request $request)
     {
-        $result = \App\Repositories\Frontend\LoginRepository::getInstance()->loginStatus();
+        $result = $this->userLoginRepository->loginStatus();
         return response()->json($result);
     }
 }

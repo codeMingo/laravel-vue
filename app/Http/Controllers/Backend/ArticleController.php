@@ -6,6 +6,15 @@ use Illuminate\Http\Request;
 
 class ArticleController extends BaseController
 {
+
+    public $repository;
+
+    public function __construct(ArticleRepository $articleRepository)
+    {
+        parent::__construct();
+        $this->repository = $articleRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +23,7 @@ class ArticleController extends BaseController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = ArticleRepository::getInstance()->lists($input);
+        $result = $this->repository->lists($input);
         return response()->json($result);
     }
 
@@ -37,7 +46,7 @@ class ArticleController extends BaseController
     public function store(Request $request)
     {
         $input  = $request->input('data');
-        $result = ArticleRepository::getInstance()->store($input);
+        $result = $this->repository->store($input);
         return response()->json($result);
     }
 
@@ -49,7 +58,7 @@ class ArticleController extends BaseController
      */
     public function show($id)
     {
-        $result = ArticleRepository::getInstance()->show($id);
+        $result = $this->repository->show($id);
         return response()->json($result);
     }
 
@@ -61,7 +70,7 @@ class ArticleController extends BaseController
      */
     public function edit($id)
     {
-        $result = ArticleRepository::getInstance()->edit($id);
+        $result = $this->repository->edit($id);
         return response()->json($result);
     }
 
@@ -75,7 +84,7 @@ class ArticleController extends BaseController
     public function update(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = ArticleRepository::getInstance()->update($id, $input);
+        $result = $this->repository->update($id, $input);
         return response()->json($result);
     }
 
@@ -87,13 +96,13 @@ class ArticleController extends BaseController
      */
     public function destroy($id)
     {
-        $result = ArticleRepository::getInstance()->destroy($id);
+        $result = $this->repository->destroy($id);
         return response()->json($result);
     }
 
     public function options()
     {
-        $result = ArticleRepository::getInstance()->getOptions();
+        $result = $this->repository->getOptions();
         return response()->json($result);
     }
 }
