@@ -1,8 +1,8 @@
 <template>
     <div class="app-container">
         <el-row class="filter-container">
-            <el-input v-model="search_form.username" class="search-input" placeholder="请输入账户名"></el-input>
-            <el-select v-model="search_form.permission_id" placeholder="请选择管理员等级">
+            <el-input v-model="search.username" class="search-input" placeholder="请输入账户名"></el-input>
+            <el-select v-model="search.permission_id" placeholder="请选择管理员等级">
                 <el-option label="全部权限" value=""></el-option>
                 <el-option v-for="item in options.permission" :key="item.id" :label="item.text" :value="item.id"></el-option>
             </el-select>
@@ -100,7 +100,7 @@ export default {
                 permission_id: '',
                 status: ''
             },
-            search_form: {
+            search: {
                 username: '',
                 permission_id: '',
             },
@@ -141,7 +141,7 @@ export default {
     methods: {
         getLists() {
             let _this = this;
-            let paramsData = { 'data': { 'search_form': _this.search_form } };
+            let paramsData = { 'data': { 'search': _this.search } };
             axios.get('/backend/admins?page=' + _this.$refs.pagination.pageData.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
                 _this.admin_lists = data.lists.data;
