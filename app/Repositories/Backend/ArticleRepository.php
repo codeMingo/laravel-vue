@@ -14,9 +14,9 @@ class ArticleRepository extends CommonRepository
     public $dictRepository;
     public $categoryRepository;
 
-    public function __construct(CategoryRepository $categoryRepository, DictRepository $dictRepository)
+    public function __construct(Article $article, CategoryRepository $categoryRepository, DictRepository $dictRepository)
     {
-        parent::__construct();
+        parent::__construct($article);
         $this->dictRepository = $dictRepository;
         $this->categoryRepository = $categoryRepository;
     }
@@ -61,7 +61,7 @@ class ArticleRepository extends CommonRepository
             return responseResult(false, [], '新增失败，参数错误，请刷新后重试');
         }
 
-        $result = Article::create([
+        $result = $this->model->create([
             'category_id' => $category_id,
             'title'       => $title,
             'thumbnail'   => $thumbnail,
@@ -94,7 +94,7 @@ class ArticleRepository extends CommonRepository
      */
     public function update($id, $input)
     {
-        $list = Article::find($id);
+        $list = $this->model->find($id);
         if (empty($list)) {
             return responseResult(false, [], '更新失败，不存在这篇文章');
         }
@@ -119,7 +119,7 @@ class ArticleRepository extends CommonRepository
             return responseResult(false, [], '更新失败，参数错误，请刷新后重试');
         }
 
-        Article::where('id', $id)->update([
+        $this->model->where('id', $id)->update([
             'category_id' => $category_id,
             'title'       => $title,
             'thumbnail'   => $thumbnail,
@@ -152,7 +152,7 @@ class ArticleRepository extends CommonRepository
      */
     public function destroy($id)
     {
-        $result = Article::where('id', $id)->delete();
+        $result = $this->model->where('id', $id)->delete();
 
         if (!$result) {
             return responseResult(false, [], '该文章不存在或已被删除');
@@ -176,7 +176,7 @@ class ArticleRepository extends CommonRepository
      */
     public function show($article_id)
     {
-        $result['list'] = Article::where('id', $article_id)->first();
+        $result['list'] = $this->model->where('id', $article_id)->first();
         if (empty($result['list'])) {
             return responseResult(false, [], '获取失败，不存在这篇文章');
         }
@@ -192,7 +192,7 @@ class ArticleRepository extends CommonRepository
      */
     public function getInteractives($id, $type)
     {
-        $list = Article::where('id', $id)->first();
+        $list = $this->model->where('id', $id)->first();
         if (empty($list)) {
             return responseResult(false, [], '获取失败，不存在这篇文章');
         }
@@ -208,7 +208,7 @@ class ArticleRepository extends CommonRepository
      */
     public function getComments($article_id)
     {
-        $list = Article::where('id', $article_id)->first();
+        $list = $this->model->where('id', $article_id)->first();
         if (empty($list)) {
             return responseResult(false, [], '获取失败，不存在这篇文章');
         }
@@ -224,7 +224,7 @@ class ArticleRepository extends CommonRepository
      */
     public function getReads($article_id)
     {
-        $list = Article::where('id', $article_id)->first();
+        $list = $this->model->where('id', $article_id)->first();
         if (empty($list)) {
             return responseResult(false, [], '获取失败，不存在这篇文章');
         }
@@ -242,7 +242,7 @@ class ArticleRepository extends CommonRepository
     {
         $where_params = $this->parseParams('articles', $search);
 
-        return Article::parseWheres($where_params)->paginate();
+        return $this->model->parseWheres($where_params)->paginate();
     }
 
     /**

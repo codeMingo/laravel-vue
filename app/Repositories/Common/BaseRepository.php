@@ -1,15 +1,18 @@
 <?php
 namespace App\Repositories\Common;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Schema;
 
 abstract class BaseRepository
 {
 
-    public function __construct()
+    public $model;
+
+    public function __construct(Model $model)
     {
-        
+        $this->model = $model;
     }
 
     // 记录操作日志

@@ -6,12 +6,12 @@ use App\Repositories\Frontend\InteractReposity;
 
 class UserRepository extends CommonRepository
 {
-    
+
     public $interactReposity;
 
-    public function __construct(InteractReposity $interactReposity)
+    public function __construct(User $user, InteractReposity $interactReposity)
     {
-        parent::__construct();
+        parent::__construct($user);
         $this->interactReposity = $interactReposity;
     }
 
@@ -42,7 +42,7 @@ class UserRepository extends CommonRepository
      */
     public function getUserList($user_id)
     {
-        return User::where('id', $user_id)->where('status', 1)->where('active', 1)->first();
+        return $this->model->where('id', $user_id)->where('status', 1)->where('active', 1)->first();
     }
 
     /**
@@ -61,12 +61,12 @@ class UserRepository extends CommonRepository
         }
         $user_id = $this->getCurrentId();
 
-        $unique_list = User::where('username', $username)->where('id', '!=', $user_id)->first();
+        $unique_list = $this->model->where('username', $username)->where('id', '!=', $user_id)->first();
         if (!empty($unique_list)) {
             return responseResult(false, [], '更新失败，用户名已经存在');
         }
 
-        User::where('id', $user_id)->update([
+        $this->model->where('id', $user_id)->update([
             'username' => $username,
             'sign'     => $sign,
             'web_url'  => $web_url,

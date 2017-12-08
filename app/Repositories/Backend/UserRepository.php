@@ -9,9 +9,9 @@ class UserRepository extends CommonRepository
 
     public $dictRepository;
 
-    public function __construct(DictRepository $dictRepository)
+    public function __construct(User $user, DictRepository $dictRepository)
     {
-        parent::__construct();
+        parent::__construct($user);
         $this->dictRepository = $dictRepository;
     }
 
@@ -47,13 +47,13 @@ class UserRepository extends CommonRepository
             return responseResult(false, [], '新增失败，必填信息不得为空');
         }
 
-        $unique_list = User::where('username', $username)->whereOr('email', $email)->first();
+        $unique_list = $this->model->where('username', $username)->whereOr('email', $email)->first();
         if (!empty($unique_list)) {
             $error_text = $unique_list->username == $username ? '新增失败，用户名已被新增' : '新增失败，邮箱已被新增';
             return responseResult(false, [], $error_text);
         }
 
-        $result = User::create([
+        $result = $this->model->create([
             'username' => $username,
             'email'    => $email,
             'face'     => $face,
@@ -97,7 +97,7 @@ class UserRepository extends CommonRepository
             return responseResult(false, [], '更新失败，必填信息不得为空');
         }
 
-        $unique_list = User::where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
+        $unique_list = $this->model->where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
         if (!empty($unique_list)) {
             $error_text = $unique_list->username == $username ? '更新失败，用户名已经存在' : '更新失败，邮箱已经存在';
             return responseResult(false, [], $error_text);
@@ -113,7 +113,7 @@ class UserRepository extends CommonRepository
         if ($password) {
             $data['password'] = $password;
         }
-        User::where('id', $id)->save($data);
+        $this->model->where('id', $id)->save($data);
 
         Parent::saveOperationRecord([
             'action' => 'User/store',
@@ -133,7 +133,7 @@ class UserRepository extends CommonRepository
      */
     public function destroy($id)
     {
-        $result = User::where('id', $id)->delete();
+        $result = $this->model->where('id', $id)->delete();
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'User/destroy',
@@ -152,7 +152,7 @@ class UserRepository extends CommonRepository
      */
     public function getUserList($id)
     {
-        return User::where('id', $id)->first();
+        return $this->model->where('id', $id)->first();
     }
 
     /**
@@ -164,7 +164,7 @@ class UserRepository extends CommonRepository
     {
         $where_params = $this->parseParams('users', $search);
 
-        return User::parseWheres($where_params)->paginate();
+        return $this->model->parseWheres($where_params)->paginate();
     }
 
     /**

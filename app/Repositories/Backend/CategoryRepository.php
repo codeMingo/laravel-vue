@@ -6,15 +6,15 @@ use App\Models\Category;
 class CategoryRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(Category $category)
     {
-        parent::__construct();
+        parent::__construct($category);
     }
 
     public function getCategoryLists($search)
     {
         $params = $this->parseParams('categories', $search);
 
-        return Category::parseWheres($search)->get();
+        return $this->model->parseWheres($search)->get();
     }
 }

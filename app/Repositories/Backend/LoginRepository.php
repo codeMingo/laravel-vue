@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Redis;
 class LoginRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(Admin $admin)
     {
-        parent::__construct();
+        parent::__construct($admin);
     }
 
     /**
@@ -88,7 +88,7 @@ class LoginRepository extends CommonRepository
         };
 
         // 更新信息
-        Admin::where('id', $list->id)->update([
+        $this->model->where('id', $list->id)->update([
             'last_login_ip'   => $ip_address,
             'last_login_time' => date('Y-m-d H:i:s', time()),
         ]);

@@ -6,9 +6,9 @@ use App\Models\AdminPermission;
 class AdminPermissionRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(AdminPermission $adminPermission)
     {
-        parent::__construct();
+        parent::__construct($adminPermission);
     }
 
     /**
@@ -33,7 +33,7 @@ class AdminPermissionRepository extends CommonRepository
      */
     public function getAdminPermissionList($id)
     {
-        return AdminPermission::where('id', $id)->where('status', 1)->first();
+        return $this->model->where('id', $id)->where('status', 1)->first();
     }
 
 }

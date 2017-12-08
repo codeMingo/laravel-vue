@@ -6,11 +6,11 @@ use App\Models\Interact;
 class InteractRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(Interact $interact)
     {
-        parent::__construct();
+        parent::__construct($interact);
     }
-    
+
     /**
      * 获取收藏列表
      * @param  Int $user_id 用户id
@@ -19,6 +19,6 @@ class InteractRepository extends CommonRepository
     public function getInteractLists($user_id, $search)
     {
         $params = $this->parseParams('interactes', $search);
-        return  = Interact::parseWheres($params)->with('article')->with('videoList')->paginate();
+        return  = $this->model->parseWheres($params)->with('article')->with('videoList')->paginate();
     }
 }

@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Hash;
 class AdminRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(Admin $admin)
     {
-        parent::__construct();
+        parent::__construct($admin);
     }
 
     /**
@@ -42,11 +42,11 @@ class AdminRepository extends CommonRepository
         if (!$username || !$email || !$password || !$permission_id) {
             return responseResult(false, [], '必填字段不得为空');
         }
-        $unique_list = Admin::where('username', $username)->whereOr('email', $email)->first();
+        $unique_list = $this->model->where('username', $username)->whereOr('email', $email)->first();
         if (!empty($unique_list)) {
             return responseResult(false, [], $unique_list->username == $username ? '用户名被注册' : '邮箱被注册');
         }
-        $result = Admin::create([
+        $result = $this->model->create([
             'username'      => $username,
             'email'         => $email,
             'password'      => $password,
@@ -71,7 +71,7 @@ class AdminRepository extends CommonRepository
      */
     public function show($id)
     {
-        $result['list'] = Admin::where('id', $id)->with('adminPermission')->with('adminLoginReocrd')->with('adminOperateRecord')->first();
+        $result['list'] = $this->model->where('id', $id)->with('adminPermission')->with('adminLoginReocrd')->with('adminOperateRecord')->first();
         return responseResult(true, $result);
     }
 
@@ -93,11 +93,11 @@ class AdminRepository extends CommonRepository
             return responseResult(false, [], '必填字段不得为空');
         }
 
-        $list = Admin::find($id);
+        $list = $this->model->find($id);
         if (empty($list)) {
             return responseResult(false, [], '管理员不存在');
         }
-        $unique_list = Admin::where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
+        $unique_list = $this->model->where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
         if (!empty($unique_list)) {
             return responseResult(false, [], $unique_list->username == $username ? '用户名被注册' : '邮箱被注册');
         }
@@ -129,7 +129,7 @@ class AdminRepository extends CommonRepository
      */
     public function destroy($id)
     {
-        $result = Admin::where('id', $id)->delete();
+        $result = $this->model->where('id', $id)->delete();
         if (!$result) {
             return responseResult(false, [], '该管理员不存在或已被删除');
         }
@@ -153,7 +153,7 @@ class AdminRepository extends CommonRepository
     public function getAdminLists($search)
     {
         $where_params = $this->parseParams('admins', $search);
-        return Admin::parseWheres($where_params)->paginate();
+        return $this->model->parseWheres($where_params)->paginate();
     }
 
     public function getOptions()

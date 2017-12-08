@@ -2,17 +2,18 @@
 namespace App\Repositories\Frontend;
 
 use App\Repositories\Common\BaseRepository;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CommonRepository extends BaseRepository
 {
 
-    public function __construct()
+    public function __construct(Model $model)
     {
-        parent::__construct();
+        parent::__construct($model);
     }
-    
+
     /**
      * 获取当前用户id
      * @return Int

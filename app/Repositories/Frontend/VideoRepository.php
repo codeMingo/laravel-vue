@@ -8,9 +8,9 @@ class VideoRepository extends CommonRepository
 
     public $categoryRepository;
 
-    public function __construct(CategoryRepository $categoryRepository)
+    public function __construct(Video $video, CategoryRepository $categoryRepository)
     {
-        parent::__construct();
+        parent::__construct($video);
         $this->categoryRepository = $categoryRepository;
     }
 
@@ -38,6 +38,6 @@ class VideoRepository extends CommonRepository
         $search['status']   = $dicts['video_status']['show'];
         $search['is_audit'] = $dicts['audit']['pass'];
         $params             = $this->parseParams('video', $search);
-        return Video::parseWheres($params)->paginate();
+        return $this->model->parseWheres($params)->paginate();
     }
 }

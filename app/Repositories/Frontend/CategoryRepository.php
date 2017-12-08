@@ -6,9 +6,9 @@ use App\Models\Category;
 class CategoryRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(Category $category)
     {
-        parent::__construct();
+        parent::__construct($category);
     }
 
     /**
@@ -51,6 +51,6 @@ class CategoryRepository extends CommonRepository
         $search['status']        = 1;
         $params                  = $this->parseParams('categories', $search);
 
-        return Category::parseWheres($params)->get();
+        return $this->model->parseWheres($params)->get();
     }
 }

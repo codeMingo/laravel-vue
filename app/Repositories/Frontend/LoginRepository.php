@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Auth;
 class LoginRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(User $user)
     {
-        parent::__construct();
+        parent::__construct($user);
     }
 
     /**
@@ -36,7 +36,7 @@ class LoginRepository extends CommonRepository
             return responseResult(false, [], '登录失败，用户名或密码错误');
         }
         $user = Auth::guard('web')->user();
-        User::where('id', $user['id'])->update([
+        $this->model->where('id', $user['id'])->update([
             'last_login_time' => date('Y-m-d H:i:s', time()),
             'last_login_ip'   => getClientIp(),
         ]);

@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\DB;
 class LeaveRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(Leave $leave)
     {
-        parent::__construct();
+        parent::__construct($leave);
     }
 
     /**
@@ -31,7 +31,7 @@ class LeaveRepository extends CommonRepository
     public function getLeaveLists($search)
     {
         $dicts  = $this->getRedisDictLists(['audit' => ['pass']]);
-        $result = Leave::where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate();
+        $result = $this->model->where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate();
         if ($result->isEmpty()) {
             return $result;
         }
@@ -42,7 +42,7 @@ class LeaveRepository extends CommonRepository
         }
         // 找出所有的回复
         if (!empty($leave_ids)) {
-            $response_lists = Leave::whereIn('parent_id', $leave_ids)->with('user')->where('status', 1)->get();
+            $response_lists = $this->model->whereIn('parent_id', $leave_ids)->with('user')->where('status', 1)->get();
             if (!empty($response_lists)) {
                 $response_temp = [];
                 foreach ($response_lists as $index => $response) {
@@ -72,12 +72,12 @@ class LeaveRepository extends CommonRepository
         $dicts = $this->getRedisDictLists(['system' => ['leave_audit'], 'audit' => ['loading', 'pass']]);
         // 表示回复
         if ($leave_id) {
-            $list = Leave::where('id', $leave_id)->where('status', 1)->where('is_audit', $dicts['audit']['pass'])->first();
+            $list = $this->model->where('id', $leave_id)->where('status', 1)->where('is_audit', $dicts['audit']['pass'])->first();
             if (empty($list)) {
                 return responseResult(false, [], '留言失败，参数错误，请刷新后重试');
             }
         }
-        $result['list'] = Leave::create([
+        $result['list'] = $this->model->create([
             'user_id'    => $this->getCurrentId(),
             'parent_id'  => $leave_id,
             'content'    => $content,
@@ -105,7 +105,7 @@ class LeaveRepository extends CommonRepository
     public function getNewLeaveList()
     {
         $dicts  = $this->getRedisDictLists(['audit' => ['pass']]);
-        $result['list'] = Leave::where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->orderBy('created_at', 'desc')->limit(10)->with('user')->get();
+        $result['list'] = $this->model->where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->orderBy('created_at', 'desc')->limit(10)->with('user')->get();
 
         return responseResult(true, $result);
     }

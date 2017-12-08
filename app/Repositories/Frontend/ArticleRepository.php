@@ -14,9 +14,9 @@ class ArticleRepository extends CommonRepository
 
     public $categoryRepository;
 
-    public function __construct(CategoryRepository $categoryRepository)
+    public function __construct(Article $article, CategoryRepository $categoryRepository)
     {
-        parent::__construct();
+        parent::__construct($article);
         $this->categoryRepository = $categoryRepository;
     }
 
@@ -43,7 +43,7 @@ class ArticleRepository extends CommonRepository
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
 
-        $result['list'] = Article::where('id', $id)->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->with('read')->with('interact')->with('category')->first();
+        $result['list'] = $this->model->where('id', $id)->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->with('read')->with('interact')->with('category')->first();
         if (empty($result['list'])) {
             return responseResult(false, $result, '获取失败，文章不存在或已被删除');
         }
@@ -78,14 +78,14 @@ class ArticleRepository extends CommonRepository
     public function getPrevlist($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        return Article::where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '<', $id)->with('read')->with('interact')->with('comment')->orderBy('id', 'desc')->first();
+        return $this->model->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '<', $id)->with('read')->with('interact')->with('comment')->orderBy('id', 'desc')->first();
     }
 
     // 获取下一篇文章
     public function getNextlist($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        return Article::where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '>', $id)->with('read')->with('interact')->with('comment')->orderBy('id', 'asc')->first();
+        return $this->model->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '>', $id)->with('read')->with('interact')->with('comment')->orderBy('id', 'asc')->first();
     }
 
     /**
@@ -96,7 +96,7 @@ class ArticleRepository extends CommonRepository
     public function commentLists($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        $list  = Article::where('id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
+        $list  = $this->model->where('id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
         if (empty($list)) {
             return responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
         }
@@ -142,7 +142,7 @@ class ArticleRepository extends CommonRepository
 
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
 
-        $list = Article::where('id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
+        $list = $this->model->where('id', $id)->where('is_audit', $dicts['audit']['pass'])->where('status', $dicts['article_status']['show'])->first();
         if (empty($list)) {
             return responseResult(false, [], $type_text . '失败，文章不存在或已被删除');
         }
@@ -186,7 +186,7 @@ class ArticleRepository extends CommonRepository
             'system'         => ['article_comment_audit'],
         ]);
 
-        $list = Article::where('id', $id)->where('status', $dicts['article_status']['show'])->first();
+        $list = $this->model->where('id', $id)->where('status', $dicts['article_status']['show'])->first();
         if (empty($list)) {
             return responseResult(false, [], '操作失败，参数错误，请刷新后重试');
         }
@@ -228,7 +228,7 @@ class ArticleRepository extends CommonRepository
      */
     public function interactiveDetail($input, $id)
     {
-        $list      = Article::where('id', $id)->where('status', 1)->first();
+        $list      = $this->model->where('id', $id)->where('status', 1)->first();
         $type      = isset($input['type']) ? strval($input['type']) : '';
         $type_text = !$type ? '' : ($type == 'like' ? '点赞' : ($type == 'hate' ? '反对' : ($type == 'collect' ? '收藏' : '')));
         if (!$id || !$type_text) {
@@ -249,7 +249,7 @@ class ArticleRepository extends CommonRepository
     {
         $result = [];
         if (empty($input)) {
-            $result['lists'] = Article::where('recommend', 1)->where('status', 1)->get();
+            $result['lists'] = $this->model->where('recommend', 1)->where('status', 1)->get();
         } else {
             $type = isset($input['type']) ? strval($input['type']) : '';
             switch ($type) {
@@ -282,7 +282,7 @@ class ArticleRepository extends CommonRepository
      */
     public function hotLists()
     {
-        $lists = Article::withCount('interactives', function ($query) {
+        $lists = $this->model->withCount('interactives', function ($query) {
             $query->where('status', 1);
         })->sortBy('interactives_count')->paginate();
         return $lists;
@@ -294,7 +294,7 @@ class ArticleRepository extends CommonRepository
      */
     public function mostLikeLists()
     {
-        $lists = Article::withCount('interactives', function ($query) {
+        $lists = $this->model->withCount('interactives', function ($query) {
             $query->where('like', 1)->where('status', 1);
         })->sortBy('interactives_count')->paginate();
         return $lists;
@@ -306,7 +306,7 @@ class ArticleRepository extends CommonRepository
      */
     public function mostCollectLists()
     {
-        $lists = Article::withCount('interactives', function ($query) {
+        $lists = $this->model->withCount('interactives', function ($query) {
             $query->where('collect', 1)->where('status', 1);
         })->sortBy('interactives_count')->paginate();
         return $lists;
@@ -318,7 +318,7 @@ class ArticleRepository extends CommonRepository
      */
     public function mostcomment_lists()
     {
-        $lists = Article::withCount('comments', function ($query) {
+        $lists = $this->model->withCount('comments', function ($query) {
             $query->where('status', 1);
         })->sortBy('comments_count')->paginate();
         return $lists;
@@ -330,7 +330,7 @@ class ArticleRepository extends CommonRepository
      */
     public function mostReadLists()
     {
-        $lists = Article::withCount('reads', function ($query) {
+        $lists = $this->model->withCount('reads', function ($query) {
             $query->where('status', 1);
         })->sortBy('reads_count')->paginate();
         return $lists;
@@ -378,6 +378,6 @@ class ArticleRepository extends CommonRepository
         $search['is_audit'] = $dicts['audit']['pass'];
         $params             = $this->parseParams('articles', $search);
 
-        return Article::parseWheres($params)->with('comment')->with('read')->with('interact')->paginate();
+        return $this->model->parseWheres($params)->with('comment')->with('read')->with('interact')->paginate();
     }
 }

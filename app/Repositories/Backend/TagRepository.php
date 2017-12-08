@@ -6,9 +6,9 @@ use App\Models\Tag;
 class TagRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(Tag $tag)
     {
-        parent::__construct();
+        parent::__construct($tag);
     }
 
     /**
@@ -26,7 +26,7 @@ class TagRepository extends CommonRepository
         }
 
         $dicts  = $this->getRedisDictLists(['category' => [$type]]);
-        $result = Tag::create([
+        $result = $this->model->create([
             'admin_id'      => Auth::guard('admin')->id(),
             'category_type' => $dicts['category'][$type],
             'tag_name'      => $tag_name,

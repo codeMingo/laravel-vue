@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Mail;
 class RegisterRepository extends CommonRepository
 {
 
-    public function __construct()
+    public function __construct(User $user)
     {
-        parent::__construct();
+        parent::__construct($user);
     }
 
     /**
@@ -30,13 +30,13 @@ class RegisterRepository extends CommonRepository
             return responseResult(false, [], '注册失败，必填信息不得为空');
         }
 
-        $unique_list = User::where('username', $username)->whereOr('email', $email)->first();
+        $unique_list = $this->model->where('username', $username)->whereOr('email', $email)->first();
         if (!empty($unique_list)) {
             $error_text = $unique_list->username == $username ? '注册失败，用户名已被注册' : '注册失败，邮箱已被注册';
             return responseResult(false, [], $error_text);
         }
 
-        $result = User::create([
+        $result = $this->model->create([
             'username' => $username,
             'email'    => $email,
             'face'     => $face,
@@ -76,7 +76,7 @@ class RegisterRepository extends CommonRepository
             return responseResult(false, [], '激活失败，地址不存在或邮件已经失效');
         }
 
-        $list = User::where('id', $user_id)->first();
+        $list = $this->model->where('id', $user_id)->first();
         if (empty($list)) {
             return responseResult(false, [], '激活失败，不存在此用户');
         }
