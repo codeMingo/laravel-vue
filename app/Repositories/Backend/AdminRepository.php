@@ -152,7 +152,7 @@ class AdminRepository extends CommonRepository
      */
     public function getAdminLists($search)
     {
-        $where_params = $this->parseParams('admins', $search);
+        $where_params = $this->parseParams($search);
         return $this->model->parseWheres($where_params)->paginate();
     }
 

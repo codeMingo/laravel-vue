@@ -37,7 +37,7 @@ class VideoRepository extends CommonRepository
         $dicts              = $this->getRedisDictLists(['audit' => ['pass'], 'video_status' => ['show']]);
         $search['status']   = $dicts['video_status']['show'];
         $search['is_audit'] = $dicts['audit']['pass'];
-        $params             = $this->parseParams('video', $search);
+        $params             = $this->parseParams($search);
         return $this->model->parseWheres($params)->paginate();
     }
 }

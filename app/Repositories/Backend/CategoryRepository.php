@@ -13,7 +13,7 @@ class CategoryRepository extends CommonRepository
 
     public function getCategoryLists($search)
     {
-        $params = $this->parseParams('categories', $search);
+        $params = $this->parseParams($search);
 
         return $this->model->parseWheres($search)->get();
     }

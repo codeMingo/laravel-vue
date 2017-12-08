@@ -18,7 +18,7 @@ class InteractRepository extends CommonRepository
      */
     public function getInteractLists($user_id, $search)
     {
-        $params = $this->parseParams('interactes', $search);
+        $params = $this->parseParams($search);
         return  = $this->model->parseWheres($params)->with('article')->with('videoList')->paginate();
     }
 }

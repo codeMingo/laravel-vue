@@ -49,7 +49,7 @@ class CategoryRepository extends CommonRepository
         $dicts                   = $this->getRedisDictLists(['category' => [$type]]);
         $search['category_type'] = $dicts['category']['article'];
         $search['status']        = 1;
-        $params                  = $this->parseParams('categories', $search);
+        $params                  = $this->parseParams($search);
 
         return $this->model->parseWheres($params)->get();
     }

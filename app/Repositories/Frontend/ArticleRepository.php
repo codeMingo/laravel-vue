@@ -376,7 +376,7 @@ class ArticleRepository extends CommonRepository
         $dicts              = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $search['status']   = $dicts['article_status']['show'];
         $search['is_audit'] = $dicts['audit']['pass'];
-        $params             = $this->parseParams('articles', $search);
+        $params             = $this->parseParams($search);
 
         return $this->model->parseWheres($params)->with('comment')->with('read')->with('interact')->paginate();
     }

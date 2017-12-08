@@ -162,7 +162,7 @@ class UserRepository extends CommonRepository
      */
     public function getUserLists($search)
     {
-        $where_params = $this->parseParams('users', $search);
+        $where_params = $this->parseParams($search);
 
         return $this->model->parseWheres($where_params)->paginate();
     }

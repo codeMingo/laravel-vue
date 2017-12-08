@@ -240,7 +240,7 @@ class ArticleRepository extends CommonRepository
      */
     public function getArticleLists($search)
     {
-        $where_params = $this->parseParams('articles', $search);
+        $where_params = $this->parseParams($search);
 
         return $this->model->parseWheres($where_params)->paginate();
     }
