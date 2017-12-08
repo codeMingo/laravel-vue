@@ -133,7 +133,11 @@ class UserRepository extends CommonRepository
      */
     public function destroy($id)
     {
-        $result = $this->model->where('id', $id)->delete();
+        $result = $this->model->deleteDataById($id);
+
+        if (!$result) {
+            return responseResult(false, [], '该用户不存在或已被删除');
+        }
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'User/destroy',

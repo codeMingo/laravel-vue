@@ -152,7 +152,7 @@ class ArticleRepository extends CommonRepository
      */
     public function destroy($id)
     {
-        $result = $this->model->where('id', $id)->delete();
+        $result = $this->model->deleteDataById($id);
 
         if (!$result) {
             return responseResult(false, [], '该文章不存在或已被删除');
@@ -177,6 +177,7 @@ class ArticleRepository extends CommonRepository
     public function show($article_id)
     {
         $result['list'] = $this->model->where('id', $article_id)->first();
+
         if (empty($result['list'])) {
             return responseResult(false, [], '获取失败，不存在这篇文章');
         }
