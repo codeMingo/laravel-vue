@@ -133,7 +133,7 @@ class UserRepository extends CommonRepository
      */
     public function destroy($id)
     {
-        $result = $this->model->deleteDataById($id);
+        $result = $this->model->deleteById($id);
 
         if (!$result) {
             return responseResult(false, [], '该用户不存在或已被删除');

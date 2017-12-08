@@ -152,7 +152,7 @@ class ArticleRepository extends CommonRepository
      */
     public function destroy($id)
     {
-        $result = $this->model->deleteDataById($id);
+        $result = $this->model->deleteById($id);
 
         if (!$result) {
             return responseResult(false, [], '该文章不存在或已被删除');
@@ -171,12 +171,12 @@ class ArticleRepository extends CommonRepository
 
     /**
      * 详情
-     * @param  Int $article_id
+     * @param  Int $id
      * @return Array
      */
-    public function show($article_id)
+    public function show($id)
     {
-        $result['list'] = $this->model->where('id', $article_id)->first();
+        $result['list'] = $this->model->where('id', $id)->first();
 
         if (empty($result['list'])) {
             return responseResult(false, [], '获取失败，不存在这篇文章');
@@ -204,32 +204,32 @@ class ArticleRepository extends CommonRepository
 
     /**
      * 获取评论列表
-     * @param  Int $article_id
+     * @param  Int $id
      * @return Array
      */
-    public function getComments($article_id)
+    public function getComments($id)
     {
-        $list = $this->model->where('id', $article_id)->first();
+        $list = $this->model->where('id', $id)->first();
         if (empty($list)) {
             return responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $result['lists'] = ArticleComment::where('article_id', $article_id)->with('user')->get();
+        $result['lists'] = ArticleComment::where('article_id', $id)->with('user')->get();
 
         return responseResult(true, $result);
     }
 
     /**
      * 获取浏览列表
-     * @param  Int $article_id
+     * @param  Int $id
      * @return Array
      */
-    public function getReads($article_id)
+    public function getReads($id)
     {
-        $list = $this->model->where('id', $article_id)->first();
+        $list = $this->model->where('id', $id)->first();
         if (empty($list)) {
             return responseResult(false, [], '获取失败，不存在这篇文章');
         }
-        $result['lists'] = ArticleRead::where('article_id', $article_id)->with('user')->get();
+        $result['lists'] = ArticleRead::where('article_id', $id)->with('user')->get();
 
         return responseResult(true, $result);
     }

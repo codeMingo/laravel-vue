@@ -46,7 +46,7 @@ abstract class BaseRepository
      * @param  Array|Int $ids 删除的主键id
      * @return Bool
      */
-    public function deleteDataById($ids)
+    public function deleteById($ids)
     {
         return (bool) $this->model->destroy($ids);
     }
@@ -56,24 +56,24 @@ abstract class BaseRepository
      * @param  Array  $where 删除条件
      * @return Bool
      */
-    public function deleteByWhere(array $where)
+    public function deleteByWhere(Array $where)
     {
         return (bool) $this->model->parseWheres($where)->delete();
     }
 
     /**
      * 查询详情
-     * @param  Int $id 日志id
+     * @param  Array $where 查询条件
      * @param  Bool $with_trashed 查询软删除数据
      * @return Array
      */
-    public function getDetail($id, $with_trashed = false)
+    public function getDetail($where = [], $with_trashed = false)
     {
-        $query = $this->model;
+        $query = $this->model->parseWheres($where);
         if ($with_trashed) {
             $query = $query->withTrashed();
         }
-        return $query->find($id);
+        return $query->first();
     }
 
     /**

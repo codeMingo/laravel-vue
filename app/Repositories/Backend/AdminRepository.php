@@ -129,7 +129,7 @@ class AdminRepository extends CommonRepository
      */
     public function destroy($id)
     {
-        $result = $this->model->deleteDataById($id);
+        $result = $this->model->deleteById($id);
         if (!$result) {
             return responseResult(false, [], '该管理员不存在或已被删除');
         }

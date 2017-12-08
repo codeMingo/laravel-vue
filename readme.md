@@ -1,9 +1,13 @@
-## ububs Blog ##
-- The purpose of this project is to learn and communicate
-- This project is still in the development stage, with frequent updates, there may be many wrong places, thanks for your support！Keep updating！Thank you！（2017-08-20）
-- Home page address：**xxx.com**
-- Admin page address：**xxx.com/backend**
-- QQ：**292304400**，gmail：**linlm1994@gmail.com**
+## 前言 ##
+- 本项目属业余时间开发（目前上海就职），纯属为了交流与学习，代码质量与性能等优化持续进行
+- 目前属于开发阶段，更新的比较频繁，项目大体功能已实现，如果这个项目对你有帮助，请给个star，谢谢！（2017-08-20）
+- 前台地址：**xxx.com**
+- 后台地址：**xxx.com/backend**
+- QQ：**292304400**，微信：**Ruizhenger**，邮箱：**linlm1994@gmail.com**，欢迎交流
+- 持续更新ing
+
+## 项目简介 ##
+> 本项目同时开发前后台，主要使用laravel + vue + elementui搭建，项目集合了用户、文章、视频管理等完整的博客功能，代码严格遵守psr-2规范，如果不合理的地方，烦请告知，可通过github issue、QQ、email联系我，感谢支持！
 
 ## Main module ##
 - 用户和管理员注册、登录、退出、改密等
