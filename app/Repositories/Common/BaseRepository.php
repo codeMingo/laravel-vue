@@ -82,7 +82,7 @@ abstract class BaseRepository
      */
     public function getTableColumns($table_name = '')
     {
-        $table_name = empty($table_name) ? $this->mdoel->getTable() : $table_name;
+        $table_name = empty($table_name) ? $this->model->getTable() : $table_name;
         return Schema::getColumnListing($table_name);
     }
 
@@ -96,7 +96,7 @@ abstract class BaseRepository
         if (empty($params)) {
             return [];
         }
-        $table_name = empty($table_name) ? $this->mdoel->getTable() : $table_name;
+        $table_name = empty($table_name) ? $this->model->getTable() : $table_name;
         $field_lists = $this->getTableColumns($table_name);
         $param_rules = isset(config('ububs.param_rules')[$table_name]) ? config('ububs.param_rules')[$table_name] : []; // 获取过滤规则
         $result      = [];
