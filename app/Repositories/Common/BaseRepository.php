@@ -81,8 +81,8 @@ abstract class BaseRepository
     /**
      * 获取多条数据，pagination分页
      * @param  array   $where        查询条件
-     * @param  boolean $with_trashed 是否查找软删除数据 
-     * @return Object                
+     * @param  boolean $with_trashed 是否查找软删除数据
+     * @return Object
      */
     public function getPaginateLists($where = [], $with_trashed = false)
     {
@@ -92,6 +92,22 @@ abstract class BaseRepository
             $query = $query->withTrashed();
         }
         return $query->paginate();
+    }
+
+    /**
+     * 获取多条数据，不分页
+     * @param  array   $where        查询条件
+     * @param  boolean $with_trashed 是否查找软删除数据
+     * @return Object
+     */
+    public function getLists($where = [], $with_trashed = false)
+    {
+        $where = $this->parseParams($where);
+        $query = $this->model->parseWheres($where);
+        if ($with_trashed) {
+            $query = $query->withTrashed();
+        }
+        return $query->get();
     }
 
     /**
@@ -109,7 +125,7 @@ abstract class BaseRepository
      * @param  Array $params
      * @return Array [key => [condition=>'', value=>'']]
      */
-    public function parseParams(Array $params, $table_name = '')
+    public function parseParams(array $params, $table_name = '')
     {
         if (empty($params)) {
             return [];
@@ -120,7 +136,7 @@ abstract class BaseRepository
         $result      = [];
         foreach ($params as $key => $value) {
             // 参数不在表内直接过滤
-            $select_filter = ['__select__', '__not_select__', '__relation_table__'];
+            $select_filter = ['__select__', '__not_select__', '__relation_table__', '__order_by__'];
             if ((!in_array($key, $field_lists) || $value === '' || $value === []) && !in_array($key, $select_filter)) {
                 continue;
             }
@@ -132,6 +148,11 @@ abstract class BaseRepository
                 // 关联其他表
                 if ($key === '__relation_table__') {
                     $result['__relation_table__'] = $value;
+                    continue;
+                }
+                // 排序
+                if ($key === '__order_by__') {
+                    $result['__order_by__'] = $value;
                     continue;
                 }
                 $fields = [];

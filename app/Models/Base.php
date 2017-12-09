@@ -37,6 +37,12 @@ class Base extends Model
                 $query->with($item);
                 continue;
             }
+            if ($key === '__order_by__') {
+                foreach ($item as $field_key => $order_type) {
+                    $query->orderBy($field_key, $order_type);
+                }
+                continue;
+            }
             $condition = isset($condition_arr[$item['condition']]) ? $condition_arr[$item['condition']] : 'where';
             if ($item['condition'] == 'like') {
                 $query->where($key, $item['condition'], '%' . $item['value'] . '%');
@@ -46,4 +52,5 @@ class Base extends Model
         }
         return $query;
     }
+
 }

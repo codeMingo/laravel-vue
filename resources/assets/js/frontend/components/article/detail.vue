@@ -25,7 +25,7 @@
                     <div class="article-label">
                         <p v-show="article_data.tag_lists">
                             <strong>标签：</strong>
-                            <a href="javascript:;" v-for="item in article_data.tag_lists">{{item.tag_name}}</a>
+                            <a href="javascript:;" v-for="item in article_data.tag_lists">{{item.title}}</a>
                         </p>
                     </div>
                     <div class="user-tip" v-show="!this.$store.state.user_data.username">

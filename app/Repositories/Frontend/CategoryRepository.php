@@ -30,8 +30,9 @@ class CategoryRepository extends CommonRepository
      */
     public function getArticleCategoryLists()
     {
-        $search['type']  = 'article';
-        $result['lists'] = $this->getCategoryLists($search);
+        $dicts                   = $this->getRedisDictLists(['category' => ['article']]);
+        $search['category_type'] = $dicts['category']['article'];
+        $result['lists']         = $this->getCategoryLists($search);
         return responseResult(true, $result);
     }
 
@@ -42,15 +43,11 @@ class CategoryRepository extends CommonRepository
      */
     public function getCategoryLists($search)
     {
-        $type = isset($search['type']) ? strval($search['type']) : 0;
-        if (!$type) {
-            return [];
-        }
-        $dicts                   = $this->getRedisDictLists(['category' => [$type]]);
-        $search['category_type'] = $dicts['category']['article'];
-        $search['status']        = 1;
-        $params                  = $this->parseParams($search);
-
-        return $this->model->parseWheres($params)->get();
+        $default_search = [
+            'status'         => 1,
+            '__not_select__' => ['deleted_at', 'updated_at'],
+        ];
+        $search = array_merge($default_search, $search);
+        return $this->getLists($search);
     }
 }
