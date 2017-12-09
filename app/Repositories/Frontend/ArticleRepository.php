@@ -82,9 +82,6 @@ class ArticleRepository extends CommonRepository
     public function getPrevlist($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        return $this->getDetail([
-
-        ]);
         return $this->model->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '<', $id)->with('read')->with('interact')->with('comment')->orderBy('id', 'desc')->first();
     }
 
