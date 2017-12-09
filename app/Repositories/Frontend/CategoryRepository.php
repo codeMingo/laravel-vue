@@ -31,7 +31,10 @@ class CategoryRepository extends CommonRepository
     public function getArticleCategoryLists()
     {
         $dicts                   = $this->getRedisDictLists(['category' => ['article']]);
-        $search['category_type'] = $dicts['category']['article'];
+        $search = [
+            'category_type' => $dicts['category']['article'],
+            '__select__' => ['id', 'title']
+        ];
         $result['lists']         = $this->getCategoryLists($search);
         return responseResult(true, $result);
     }

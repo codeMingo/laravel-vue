@@ -10,13 +10,12 @@
                                 <el-row :gutter="10">
                                     <el-col :sm="8" :md="5">
                                         <div class="list-image">
-                                            <img v-if="!this.$store.state.user_data.face" src="/images/focus_weixin.png">
-                                            <img v-else :src="this.$store.state.user_data.face">
+                                            <img :src="this.$store.state.user_data.face">
                                         </div>
                                     </el-col>
                                     <el-col :sm="16" :md="19">
                                         <div class="list-text">
-                                            <h3>用户名：{{user_main.username}}</h3>
+                                            <h3>用户名：{{this.$store.state.user_data.username}}</h3>
                                             <p>个性签名：{{user_main.sign | defaultValue('未设置')}}</p>
                                         </div>
                                     </el-col>
@@ -140,7 +139,6 @@ export default {
         };
     },
     mounted() {
-        this.getOriginData();
     },
     watch: {
         '$route' (to, from) {
@@ -148,13 +146,6 @@ export default {
         }
     },
     methods: {
-        getOriginData() {
-            let _this = this;
-            axios.get('/user/main-show').then(response => {
-                let {status, data, message} = response.data;
-                _this.user_main = data.list;
-            });
-        }
     }
 }
 </script>

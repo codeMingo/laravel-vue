@@ -2,17 +2,17 @@
 namespace App\Repositories\Frontend;
 
 use App\Models\User;
-use App\Repositories\Frontend\InteractReposity;
+use App\Repositories\Frontend\InteractRepository;
 
 class UserRepository extends CommonRepository
 {
 
-    public $interactReposity;
+    public $interactRepository;
 
-    public function __construct(User $user, InteractReposity $interactReposity)
+    public function __construct(User $user, InteractRepository $interactRepository)
     {
         parent::__construct($user);
-        $this->interactReposity = $interactReposity;
+        $this->interactRepository = $interactRepository;
     }
 
     /**
@@ -91,7 +91,7 @@ class UserRepository extends CommonRepository
     {
         $search           = isset($input['search']) ? $input['search'] : [];
         $input['user_id'] = $this->getCurrentId();
-        $result['lists']  = $this->interactReposity->getInteractLists($search);
+        $result['lists']  = $this->interactRepository->getInteractLists($search);
         return responseResult(true, $result);
     }
 
