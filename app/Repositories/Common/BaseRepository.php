@@ -36,7 +36,7 @@ abstract class BaseRepository
      * @param  Array $data 插入数据
      * @return Bool
      */
-    public function insertMultipleData(Array $data)
+    public function insertMultipleData(array $data)
     {
         return $this->model->insert($data);
     }
@@ -56,24 +56,42 @@ abstract class BaseRepository
      * @param  Array  $where 删除条件
      * @return Bool
      */
-    public function deleteByWhere(Array $where)
+    public function deleteByWhere(array $where)
     {
         return (bool) $this->model->parseWheres($where)->delete();
     }
 
     /**
      * 查询详情
+     * @param  Int $id 主键
      * @param  Array $where 查询条件
      * @param  Bool $with_trashed 查询软删除数据
      * @return Array
      */
-    public function getDetail($where = [], $with_trashed = false)
+    public function getDetail($id, $where = [], $with_trashed = false)
     {
+        $where = $this->parseParams($where);
         $query = $this->model->parseWheres($where);
         if ($with_trashed) {
             $query = $query->withTrashed();
         }
-        return $query->first();
+        return $query->find($id);
+    }
+
+    /**
+     * 获取多条数据，pagination分页
+     * @param  array   $where        查询条件
+     * @param  boolean $with_trashed 是否查找软删除数据 
+     * @return Object                
+     */
+    public function getPaginateLists($where = [], $with_trashed = false)
+    {
+        $where = $this->parseParams($where);
+        $query = $this->model->parseWheres($where);
+        if ($with_trashed) {
+            $query = $query->withTrashed();
+        }
+        return $query->paginate();
     }
 
     /**
@@ -96,20 +114,44 @@ abstract class BaseRepository
         if (empty($params)) {
             return [];
         }
-        $table_name = empty($table_name) ? $this->model->getTable() : $table_name;
+        $table_name  = empty($table_name) ? $this->model->getTable() : $table_name;
         $field_lists = $this->getTableColumns($table_name);
-        $param_rules = isset(config('ububs.param_rules')[$table_name]) ? config('ububs.param_rules')[$table_name] : []; // 获取过滤规则
+        $param_rules = isset(config('param_rules.param_rules')[$table_name]) ? config('param_rules.param_rules')[$table_name] : []; // 获取过滤规则
         $result      = [];
         foreach ($params as $key => $value) {
             // 参数不在表内直接过滤
-            if (!in_array($key, $field_lists) || $value === '' || $value === []) {
+            $select_filter = ['__select__', '__not_select__', '__relation_table__'];
+            if ((!in_array($key, $field_lists) || $value === '' || $value === []) && !in_array($key, $select_filter)) {
                 continue;
             }
-            // 参数过滤方式
+            // 得到最后参数
+            if (in_array($key, $select_filter)) {
+                if (!is_array($value)) {
+                    continue;
+                }
+                // 关联其他表
+                if ($key === '__relation_table__') {
+                    $result['__relation_table__'] = $value;
+                    continue;
+                }
+                $fields = [];
+                foreach ($value as $field) {
+                    if (in_array($field, $field_lists)) {
+                        $fields[] = $field;
+                    }
+                }
+                if ($key === '__select__') {
+                    $result['__select__'] = $fields;
+                } elseif ($key === '__not_select__') {
+                    $result['__select__'] = array_diff($field_lists, $fields);
+                }
+                continue;
+            }
             $result[$key] = [
                 'condition' => isset($param_rules[$key]) ? $param_rules[$key] : '=',
                 'value'     => $value,
             ];
+
         }
         return $result;
     }

@@ -29,6 +29,14 @@ class Base extends Model
         ];
 
         foreach ($param_rules as $key => $item) {
+            if ($key === '__select__') {
+                $query->select($item);
+                continue;
+            }
+            if ($key === '__relation_table__') {
+                $query->with($item);
+                continue;
+            }
             $condition = isset($condition_arr[$item['condition']]) ? $condition_arr[$item['condition']] : 'where';
             if ($item['condition'] == 'like') {
                 $query->where($key, $item['condition'], '%' . $item['value'] . '%');

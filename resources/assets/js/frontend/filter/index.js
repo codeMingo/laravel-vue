@@ -56,6 +56,9 @@ export function formatByOptions(val, options, objKey, objValue, text = '-') {
  * @return {string}
  */
 export function subString(str, sub_start, sub_length) {
+    if (str === null || str === undefined) {
+        return '';
+    }
     str = str.replace(/<\/?[^>]*>/g, ''); //去除HTML tag
     str = str.replace(/[ | ]*\n/g, '\n'); //去除行尾空白
     str = str.replace(/\n[\s| | ]*\r/g, '\n'); //去除多余空行
@@ -79,7 +82,7 @@ export function getCount(lists, key = '', value = 1) {
         }
         lists.forEach(response => {
             if (response[key] == value) {
-                count ++;
+                count++;
             }
         });
         return count;

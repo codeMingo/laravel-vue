@@ -41,9 +41,13 @@ class ArticleRepository extends CommonRepository
      */
     public function detail($id)
     {
-        $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-
-        $result['list'] = $this->model->where('id', $id)->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->with('read')->with('interact')->with('category')->first();
+        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
+        $result['list'] = $this->getDetail($id, [
+            'status'             => $dicts['article_status']['show'],
+            'is_audit'           => $dicts['audit']['pass'],
+            '__not_select__'     => ['admin_id', 'user_id', 'deleted_at', 'updated_at', 'is_audit', 'recommend'],
+            '__relation_table__' => ['interact', 'category'],
+        ]);
         if (empty($result['list'])) {
             return responseResult(false, $result, '获取失败，文章不存在或已被删除');
         }
@@ -78,6 +82,9 @@ class ArticleRepository extends CommonRepository
     public function getPrevlist($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
+        return $this->getDetail([
+
+        ]);
         return $this->model->where('status', $dicts['article_status']['show'])->where('is_audit', $dicts['audit']['pass'])->where('id', '<', $id)->with('read')->with('interact')->with('comment')->orderBy('id', 'desc')->first();
     }
 
@@ -161,7 +168,7 @@ class ArticleRepository extends CommonRepository
         Parent::saveOperateRecord([
             'action' => 'Article/interactive',
             'params' => [
-                'input' => $input
+                'input' => $input,
             ],
             'text'   => $type_text . '成功',
         ]);
@@ -373,11 +380,11 @@ class ArticleRepository extends CommonRepository
      */
     public function getArticleLists($search)
     {
-        $dicts              = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        $search['status']   = $dicts['article_status']['show'];
-        $search['is_audit'] = $dicts['audit']['pass'];
-        $params             = $this->parseParams($search);
-
-        return $this->model->parseWheres($params)->with('comment')->with('read')->with('interact')->paginate();
+        $dicts                        = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
+        $search['status']             = $dicts['article_status']['show'];
+        $search['is_audit']           = $dicts['audit']['pass'];
+        $search['__not_select__']     = ['deleted_at', 'updated_at', 'tag_ids', 'source', 'is_audit', 'admin_id', 'user_id'];
+        $search['__relation_table__'] = ['comment', 'read', 'interact'];
+        return $this->getPaginateLists($search);
     }
 }
