@@ -1,78 +1,46 @@
 <?php
 namespace App\Http\Controllers\Frontend;
 
-use App\Repositories\Frontend\ArticleRepository;
+use App\Servers\Frontend\ArticleServer;
 use Illuminate\Http\Request;
 
 class ArticleController extends BaseController
 {
-    public $repository;
 
-    public function __construct(ArticleRepository $articleRepository)
+    public function __construct(ArticleServer $articleServer)
     {
         parent::__construct();
-        $this->repository = $articleRepository;
+        $this->server = $articleServer;
     }
 
     // 文章列表
     public function lists(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = $this->repository->lists($input);
+        $result = $this->server->lists($input);
         return response()->json($result);
     }
 
     // 文章详情
-    public function detail($article_id)
+    public function detail($id)
     {
-        $result = $this->repository->detail($article_id);
-        return response()->json($result);
-    }
-
-    // 获取评论列表
-    public function commentLists($article_id)
-    {
-        $result = $this->repository->commentLists($article_id);
+        $result = $this->server->detail($id);
         return response()->json($result);
     }
 
     // 点赞 or 反对 or 收藏
-    public function interactive(Request $request, $article_id)
+    public function interactive(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = $this->repository->interactive($input, $article_id);
+        $result = $this->server->interactive($id, $input);
         return response()->json($result);
     }
 
     // 评论 or 回复
-    public function comment(Request $request, $article_id)
+    public function comment(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = $this->repository->comment($input, $article_id);
-        return response()->json($result);
-    }
-
-    // 点赞 or 反对 or 收藏 详情
-    public function interactiveDetail(Request $request, $id)
-    {
-        $input  = $request->input('data');
-        $result = $this->repository->interactiveDetail($input, $id);
-        return response()->json($result);
-    }
-
-    // 推荐文章
-    public function recommendLists(Request $request)
-    {
-        $input  = $request->input('data');
-        $result = $this->repository->recommendList($input);
-        return response()->json($result);
-    }
-
-    // 获取我点赞 or 反对 or 收藏的文章
-    public function interativeLists(Request $request)
-    {
-        $input  = $request->input('data');
-        $result = $this->repository->interativeLists($input);
+        $result = $this->server->comment($id, $input);
         return response()->json($result);
     }
 }

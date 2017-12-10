@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Redis;
 
 class BaseController extends Controller
 {
+    protected $server;
+
     public function __construct()
     {
         // 判断是否生成缓存

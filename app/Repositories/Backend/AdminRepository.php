@@ -2,6 +2,7 @@
 namespace App\Repositories\Backend;
 
 use App\Models\Admin;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,16 +15,26 @@ class AdminRepository extends CommonRepository
     }
 
     /**
-     * 管理员列表
-     * @param  Array $input [search]
+     * 获取当前登录的用户
      * @return Array
      */
-    public function lists($input)
+    public function currentLoginAdmin()
     {
-        $search            = isset($input['search']) ? (array) $input['search'] : [];
-        $result['lists']   = $this->getAdminLists($search);
-        $result['options'] = $this->getOptions();
-        return responseResult(true, $result);
+        $result = [];
+        if (Auth::guard('admin')->check()) {
+            $result = Auth::guard('admin')->user();
+        }
+        return $result;
+    }
+
+    /**
+     * 详情
+     * @param  int $id 文章id
+     * @return Array
+     */
+    public function getAdminDetail($id)
+    {
+
     }
 
     /**
@@ -65,41 +76,20 @@ class AdminRepository extends CommonRepository
     }
 
     /**
-     * 详情
-     * @param  Int $id
-     * @return Array
-     */
-    public function show($id)
-    {
-        $result['list'] = $this->model->where('id', $id)->with('adminPermission')->with('adminLoginReocrd')->with('adminOperateRecord')->first();
-        return responseResult(true, $result);
-    }
-
-    /**
      * 编辑
      * @param  Array $input [username, email, password, permission_id, status]
      * @param  Int $id
      * @return Array
      */
-    public function update($input, $id)
+    public function update($id, $username, $email, $password, $permission_id, $status)
     {
-        $username      = isset($input['username']) ? strval($input['username']) : '';
-        $email         = isset($input['email']) ? strval($input['email']) : '';
-        $password      = (isset($input['password']) && !empty($input['password'])) ? Hash::make(strval($input['password'])) : '';
-        $permission_id = isset($input['permission_id']) ? intval($input['permission_id']) : 0;
-        $status        = isset($input['status']) ? intval($input['status']) : 0;
-
-        if (!$username || !$email || !$permission_id) {
-            return responseResult(false, [], '必填字段不得为空');
-        }
-
         $list = $this->model->find($id);
         if (empty($list)) {
-            return responseResult(false, [], '管理员不存在');
+            return ['flag' => false, 'message' => '管理员不存在'];
         }
         $unique_list = $this->model->where('username', $username)->whereOr('email', $email)->where('id', '!=', $id)->first();
         if (!empty($unique_list)) {
-            return responseResult(false, [], $unique_list->username == $username ? '用户名被注册' : '邮箱被注册');
+            return ['flag' => false, 'message' => $unique_list->username == $username ? '用户名被注册' : '邮箱被注册'];
         }
         $list->username      = $username;
         $list->email         = $email;
@@ -114,12 +104,16 @@ class AdminRepository extends CommonRepository
         Parent::saveOperateRecord([
             'action' => 'Admin/update',
             'params' => [
-                'input' => $input,
+                'id'            => $id,
+                'username'      => $username,
+                'email'         => $email,
+                'password'      => $password,
+                'permission_id' => $permission_id,
+                'status'        => $status,
             ],
             'text'   => '更新管理员资料成功',
         ]);
-
-        return responseResult(true, [], '更新成功');
+        return true;
     }
 
     /**
@@ -129,9 +123,9 @@ class AdminRepository extends CommonRepository
      */
     public function destroy($id)
     {
-        $result = $this->model->deleteById($id);
+        $result = $this->deleteById($id);
         if (!$result) {
-            return responseResult(false, [], '该管理员不存在或已被删除');
+            return ['flag' => false, 'message' => '该管理员不存在或已被删除'];
         }
 
         // 记录操作日志
@@ -142,7 +136,7 @@ class AdminRepository extends CommonRepository
             ],
             'text'   => '删除管理员成功',
         ]);
-        return responseResult(true, [], '删除成功');
+        return true;
     }
 
     /**

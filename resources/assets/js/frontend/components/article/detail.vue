@@ -385,12 +385,12 @@ export default {
         '$route' (to, from) {
             this.article_id = this.$route.params.id;
             this.getList();
-            this.getCommentLists();
+            //this.getCommentLists();
         }
     },
     mounted() {
         this.getList();
-        this.getCommentLists();
+        //this.getCommentLists();
     },
     methods: {
         getList() {
@@ -401,6 +401,12 @@ export default {
                 _this.article_options = data.options;
                 _this.prev_article = data.prev_article;
                 _this.next_article = data.next_article;
+                // 评论相关
+                _this.article_comments = data.comment_lists.data;
+                _this.article_comment_pagination.per_page = parseInt(data.comment_lists.per_page);
+                _this.article_comment_pagination.current_page = parseInt(data.comment_lists.current_page);
+                _this.article_comment_pagination.total = parseInt(data.comment_lists.total);
+
             });
         },
         commentSubmit() {

@@ -1,25 +1,25 @@
 <?php
 namespace App\Http\Controllers\Frontend;
 
-use App\Repositories\Frontend\RegisterRepository;
+use App\Servers\Frontend\RegisterServer;
 use Illuminate\Http\Request;
 
 class RegisterController extends BaseController
 {
 
-    public $repository;
+    public $server;
 
-    public function __construct(RegisterRepository $registerRepository)
+    public function __construct(RegisterServer $registerServer)
     {
         parent::__construct();
-        $this->repository = $registerRepository;
+        $this->server = $registerServer;
     }
 
     // 创建用户
     public function register(Request $request)
     {
         $input  = $request->input('data');
-        $result = $this->repository->register($input);
+        $result = $this->server->register($input);
         return response()->json($result);
     }
 
@@ -27,7 +27,7 @@ class RegisterController extends BaseController
     public function active(Request $request)
     {
         $input = $request->all();
-        $result =  $this->repository->active($input);
+        $result =  $this->server->active($input);
         return view('frontend.active', [
             'status' => $result['status'],
             'message' => $result['message'],
@@ -38,7 +38,7 @@ class RegisterController extends BaseController
     public function sendActiveEmail(Request $request)
     {
         $input  = $request->input('data');
-        $result = $this->repository->sendActiveEmail($input);
+        $result = $this->server->sendActiveEmail($input);
         return response()->json($result);
     }
 }

@@ -13,18 +13,6 @@ class LeaveRepository extends CommonRepository
     }
 
     /**
-     * 留言列表
-     * @param  Array $input [search_form]
-     * @return Array
-     */
-    public function lists($input)
-    {
-        $search          = isset($input['search']) ? (array) $input['search'] : [];
-        $result['lists'] = $this->getLeaveLists($search);
-        return responseResult(true, $result);
-    }
-
-    /**
      * 获取列表
      * @return Object
      */
@@ -61,23 +49,17 @@ class LeaveRepository extends CommonRepository
      * @param  Array $input [leave_id, content] 留言数据
      * @return Array
      */
-    public function leave($input)
+    public function leave($content, $leave_id = 0)
     {
-        $leave_id = isset($input['leave_id']) ? intval($input['leave_id']) : 0;
-        $content  = isset($input['content']) ? strval($input['content']) : '';
-        if (!$content) {
-            return responseResult(false, [], '留言失败，参数错误，请刷新后重试');
-        }
-
         $dicts = $this->getRedisDictLists(['system' => ['leave_audit'], 'audit' => ['loading', 'pass']]);
         // 表示回复
         if ($leave_id) {
             $list = $this->model->where('id', $leave_id)->where('status', 1)->where('is_audit', $dicts['audit']['pass'])->first();
             if (empty($list)) {
-                return responseResult(false, [], '留言失败，参数错误，请刷新后重试');
+                return ['flag' => false, 'message' => '回复失败，该留言不存在或已被删除'];
             }
         }
-        $result['list'] = $this->model->create([
+        $result = $this->model->create([
             'user_id'    => $this->getCurrentId(),
             'parent_id'  => $leave_id,
             'content'    => $content,
@@ -88,25 +70,15 @@ class LeaveRepository extends CommonRepository
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'Leave/publish',
-            'params' => $input,
+            'params' => [
+                'content' => $content,
+                'leave_id' => $leave_id
+            ],
             'text'   => $leave_id ? '回复成功' : '留言成功',
         ]);
-
-        $result['list']['response']      = [];
-        $result['list']['show_response'] = true;
-        $result['list']['user']          = DB::table('users')->where('id', $this->getCurrentId())->first();
-        return responseResult(true, $result, $leave_id ? '回复成功' : '留言成功');
-    }
-
-    /**
-     * 获取最新的10条留言
-     * @return Array
-     */
-    public function getNewLeaveList()
-    {
-        $dicts  = $this->getRedisDictLists(['audit' => ['pass']]);
-        $result['list'] = $this->model->where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->orderBy('created_at', 'desc')->limit(10)->with('user')->get();
-
-        return responseResult(true, $result);
+        $result['response']      = [];
+        $result['show_response'] = true;
+        $result['user']          = DB::table('users')->where('id', $this->getCurrentId())->first();
+        return $result;
     }
 }

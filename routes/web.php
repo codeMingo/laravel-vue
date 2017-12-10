@@ -48,10 +48,9 @@ Route::group(['namespace' => 'Frontend'], function () {
         Route::post('/leave', 'LeaveController@leave');
 
         // 用户模块
-        Route::get('/user/show', 'UserController@show');
-        Route::get('/user/index', 'UserController@index');
+        Route::get('/user/current-user', 'UserController@currentUser');
         Route::put('/user/update', 'UserController@update');
-        Route::get('/user/collect', 'UserController@collect');
+        Route::get('/user/collect-lists', 'UserController@collectLists');
     });
 });
 

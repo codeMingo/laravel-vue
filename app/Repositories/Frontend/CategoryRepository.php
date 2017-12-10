@@ -12,31 +12,33 @@ class CategoryRepository extends CommonRepository
     }
 
     /**
-     * 列表
-     * @param  Array $input [search]
-     * @return Array
-     */
-    public function index($input)
-    {
-        $search          = isset($input['search']) ? (array) $input['search'] : [];
-        $result['lists'] = $this->getCategoryLists($search);
-
-        return responseResult(true, $result);
-    }
-
-    /**
      * 文章菜单列表
      * @return Array
      */
     public function getArticleCategoryLists()
     {
-        $dicts                   = $this->getRedisDictLists(['category' => ['article']]);
+        $dicts  = $this->getRedisDictLists(['category' => ['article']]);
         $search = [
             'category_type' => $dicts['category']['article'],
-            '__select__' => ['id', 'title']
+            '__select__'    => ['id', 'title'],
         ];
-        $result['lists']         = $this->getCategoryLists($search);
-        return responseResult(true, $result);
+        $result = $this->getCategoryLists($search);
+        return $result;
+    }
+
+    /**
+     * 视频菜单列表
+     * @return Array
+     */
+    public function getVideoCategoryLists()
+    {
+        $dicts  = $this->getRedisDictLists(['category' => ['video']]);
+        $search = [
+            'category_type' => $dicts['category']['article'],
+            '__select__'    => ['id', 'title'],
+        ];
+        $result = $this->getCategoryLists($search);
+        return $result;
     }
 
     /**

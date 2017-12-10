@@ -36,4 +36,9 @@ class AdminPermissionRepository extends CommonRepository
         return $this->model->where('id', $id)->where('status', 1)->first();
     }
 
+    public function getTextById($id)
+    {
+        return $this->model->where('id', $id)->where('status', 1)->value('text');
+    }
+
 }

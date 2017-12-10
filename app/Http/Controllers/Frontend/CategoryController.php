@@ -1,24 +1,22 @@
 <?php
 namespace App\Http\Controllers\Frontend;
 
-use App\Repositories\Frontend\CategoryRepository;
+use App\Servers\Frontend\CategoryServer;
 use Illuminate\Http\Request;
 
 class CategoryController extends BaseController
 {
 
-    public $repository;
-
-    public function __construct(CategoryRepository $categoryRepository)
+    public function __construct(CategoryServer $categoryServer)
     {
         parent::__construct();
-        $this->repository = $categoryRepository;
+        $this->server = $categoryServer;
     }
 
     // 文章菜单列表
     public function articleCategoryLists(Request $request)
     {
-        $result = $this->repository->getArticleCategoryLists();
+        $result = $this->server->getArticleCategoryLists();
         return response()->json($result);
     }
 }

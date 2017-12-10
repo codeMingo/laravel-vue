@@ -96,12 +96,12 @@ export default {
         };
     },
     mounted() {
-        this.getIndex();
+        this.getCurrentUser();
     },
     methods: {
-        getIndex() {
+        getCurrentUser() {
             let _this = this;
-            axios.get('/user/index').then(response => {
+            axios.get('/user/current-user').then(response => {
                 let { status, data, message } = response.data;
                 _this.user_data = data.list;
             }).catch(response => {

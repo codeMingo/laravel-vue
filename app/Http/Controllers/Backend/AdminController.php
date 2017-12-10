@@ -1,18 +1,16 @@
 <?php
 namespace App\Http\Controllers\Backend;
 
-use App\Repositories\Backend\AdminRepository;
+use App\Servers\Backend\AdminServer;
 use Illuminate\Http\Request;
 
 class AdminController extends BaseController
 {
 
-    public $repository;
-
-    public function __construct(AdminRepository $adminRepository)
+    public function __construct(AdminServer $adminServer)
     {
         parent::__construct();
-        $this->repository = $adminRepository;
+        $this->server = $adminServer;
     }
 
     /**
@@ -23,7 +21,7 @@ class AdminController extends BaseController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = $this->repository->lists($input);
+        $result = $this->server->lists($input);
         return response()->json($result);
     }
 
@@ -46,7 +44,7 @@ class AdminController extends BaseController
     public function store(Request $request)
     {
         $input  = $request->input('data');
-        $result = $this->repository->store($input);
+        $result = $this->server->store($input);
         return response()->json($result);
     }
 
@@ -58,7 +56,7 @@ class AdminController extends BaseController
      */
     public function show($id)
     {
-        $result = $this->repository->show($id);
+        $result = $this->server->show($id);
         return response()->json($result);
     }
 
@@ -83,7 +81,7 @@ class AdminController extends BaseController
     public function update(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = $this->repository->update($input, $id);
+        $result = $this->server->update($id, $input);
         return response()->json($result);
     }
 
@@ -95,7 +93,7 @@ class AdminController extends BaseController
      */
     public function destroy($id)
     {
-        $result = $this->repository->destroy($id);
+        $result = $this->server->destroy($id);
         return response()->json($result);
     }
 
@@ -104,7 +102,7 @@ class AdminController extends BaseController
      */
     public function options()
     {
-        $result = $this->repository->getOptions();
+        $result = $this->server->getOptions();
         return response()->json($result);
     }
 
@@ -116,7 +114,7 @@ class AdminController extends BaseController
     public function out(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = $this->repository->out($input);
+        $result = $this->server->out($input);
         return response()->json($result);
     }
 
@@ -126,7 +124,7 @@ class AdminController extends BaseController
     public function changeFieldValue($id, Request $request)
     {
         $input  = $request->input('data');
-        $result = $this->repository->changeFieldValue($id, $input);
+        $result = $this->server->changeFieldValue($id, $input);
         return response()->json($result);
     }
 }
