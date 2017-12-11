@@ -136,11 +136,6 @@ class ArticleRepository extends CommonRepository
      */
     public function interactive($id, $type, $type_text)
     {
-        $user_id = $this->getCurrentId();
-        $list    = $this->interact->where('article_id', $id)->where('user_id', $user_id)->where($type, 1)->first();
-        if (!empty($list)) {
-            return ['flag' => false, 'message' => $type_text . '失败，您已经操作过了'];
-        }
         $result = $this->interact->create([
             'user_id'    => $user_id,
             'article_id' => $id,
@@ -159,6 +154,12 @@ class ArticleRepository extends CommonRepository
         return $result;
     }
 
+    public function hasComment($comment_id)
+    {
+        $dicts = $this->getRedisDictLists(['audit' => ['loading', 'pass'], 'system' => ['article_comment_audit']]);
+        return (bool) $this->articleComment->where('id', $comment_id)->where('status', 1)->where('is_audit', $dicts['audit']['pass'])->first();
+    }
+
     /**
      * 评论 or 回复
      * @param  Int $id 文章id
@@ -169,14 +170,6 @@ class ArticleRepository extends CommonRepository
     public function comment($id, $content, $comment_id = 0)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['loading', 'pass'], 'system' => ['article_comment_audit']]);
-
-        // 表示回复
-        if ($comment_id) {
-            $list = $this->articleComment->where('id', $comment_id)->where('status', 1)->where('is_audit', $dicts['audit']['pass'])->first();
-            if (empty($list)) {
-                return ['flag' => false, 'message' => '回复失败，评论不存在或已被删除'];
-            }
-        }
         $user_id = $this->getCurrentId();
         $result  = $this->articleComment->create([
             'user_id'    => $user_id,

@@ -21,7 +21,7 @@ class LeaveServer extends CommonServer
     {
         $search          = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists'] = $this->leaveRepository->getLeaveLists($search);
-        return responseResult(true, $result);
+        return returnSuccess($result);
     }
 
     /**
@@ -34,11 +34,11 @@ class LeaveServer extends CommonServer
         $leave_id = isset($input['leave_id']) ? intval($input['leave_id']) : 0;
         $content  = isset($input['content']) ? strval($input['content']) : '';
         if (!$content) {
-            return responseResult(false, [], '留言失败，参数错误，请刷新后重试');
+            return returnError('留言失败，参数错误，请刷新后重试');
         }
 
         $result['list'] = $this->leaveRepository->leave($content, $leave_id);
-        return responseResult(true, $result, $leave_id ? '回复成功' : '留言成功');
+        return returnSuccess($leave_id ? '回复成功' : '留言成功', $result);
     }
 
 }

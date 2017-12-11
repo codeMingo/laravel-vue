@@ -20,11 +20,6 @@ class RegisterRepository extends CommonRepository
      */
     public function register($username, $email, $face, $password)
     {
-        $unique_list = $this->model->where('username', $username)->orWhere('email', $email)->first();
-        if (!empty($unique_list)) {
-            return ['flag' => false, 'message' => $unique_list->username == $username ? '注册失败，用户名已被注册' : '注册失败，邮箱已被注册'];
-        }
-
         $result = $this->model->create([
             'username' => $username,
             'email'    => $email,
@@ -56,18 +51,8 @@ class RegisterRepository extends CommonRepository
      */
     public function active($user_id)
     {
-        $list = $this->model->where('id', $user_id)->first();
-        if (empty($list)) {
-            return ['flag' => false, 'message' => '激活失败，不存在此用户'];
-        }
-
-        if ($list->active) {
-            return ['flag' => false, 'message' => '激活失败，账户已经激活，请不要重复操作'];
-        }
-
-        $list->active = 1;
-        $result       = $list->save();
-        return true;
+        $result = $this->model->where('id', $user_id)->update(['active' => 1]);
+        return $result;
     }
 
     public function sendActiveEmail($input)

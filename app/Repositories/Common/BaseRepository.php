@@ -79,6 +79,49 @@ abstract class BaseRepository
     }
 
     /**
+     * 获取一条数据
+     * @param  Array $where 查询条件
+     * @return Object
+     */
+    public function getListByWhere($where)
+    {
+        $query = $this->model;
+        if (empty($where)) {
+            return $query->model->first();
+        }
+        foreach ($where as $key => $item) {
+            if (is_string($item)) {
+                $query->where($key, $item);
+            } else {
+                if (!isset($item[0]) || !isset($item[1])) {
+                    continue;
+                }
+                switch ($item[0]) {
+                    case '=':
+                        $query->where($item[0], $item[1]);
+                        break;
+                    case '!=':
+                        $query->where($item[0], '!=', $item[1]);
+                        break;
+                    case 'or':
+                        $query->orWhere($item[0], $item[1]);
+                        break;
+                    case 'like':
+                        $query->where($item[0], 'like', '%' . $item[1] . '%');
+                        break;
+                    case 'in':
+                        $query->whereIn($item[0], $item[1]);
+                        break;
+                    default:
+                        # code...
+                        break;
+                }
+            }
+        }
+        return $query->first();
+    }
+
+    /**
      * 获取多条数据，pagination分页
      * @param  array   $where        查询条件
      * @param  boolean $with_trashed 是否查找软删除数据

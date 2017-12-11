@@ -19,7 +19,7 @@ class CategoryServer extends CommonServer
     public function getArticleCategoryLists()
     {
         $result['lists'] = $this->categoryRepository->getArticleCategoryLists();
-        return responseResult(true, $result);
+        return returnSuccess($result);
     }
 
     /**
@@ -29,6 +29,6 @@ class CategoryServer extends CommonServer
     public function getVideoCategoryLists()
     {
         $result['lists'] = $this->categoryRepository->getVideoCategoryLists();
-        return responseResult(true, $result);
+        return returnSuccess($result);
     }
 }

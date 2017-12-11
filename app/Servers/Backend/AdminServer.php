@@ -2,8 +2,6 @@
 namespace App\Servers\Backend;
 
 use App\Repositories\Backend\AdminRepository;
-use App\Repositories\Frontend\CategoryRepository;
-use App\Repositories\Frontend\TagRepository;
 
 class AdminServer extends CommonServer
 {
@@ -11,7 +9,7 @@ class AdminServer extends CommonServer
     public function __construct(
         AdminRepository $adminRepository
     ) {
-        $this->adminRepository  = $adminRepository;
+        $this->adminRepository = $adminRepository;
     }
 
     /**
@@ -22,11 +20,10 @@ class AdminServer extends CommonServer
     public function lists($input)
     {
         $search            = isset($input['search']) ? (array) $input['search'] : [];
-        $result['lists']   = $this->adminRepository->getAdminLists($search);
+        $result['lists']   = $this->adminRepository->getLists($search);
         $result['options'] = $this->adminRepository->getOptions();
-        return responseResult(true, $result);
+        return returnSuccess('请求成功', $result);
     }
-
 
     /**
      * 新增
@@ -42,28 +39,17 @@ class AdminServer extends CommonServer
         $status        = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$username || !$email || !$password || !$permission_id) {
-            return responseResult(false, [], '必填字段不得为空');
+            return returnError('必填字段不得为空');
         }
-        $unique_list = $this->model->where('username', $username)->whereOr('email', $email)->first();
-        if (!empty($unique_list)) {
-            return responseResult(false, [], $unique_list->username == $username ? '用户名被注册' : '邮箱被注册');
-        }
-        $result = $this->model->create([
-            'username'      => $username,
-            'email'         => $email,
-            'password'      => $password,
-            'permission_id' => $permission_id,
-            'status'        => $status,
-        ]);
 
-        Parent::saveOperateRecord([
-            'action' => 'Admin/store',
-            'params' => [
-                'input' => $input,
-            ],
-            'text'   => '新增管理员成功',
-        ]);
-        return responseResult(true, $result, '新增成功');
+        // 用户名和邮箱重复判断
+        $list = $this->adminRepository->getListByWhere(['username' => $username, 'email' => ['or', $email]]);
+        if (!empty($list)) {
+            return returnError($list->username == $username ? '用户名已存在' : '邮箱已存在');
+        }
+
+        $result['list'] = $this->adminRepository->store($username, $email, $password, $permission_id, $status);
+        return returnSuccess('新增成功', $result);
     }
 
     /**
@@ -81,15 +67,17 @@ class AdminServer extends CommonServer
         $status        = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$username || !$email || !$permission_id) {
-            return responseResult(false, [], '必填字段不得为空');
+            return returnError('必填字段不得为空');
+        }
+
+        // 用户名和邮箱重复判断
+        $list = $this->adminRepository->getListByWhere(['username' => $username, 'email' => ['or', $email], 'id' => ['!=', $id]]);
+        if (!empty($list)) {
+            return returnError($list->username == $username ? '用户名已存在' : '邮箱已存在');
         }
 
         $result = $this->adminRepository->update($id, $username, $email, $password, $permission_id, $status);
-        if (isset($result['flag']) && !$result['flag']) {
-            return responseResult(false, [], $result['message']);
-        }
-
-        return responseResult(true, [], '更新成功');
+        return returnSuccess('更新成功');
     }
 
     /**
@@ -100,6 +88,6 @@ class AdminServer extends CommonServer
     public function destroy($id)
     {
         $result = $this->adminRepository->destroy($id);
-        return responseResult(true, [], '删除成功');
+        return returnSuccess('删除成功');
     }
 }

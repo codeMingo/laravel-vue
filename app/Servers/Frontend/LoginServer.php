@@ -27,12 +27,12 @@ class LoginServer extends CommonServer
         $remember = isset($input['remember']) ? (bool) $input['remember'] : false;
 
         if (!$account || !$password) {
-            return responseResult(false, [], '登录失败，必填字段不得为空');
+            return returnError('登录失败，必填字段不得为空');
         }
 
         $list = $this->loginRepository->login($account, $password, $remember);
-        if (isset($list['flag']) && !$list['flag']) {
-            return responseResult(false, [], $list['message']);
+        if (!$list) {
+            return returnError('登录失败，账号或密码错误');
         }
 
         $result['list'] = [
@@ -40,7 +40,7 @@ class LoginServer extends CommonServer
             'email'    => $list['email'],
             'face'     => $list['face'],
         ];
-        return responseResult(true, $result, '登录成功');
+        return returnSuccess('登录成功', $result);
     }
 
     public function reset($input)
@@ -54,10 +54,9 @@ class LoginServer extends CommonServer
      */
     public function loginStatus()
     {
-        $result = [];
-        $list   = $this->userRepository->currentLoginUser();
+        $list   = $this->userRepository->currentLogin();
         if (empty($list)) {
-            return responseResult(true, $result);
+            return returnError('未登录');
         }
         $result['list'] = [
             'username' => $list->username,
@@ -65,7 +64,7 @@ class LoginServer extends CommonServer
             'face'     => $list->face,
             'sign'     => $list->sign,
         ];
-        return responseResult(true, $result);
+        return returnSuccess('已登录');
     }
 
     /**
@@ -75,6 +74,6 @@ class LoginServer extends CommonServer
     public function logout()
     {
         $this->loginRepository->logout();
-        return responseResult(true, [], '退出成功');
+        return returnSuccess('退出成功');
     }
 }

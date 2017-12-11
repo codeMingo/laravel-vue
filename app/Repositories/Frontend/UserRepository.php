@@ -20,7 +20,7 @@ class UserRepository extends CommonRepository
      * 获取当前登录的用户
      * @return Array
      */
-    public function currentLoginUser()
+    public function currentLogin()
     {
         $result = [];
         if (Auth::guard('web')->check()) {
@@ -66,12 +66,6 @@ class UserRepository extends CommonRepository
      */
     public function update($username, $sign, $web_url)
     {
-        $user_id = $this->getCurrentId();
-        $list    = $this->model->where('username', $username)->where('id', '!=', $user_id)->first();
-        if (!empty($list)) {
-            return ['flag' => false, 'message' => '更新失败，用户名已经存在'];
-        }
-
         $this->model->where('id', $user_id)->update([
             'username' => $username,
             'sign'     => $sign,
@@ -101,8 +95,8 @@ class UserRepository extends CommonRepository
     {
         $search           = isset($input['search']) ? $input['search'] : [];
         $input['user_id'] = $this->getCurrentId();
-        $result['lists']  = $this->interactRepository->getInteractLists($search);
-        return responseResult(true, $result);
+        $result  = $this->interactRepository->getInteractLists($search);
+        return $result;
     }
 
 }

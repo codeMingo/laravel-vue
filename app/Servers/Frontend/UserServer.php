@@ -1,8 +1,8 @@
 <?php
 namespace App\Servers\Frontend;
 
-use App\Repositories\Frontend\UserRepository;
 use App\Repositories\Frontend\InteractRepository;
+use App\Repositories\Frontend\UserRepository;
 
 class UserServer extends CommonServer
 {
@@ -11,7 +11,7 @@ class UserServer extends CommonServer
         UserRepository $userRepository,
         InteractRepository $interactRepository
     ) {
-        $this->userRepository = $userRepository;
+        $this->userRepository     = $userRepository;
         $this->interactRepository = $interactRepository;
     }
 
@@ -38,14 +38,18 @@ class UserServer extends CommonServer
         $web_url  = isset($input['web_url']) ? strval($input['web_url']) : '';
 
         if (!$username) {
-            return responseResult(false, [], '更新失败，必填信息不得为空');
-        }
-        $result = $this->userRepository->update($username, $sign, $web_url);
-        if (isset($result['flag']) && !$result['flag']) {
-            return responseResult(false, [], $result['message']);
+            return returnError('更新失败，必填信息不得为空');
         }
 
-        return responseResult(true, [], '更新成功');
+        // 判断用户名是否重复
+        $user_id = $this->getCurrentId();
+        $list    = $this->userRepository->getListByWhere(['username' => $username, 'id' => ['!=', $user_id]]);
+        if (!empty($flag)) {
+            return returnError('更新失败，用户名已被使用');
+        }
+        $result = $this->userRepository->update($username, $sign, $web_url);
+
+        return returnSuccess('更新成功');
     }
 
     /**
@@ -55,8 +59,8 @@ class UserServer extends CommonServer
      */
     public function collectLists($input)
     {
-        $search           = isset($input['search']) ? $input['search'] : [];
-        $result['lists']  = $this->interactRepository->getCollectLists($search);
-        return responseResult(true, $result);
+        $search          = isset($input['search']) ? $input['search'] : [];
+        $result['lists'] = $this->interactRepository->getCollectLists($search);
+        return returnSuccess('获取成功', $result);
     }
 }

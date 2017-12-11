@@ -3,16 +3,30 @@
 
 
 /**
- * 响应返回
- * @param  bool $status  true or false
+ * 响应返回失败信息
  * @param  array  $data    返回结果集
  * @param  string $message 消息提示
  * @return Array
  */
-function responseResult($status, $data = [], $message = '')
+function returnError($message = '', $data = [])
 {
     return [
-        'status'  => $status,
+        'status'  => 0,
+        'data'    => $data,
+        'message' => $message === '' ? (!$status ? '失败' : '成功') : $message,
+    ];
+}
+
+/**
+ * 响应返回成功信息
+ * @param  array  $data    返回结果集
+ * @param  string $message 消息提示
+ * @return Array
+ */
+function returnSuccess($message = '', $data = [])
+{
+    return [
+        'status'  => 1,
         'data'    => $data,
         'message' => $message === '' ? (!$status ? '失败' : '成功') : $message,
     ];

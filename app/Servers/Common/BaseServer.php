@@ -1,7 +1,7 @@
 <?php
 namespace App\Servers\Common;
 
-class BaseServer
+abstract class BaseServer
 {
     protected $adminRepository;
     protected $articleRepository;
@@ -12,4 +12,7 @@ class BaseServer
     protected $loginRepository;
     protected $userRepository;
     protected $videoRepository;
+
+    // 获取当前用户id
+    abstract protected function getCurrentId();
 }

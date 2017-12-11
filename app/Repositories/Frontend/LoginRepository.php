@@ -28,7 +28,7 @@ class LoginRepository extends CommonRepository
             $flag = Auth::guard('web')->attempt(['username' => $account, 'password' => $password]);
         }
         if (!$flag) {
-            return ['flag' => false, 'message' => '登录失败，用户名或密码错误'];
+            return false;
         }
         $user = Auth::guard('web')->user();
         $this->model->where('id', $user['id'])->update([
