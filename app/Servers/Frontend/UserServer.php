@@ -23,7 +23,8 @@ class UserServer extends CommonServer
     public function currentUser()
     {
         $result['list'] = $this->userRepository->currentLoginUser();
-        return responseResult(true, $result);
+
+        return ['获取成功', $result];
     }
 
     /**
@@ -38,18 +39,18 @@ class UserServer extends CommonServer
         $web_url  = isset($input['web_url']) ? strval($input['web_url']) : '';
 
         if (!$username) {
-            return returnError('更新失败，必填信息不得为空');
+            return ['code' => ['x00004', 'system']];
         }
 
         // 判断用户名是否重复
         $user_id = $this->getCurrentId();
         $list    = $this->userRepository->getListByWhere(['username' => $username, 'id' => ['!=', $user_id]]);
         if (!empty($flag)) {
-            return returnError('更新失败，用户名已被使用');
+            return ['code' => ['x00001', 'user']];
         }
         $result = $this->userRepository->update($username, $sign, $web_url);
 
-        return returnSuccess('更新成功');
+        return ['更新成功', $result];
     }
 
     /**
@@ -61,6 +62,7 @@ class UserServer extends CommonServer
     {
         $search          = isset($input['search']) ? $input['search'] : [];
         $result['lists'] = $this->interactRepository->getCollectLists($search);
-        return returnSuccess('获取成功', $result);
+
+        return ['获取成功', $result];
     }
 }

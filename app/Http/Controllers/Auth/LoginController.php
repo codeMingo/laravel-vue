@@ -55,14 +55,14 @@ class LoginController extends Controller
     {
         $input  = $request->input('data');
         $result = $this->adminLoginServer->login($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     // 后台注销
     public function adminLogout()
     {
         $result = $this->adminLoginServer->logout();
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     // 后台重置密码
@@ -70,14 +70,14 @@ class LoginController extends Controller
     {
         $input  = $request->input('data');
         $result = $this->adminLoginServer->reset($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     // 后台获取初始用户数据
     public function adminLoginStatus(Request $request)
     {
         $result = $this->adminLoginServer->loginStatus();
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     // 前台登录界面
@@ -91,14 +91,14 @@ class LoginController extends Controller
     {
         $input  = $request->input('data');
         $result = $this->userServer->login($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     // 前台注销
     public function userLogout()
     {
         $result = $this->userServer->logout();
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     // 前台重置密码
@@ -106,13 +106,13 @@ class LoginController extends Controller
     {
         $input  = $request->input('data');
         $result = $this->userServer->reset($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     // 前台获取初始用户数据
     public function loginStatus(Request $request)
     {
         $result = $this->userServer->loginStatus();
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 }

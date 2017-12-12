@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Frontend;
 use App\Servers\Frontend\LeaveServer;
 use Illuminate\Http\Request;
 
-class LeaveController extends BaseController
+class LeaveController extends CommonController
 {
-    
+
     public function __construct(LeaveServer $leaveServer)
     {
         parent::__construct();
@@ -18,7 +18,7 @@ class LeaveController extends BaseController
     {
         $input  = json_decode($request->input('data'), true);
         $result = $this->server->lists($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     // 留言
@@ -26,6 +26,6 @@ class LeaveController extends BaseController
     {
         $input  = $request->input('data');
         $result = $this->server->leave($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 }

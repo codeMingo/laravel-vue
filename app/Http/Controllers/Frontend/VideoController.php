@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Servers\Frontend\VideoServer;
 use Illuminate\Http\Request;
 
-class VideoController extends BaseController
+class VideoController extends CommonController
 {
 
     public function __construct(VideoServer $videoServer)

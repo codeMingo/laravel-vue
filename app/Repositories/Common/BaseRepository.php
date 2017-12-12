@@ -127,7 +127,7 @@ abstract class BaseRepository
      * @param  boolean $with_trashed 是否查找软删除数据
      * @return Object
      */
-    public function getPaginateLists($where = [], $with_trashed = false)
+    public function getLists($where = [], $with_trashed = false)
     {
         $where = $this->parseParams($where);
         $query = $this->model->parseWheres($where);

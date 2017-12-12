@@ -1,18 +1,16 @@
 <?php
 namespace App\Http\Controllers\Backend;
 
-use App\Repositories\Backend\UserRepository;
+use App\Servers\Backend\UserServer;
 use Illuminate\Http\Request;
 
-class UserController extends BaseController
+class UserController extends CommonController
 {
 
-    public $repository;
-
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserServer $userServer)
     {
         parent::__construct();
-        $this->repository = $userRepository;
+        $this->server = $userServer;
     }
 
     /**
@@ -23,8 +21,8 @@ class UserController extends BaseController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = $this->repository->lists($input);
-        return response()->json($result);
+        $result = $this->server->lists($input);
+        return $this->responseResult($result);
     }
 
     /**
@@ -46,8 +44,8 @@ class UserController extends BaseController
     public function store(Request $request)
     {
         $input  = $request->input('data');
-        $result = $this->repository->store($input);
-        return response()->json($result);
+        $result = $this->server->store($input);
+        return $this->responseResult($result);
     }
 
     /**
@@ -58,8 +56,8 @@ class UserController extends BaseController
      */
     public function show($id)
     {
-        $result = $this->repository->show($id);
-        return response()->json($result);
+        $result = $this->server->show($id);
+        return $this->responseResult($result);
     }
 
     /**
@@ -83,8 +81,8 @@ class UserController extends BaseController
     public function update(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = $this->repository->update($input, $id);
-        return response()->json($result);
+        $result = $this->server->update($input, $id);
+        return $this->responseResult($result);
     }
 
     /**
@@ -95,7 +93,7 @@ class UserController extends BaseController
      */
     public function destroy($id)
     {
-        $result = $this->repository->destroy($id);
-        return response()->json($result);
+        $result = $this->server->destroy($id);
+        return $this->responseResult($result);
     }
 }

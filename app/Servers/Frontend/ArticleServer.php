@@ -20,16 +20,16 @@ class ArticleServer extends CommonServer
 
     /**
      * 文章列表
-     * @param  Array $input [search]
-     * @return Array
+     * @param  array $input [search]
+     * @return array
      */
     public function lists($input)
     {
         $search                        = isset($input['search']) ? (array) $input['search'] : [];
-        $result['lists']               = $this->articleRepository->getArticleLists($search);
+        $result['lists']               = $this->articleRepository->getLists($search);
         $result['options']['category'] = $this->categoryRepository->getCategoryLists(['type' => 'article']);
 
-        return returnSuccess($result);
+        return ['获取成功', $result];
     }
 
     /**
@@ -39,24 +39,31 @@ class ArticleServer extends CommonServer
      */
     public function detail($id)
     {
-        $result['list'] = $this->articleRepository->getArticleDetail($id);
-        if (empty($result['list'])) {
-            return returnError('文章不存在或已经被删除');
+        $list = $this->articleRepository->getDetail($id);
+        if (empty($list)) {
+            return ['code' => ['x00001', 'article']];
         }
-        // 获取文章评论
-        $result['comment_lists'] = $this->articleRepository->getArticleCommentLists($id);
+        $result['list'] = $list;
+
         // 文章阅读量 +1
         $this->articleRepository->read($id);
+
+        // 获取文章评论
+        $result['comment_lists'] = $this->articleRepository->getCommentLists($id);
+
         // 获取上一篇文章
         $result['prev_article'] = $this->articleRepository->getPrevlist($id);
+
         // 获取下一篇文章
         $result['next_article'] = $this->articleRepository->getNextlist($id);
+
         // 文章标签
         if (!empty($result['list']->tag_ids)) {
             $tag_ids                   = explode(',', $result['list']->tag_ids);
             $result['list']->tag_lists = $this->tagRepository->getArticleTags($tag_ids);
         }
-        return returnSuccess($result);
+
+        return ['获取成功', $result];
     }
 
     /**
@@ -66,25 +73,25 @@ class ArticleServer extends CommonServer
      */
     public function interactive($id, $input)
     {
-    	$type      = isset($input['type']) ? strval($input['type']) : '';
-    	$type_text = !$type ? '' : ($type == 'like' ? '点赞' : ($type == 'hate' ? '反对' : ($type == 'collect' ? '收藏' : '')));
-        if (!$id || !$type || !$type_text) {
-            return returnError($type_text . '失败，发生未知错误');
+        $type = isset($input['type']) ? strval($input['type']) : '';
+        if (!$type || !in_array($type, ['like', 'hate', 'collect'])) {
+            return ['code' => ['x00001', 'system']];
         }
 
-        $list = $this->articleRepository->getArticleDetail($id);
+        $list = $this->articleRepository->getDetail($id);
         if (empty($list)) {
-            return returnError($type_text . '失败，文章不存在或已经被删除');
+            return ['code' => ['x00002', 'system']];
         }
 
         // 重复操作判断
         $list = $this->articleRepository->getListByWhere(['article_id' => $id, $typ => 1, 'user_id' => $user_id]);
         if (!empty($list)) {
-            return returnError($type_text . '失败，您已经操作过了');
+            return ['code' => ['x00003', 'system']];
         }
 
-        $result = $this->articleRepository->interactive($id, $type, $type_text);
-        return returnSuccess($type_text . '成功', $result);
+        $result = $this->articleRepository->interactive($id, $type);
+
+        return ['操作成功', $result];
     }
 
     /**
@@ -97,22 +104,23 @@ class ArticleServer extends CommonServer
         $comment_id = isset($input['comment_id']) ? intval($input['comment_id']) : 0;
         $content    = isset($input['content']) ? strval($input['content']) : '';
         if (!$id || !$content) {
-            return returnError('操作失败，参数错误，请刷新后重试');
+            return ['code' => ['x00001', 'system']];
         }
 
-        $list = $this->articleRepository->getArticleDetail($id);
+        $list = $this->articleRepository->getDetail($id);
         if (empty($list)) {
-            return returnError($type_text . '失败，文章不存在或已经被删除');
+            return ['code' => ['x00002', 'system']];
         }
 
         if ($comment_id) {
             $flag = $this->articleRepository->hasComment($comment_id);
             if (!$flag) {
-                return returnError('回复失败，评论不存在或已被删除');
+                return ['code' => ['x00002', 'system']];
             }
         }
 
         $result['list'] = $this->articleRepository->comment($id, $content, $comment_id);
-        return returnSuccess($comment_id ? '回复成功' : '评论成功', $result);
+
+        return ['操作成功', $result];
     }
 }

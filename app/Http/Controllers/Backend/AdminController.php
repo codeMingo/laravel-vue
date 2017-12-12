@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Backend;
 use App\Servers\Backend\AdminServer;
 use Illuminate\Http\Request;
 
-class AdminController extends BaseController
+class AdminController extends CommonController
 {
 
     public function __construct(AdminServer $adminServer)
@@ -22,7 +22,7 @@ class AdminController extends BaseController
     {
         $input  = json_decode($request->input('data'), true);
         $result = $this->server->lists($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     /**
@@ -45,7 +45,7 @@ class AdminController extends BaseController
     {
         $input  = $request->input('data');
         $result = $this->server->store($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     /**
@@ -57,7 +57,7 @@ class AdminController extends BaseController
     public function show($id)
     {
         $result = $this->server->show($id);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     /**
@@ -82,7 +82,7 @@ class AdminController extends BaseController
     {
         $input  = $request->input('data');
         $result = $this->server->update($id, $input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     /**
@@ -94,7 +94,7 @@ class AdminController extends BaseController
     public function destroy($id)
     {
         $result = $this->server->destroy($id);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     /*
@@ -103,7 +103,7 @@ class AdminController extends BaseController
     public function options()
     {
         $result = $this->server->getOptions();
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     /**
@@ -115,7 +115,7 @@ class AdminController extends BaseController
     {
         $input  = json_decode($request->input('data'), true);
         $result = $this->server->out($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     /**
@@ -125,6 +125,6 @@ class AdminController extends BaseController
     {
         $input  = $request->input('data');
         $result = $this->server->changeFieldValue($id, $input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 }

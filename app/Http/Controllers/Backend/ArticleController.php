@@ -1,18 +1,16 @@
 <?php
 namespace App\Http\Controllers\Backend;
 
-use App\Repositories\Backend\ArticleRepository;
+use App\Servers\Backend\ArticleServer;
 use Illuminate\Http\Request;
 
-class ArticleController extends BaseController
+class ArticleController extends CommonController
 {
 
-    public $repository;
-
-    public function __construct(ArticleRepository $articleRepository)
+    public function __construct(ArticleServer $articleServer)
     {
         parent::__construct();
-        $this->repository = $articleRepository;
+        $this->server = $articleServer;
     }
 
     /**
@@ -23,8 +21,8 @@ class ArticleController extends BaseController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = $this->repository->lists($input);
-        return response()->json($result);
+        $result = $this->server->lists($input);
+        return $this->responseResult($result);
     }
 
     /**
@@ -46,8 +44,8 @@ class ArticleController extends BaseController
     public function store(Request $request)
     {
         $input  = $request->input('data');
-        $result = $this->repository->store($input);
-        return response()->json($result);
+        $result = $this->server->store($input);
+        return $this->responseResult($result);
     }
 
     /**
@@ -58,8 +56,8 @@ class ArticleController extends BaseController
      */
     public function show($id)
     {
-        $result = $this->repository->show($id);
-        return response()->json($result);
+        $result = $this->server->show($id);
+        return $this->responseResult($result);
     }
 
     /**
@@ -70,8 +68,8 @@ class ArticleController extends BaseController
      */
     public function edit($id)
     {
-        $result = $this->repository->edit($id);
-        return response()->json($result);
+        $result = $this->server->edit($id);
+        return $this->responseResult($result);
     }
 
     /**
@@ -84,8 +82,8 @@ class ArticleController extends BaseController
     public function update(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = $this->repository->update($id, $input);
-        return response()->json($result);
+        $result = $this->server->update($id, $input);
+        return $this->responseResult($result);
     }
 
     /**
@@ -96,13 +94,13 @@ class ArticleController extends BaseController
      */
     public function destroy($id)
     {
-        $result = $this->repository->destroy($id);
-        return response()->json($result);
+        $result = $this->server->destroy($id);
+        return $this->responseResult($result);
     }
 
     public function options()
     {
-        $result = $this->repository->getOptions();
-        return response()->json($result);
+        $result = $this->server->getOptions();
+        return $this->responseResult($result);
     }
 }

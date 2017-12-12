@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Servers\Frontend\RegisterServer;
 use Illuminate\Http\Request;
 
-class RegisterController extends BaseController
+class RegisterController extends CommonController
 {
 
     public $server;
@@ -20,7 +20,7 @@ class RegisterController extends BaseController
     {
         $input  = $request->input('data');
         $result = $this->server->register($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     // 激活用户
@@ -39,6 +39,6 @@ class RegisterController extends BaseController
     {
         $input  = $request->input('data');
         $result = $this->server->sendActiveEmail($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 }

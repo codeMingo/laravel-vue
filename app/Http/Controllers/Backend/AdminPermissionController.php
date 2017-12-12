@@ -1,18 +1,16 @@
 <?php
 namespace App\Http\Controllers\Backend;
 
-use App\Repositories\Backend\AdminPermissionRepository;
+use App\Servers\Backend\AdminPermissionServer;
 use Illuminate\Http\Request;
 
-class AdminPermissionController extends BaseController
+class AdminPermissionController extends CommonController
 {
 
-    public $repository;
-
-    public function __construct(AdminPermissionRepository $adminPermissionRepository)
+    public function __construct(AdminPermissionServer $adminPermissionServer)
     {
         parent::__construct();
-        $this->repository = $adminPermissionRepository;
+        $this->server = $adminPermissionServer;
     }
 
     /**
@@ -23,8 +21,8 @@ class AdminPermissionController extends BaseController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = $this->repository->index($input);
-        return response()->json($result);
+        $result = $this->server->index($input);
+        return $this->responseResult($result);
     }
 
     /**
@@ -46,8 +44,8 @@ class AdminPermissionController extends BaseController
     public function store(Request $request)
     {
         $input  = $request->input('data');
-        $result = $this->repository->store($input);
-        return response()->json($result);
+        $result = $this->server->store($input);
+        return $this->responseResult($result);
     }
 
     /**
@@ -58,8 +56,8 @@ class AdminPermissionController extends BaseController
      */
     public function show($id)
     {
-        $result = $this->repository->show($id);
-        return response()->json($result);
+        $result = $this->server->show($id);
+        return $this->responseResult($result);
     }
 
     /**
@@ -83,8 +81,8 @@ class AdminPermissionController extends BaseController
     public function update(Request $request, $id)
     {
         $input  = $request->input('data');
-        $result = $this->repository->update($input, $id);
-        return response()->json($result);
+        $result = $this->server->update($input, $id);
+        return $this->responseResult($result);
     }
 
     /**
@@ -95,8 +93,8 @@ class AdminPermissionController extends BaseController
      */
     public function destroy($id)
     {
-        $result = $this->repository->destroy($id);
-        return response()->json($result);
+        $result = $this->server->destroy($id);
+        return $this->responseResult($result);
     }
 
     /**
@@ -106,7 +104,7 @@ class AdminPermissionController extends BaseController
      */
     public function getPermissionNodeCount($id)
     {
-        $result = $this->repository->getPermissionNodeCount($id);
-        return response()->json($result);
+        $result = $this->server->getPermissionNodeCount($id);
+        return $this->responseResult($result);
     }
 }

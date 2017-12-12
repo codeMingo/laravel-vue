@@ -1,13 +1,13 @@
 <?php
 namespace App\Http\Controllers\Frontend;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Common\BaseController;
 use App\Repositories\Common\ApiRepository;
 use Illuminate\Support\Facades\Redis;
 
-class BaseController extends Controller
+class BaseController extends BaseController
 {
-    protected $server;
+
 
     public function __construct()
     {

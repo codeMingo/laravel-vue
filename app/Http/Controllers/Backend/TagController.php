@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class TagController extends BaseRepository
+class TagController extends CommonController
 {
     /**
      * Display a listing of the resource.
@@ -36,7 +36,7 @@ class TagController extends BaseRepository
     {
         $input  = $request->input('data');
         $result = AdminRepository::getInstance()->store($input);
-        return response()->json($result);
+        return $this->responseResult($result);
     }
 
     /**

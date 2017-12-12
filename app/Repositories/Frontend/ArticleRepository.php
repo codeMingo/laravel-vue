@@ -39,7 +39,7 @@ class ArticleRepository extends CommonRepository
      * @param  Array $search 查询条件
      * @return Array
      */
-    public function getArticleLists($search)
+    public function getLists($search)
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
@@ -50,7 +50,7 @@ class ArticleRepository extends CommonRepository
             '__order_by__'       => ['created_at' => 'desc'],
         ];
         $search = array_merge($default_search, $search);
-        return $this->getPaginateLists($search);
+        return parent::getLists($search);
     }
 
     /**
@@ -58,7 +58,7 @@ class ArticleRepository extends CommonRepository
      * @param  int $id 文章id
      * @return Array
      */
-    public function getArticleDetail($id)
+    public function getDetail($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         return $this->getDetail($id, [
@@ -99,7 +99,7 @@ class ArticleRepository extends CommonRepository
      * @param  int $id 文章id
      * @return Object
      */
-    public function getArticleCommentLists($id)
+    public function getCommentLists($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
 
@@ -131,10 +131,9 @@ class ArticleRepository extends CommonRepository
      * 点赞 or 反对 or 收藏
      * @param  Int $id 文章id
      * @param  Array $type [like | hate | collect]
-     * @param  String $type_text 操作类型文字
      * @return Array
      */
-    public function interactive($id, $type, $type_text)
+    public function interactive($id, $type)
     {
         $result = $this->interact->create([
             'user_id'    => $user_id,
@@ -149,7 +148,7 @@ class ArticleRepository extends CommonRepository
                 'id'   => $id,
                 'type' => $type,
             ],
-            'text'   => $type_text . '成功',
+            'text'   => '操作成功',
         ]);
         return $result;
     }

@@ -22,7 +22,8 @@ class AdminServer extends CommonServer
         $search            = isset($input['search']) ? (array) $input['search'] : [];
         $result['lists']   = $this->adminRepository->getLists($search);
         $result['options'] = $this->adminRepository->getOptions();
-        return returnSuccess('请求成功', $result);
+
+        return ['获取成功', $result];
     }
 
     /**
@@ -39,17 +40,19 @@ class AdminServer extends CommonServer
         $status        = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$username || !$email || !$password || !$permission_id) {
-            return returnError('必填字段不得为空');
+            return ['code' => ['x00004', 'system']];
         }
 
         // 用户名和邮箱重复判断
         $list = $this->adminRepository->getListByWhere(['username' => $username, 'email' => ['or', $email]]);
         if (!empty($list)) {
-            return returnError($list->username == $username ? '用户名已存在' : '邮箱已存在');
+            $code = $list->username == $username ? 'x00001' : 'x00002';
+            return ['code' => [$code, 'system']];
         }
 
         $result['list'] = $this->adminRepository->store($username, $email, $password, $permission_id, $status);
-        return returnSuccess('新增成功', $result);
+
+        return ['新增成功', $result];
     }
 
     /**
@@ -67,17 +70,19 @@ class AdminServer extends CommonServer
         $status        = isset($input['status']) ? intval($input['status']) : 0;
 
         if (!$username || !$email || !$permission_id) {
-            return returnError('必填字段不得为空');
+            return ['code' => ['x00004', 'system']];
         }
 
         // 用户名和邮箱重复判断
         $list = $this->adminRepository->getListByWhere(['username' => $username, 'email' => ['or', $email], 'id' => ['!=', $id]]);
         if (!empty($list)) {
-            return returnError($list->username == $username ? '用户名已存在' : '邮箱已存在');
+            $code = $list->username == $username ? 'x00001' : 'x00002';
+            return ['code' => [$code, 'system']];
         }
 
         $result = $this->adminRepository->update($id, $username, $email, $password, $permission_id, $status);
-        return returnSuccess('更新成功');
+
+        return ['更新成功', $result];
     }
 
     /**
@@ -87,7 +92,8 @@ class AdminServer extends CommonServer
      */
     public function destroy($id)
     {
-        $result = $this->adminRepository->destroy($id);
-        return returnSuccess('删除成功');
+        $this->adminRepository->destroy($id);
+
+        return ['删除成功', $result];
     }
 }

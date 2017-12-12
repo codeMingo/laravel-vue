@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Backend;
 
 use Illuminate\Http\Request;
 
-class PermissionController extends BaseRepository
+class PermissionController extends CommonController
 {
     /**
      * Display a listing of the resource.
