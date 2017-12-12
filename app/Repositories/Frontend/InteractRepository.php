@@ -25,11 +25,15 @@ class InteractRepository extends CommonRepository
     public function getInteractLists($search)
     {
         $default_search = [
-            '__not_select__'     => ['deleted_at', 'updated_at'],
-            '__relation_table__' => ['article', 'videoList'],
-            '__order_by__'       => ['created_at' => 'desc'],
-        ];
+            'user_id' => $this->getCurrentId()
+        ]
         $search = array_merge($default_search, $search);
+        return $this->model->parseWheres([
+            'search' => $search,
+            'sort' => [
+                'created_at' => 'desc'
+            ]
+        ])->with('article', 'videoList')->paginate();
         return $this->getPaginateLists($search);
     }
 }

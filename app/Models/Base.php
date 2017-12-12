@@ -9,13 +9,28 @@ class Base extends Model
 
     /**
      * 查询
-     * @param  \Illuminate\Database\Eloquent\Builder $query
-     * @param  Array $param_rules 查询条件[key, value]
-     * @return \Illuminate\Database\Eloquent\Builder  $query
+     * @param  $query
+     * @param  array $where 查询条件
+     * @return $query
+     * $where = [
+     *     'filter' => ['id', 'title'],
+     *     'search' => [
+     *         'id' => 1,
+     *         'title' => ['like', '林联敏'],
+     *         'category_id' => ['in', [1, 2, 3]],
+     *         'type' => ['not_in', [1, 2, 3]],
+     *         'type' => ['or', 1],
+     *         'type' => ['between', 1, 20],
+     *         'type' => ['not_between', 1, 20],
+     *         'id' => ['<', 5],
+     *         'id' => ['>', 5],
+     *     ],
+     *     'sort' => ['id' => 'desc', 'created_at' => 'asc']
+     * ]
      */
-    public function scopeParseWheres($query, $param_rules)
+    public function scopeParseWheres($query, $where)
     {
-        if (empty($param_rules)) {
+        if (empty($where)) {
             return $query;
         }
 
@@ -28,26 +43,52 @@ class Base extends Model
             'not_in'      => 'whereNotIn',
         ];
 
-        foreach ($param_rules as $key => $item) {
-            if ($key === '__select__') {
-                $query->select($item);
-                continue;
+        foreach ($where as $type => $item) {
+            // 字段筛选
+            if (isset($item['filter']) && !empty($item['filter'])) {
+                $query->select($item['filter']);
+                unset($item['filter']);
             }
-            if ($key === '__relation_table__') {
-                $query->with($item);
-                continue;
-            }
-            if ($key === '__order_by__') {
-                foreach ($item as $field_key => $order_type) {
-                    $query->orderBy($field_key, $order_type);
+            // 查询条件
+            if (isset($item['search']) && !empty($item['search'])) {
+                foreach ($item['search'] as $field_key => $value) {
+                    // =
+                    if (is_string($value)) {
+                        $query->where($field_key, $value);
+                        continue;
+                    }
+
+                    $field_condition = isset($value[0]) ?? '';
+                    $field_value = isset($value[1]) ?? '';
+                    if (!$field_condition || !$field_value) {
+                        continue;
+                    }
+
+                    $condition = isset($condition_arr[$field_condition]) ?? '';
+
+                    // <  >  <=  !=
+                    if (!$condition) {
+                        $query->where($field_key, $condition, $field_value);
+                        continue;
+                    }
+
+                    if ($condition == 'like') {
+                        $field_value = '%' . $field_value . '%';
+                    }
+
+                    if ($condition == 'whereBetween' || $condition == 'whereNotBetween') {
+                        $field_value_two = isset($value[2]) ?? '';
+                        $query->$condition($field_key, $field_value, $field_value_two);
+                        continue;
+                    }
+                    $query->$condition($field_key, $field_value);
                 }
-                continue;
             }
-            $condition = isset($condition_arr[$item['condition']]) ? $condition_arr[$item['condition']] : 'where';
-            if ($item['condition'] == 'like') {
-                $query->where($key, $item['condition'], '%' . $item['value'] . '%');
-            } else {
-                $query->$condition($key, $item['value']);
+            // 排序
+            if (isset($item['sort']) && !empty($item['sort'])) {
+                foreach ($item['sort'] as $field_key => $sort_type) {
+                    $query->orderBy($field_key, $sort_type);
+                }
             }
         }
         return $query;

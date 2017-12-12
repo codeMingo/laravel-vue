@@ -63,15 +63,17 @@ abstract class BaseRepository
 
     /**
      * 查询详情
-     * @param  Int $id 主键
-     * @param  Array $where 查询条件
-     * @param  Bool $with_trashed 查询软删除数据
-     * @return Array
+     * @param  int $id 主键
+     * @param  array $where 查询条件
+     * @param  boolean $with_trashed 查询软删除数据
+     * @return object
      */
     public function getDetail($id, $where = [], $with_trashed = false)
     {
-        $where = $this->parseParams($where);
-        $query = $this->model->parseWheres($where);
+        $query = $this->model;
+        if (!empty($where)) {
+            $query = $query->parseWheres($where);
+        }
         if ($with_trashed) {
             $query = $query->withTrashed();
         }
@@ -129,7 +131,6 @@ abstract class BaseRepository
      */
     public function getLists($where = [], $with_trashed = false)
     {
-        $where = $this->parseParams($where);
         $query = $this->model->parseWheres($where);
         if ($with_trashed) {
             $query = $query->withTrashed();
@@ -143,14 +144,24 @@ abstract class BaseRepository
      * @param  boolean $with_trashed 是否查找软删除数据
      * @return Object
      */
-    public function getLists($where = [], $with_trashed = false)
+    public function getAllLists($where = [], $with_trashed = false)
     {
-        $where = $this->parseParams($where);
         $query = $this->model->parseWheres($where);
         if ($with_trashed) {
             $query = $query->withTrashed();
         }
         return $query->get();
+    }
+
+    /**
+     * 获取某条数据的值
+     * @param  Int $id    id
+     * @param  string $field 字段
+     * @return string
+     */
+    public function getValueById($id, $field)
+    {
+        return $this->model->where('id', $id)->value($field);
     }
 
     /**
@@ -161,63 +172,6 @@ abstract class BaseRepository
     {
         $table_name = empty($table_name) ? $this->model->getTable() : $table_name;
         return Schema::getColumnListing($table_name);
-    }
-
-    /**
-     * 过滤，重组查询参数
-     * @param  Array $params
-     * @return Array [key => [condition=>'', value=>'']]
-     */
-    public function parseParams(array $params, $table_name = '')
-    {
-        if (empty($params)) {
-            return [];
-        }
-        $table_name  = empty($table_name) ? $this->model->getTable() : $table_name;
-        $field_lists = $this->getTableColumns($table_name);
-        $param_rules = isset(config('param_rules.param_rules')[$table_name]) ? config('param_rules.param_rules')[$table_name] : []; // 获取过滤规则
-        $result      = [];
-        foreach ($params as $key => $value) {
-            // 参数不在表内直接过滤
-            $select_filter = ['__select__', '__not_select__', '__relation_table__', '__order_by__'];
-            if ((!in_array($key, $field_lists) || $value === '' || $value === []) && !in_array($key, $select_filter)) {
-                continue;
-            }
-            // 得到最后参数
-            if (in_array($key, $select_filter)) {
-                if (!is_array($value)) {
-                    continue;
-                }
-                // 关联其他表
-                if ($key === '__relation_table__') {
-                    $result['__relation_table__'] = $value;
-                    continue;
-                }
-                // 排序
-                if ($key === '__order_by__') {
-                    $result['__order_by__'] = $value;
-                    continue;
-                }
-                $fields = [];
-                foreach ($value as $field) {
-                    if (in_array($field, $field_lists)) {
-                        $fields[] = $field;
-                    }
-                }
-                if ($key === '__select__') {
-                    $result['__select__'] = $fields;
-                } elseif ($key === '__not_select__') {
-                    $result['__select__'] = array_diff($field_lists, $fields);
-                }
-                continue;
-            }
-            $result[$key] = [
-                'condition' => isset($param_rules[$key]) ? $param_rules[$key] : '=',
-                'value'     => $value,
-            ];
-
-        }
-        return $result;
     }
 
     /**
@@ -239,5 +193,27 @@ abstract class BaseRepository
             }
         }
         return $result;
+    }
+
+    public function parseWheres($default_wheres, $wheres)
+    {
+        if (empty($wheres)) {
+            return $default_wheres;
+        }
+        $result = [];
+        foreach ($default_wheres as $type => $item) {
+            if (!isset($wheres[$type])) {
+                $result[$type] = $item;
+                continue;
+            }
+
+            if (is_array($item) && is_array($wheres[$type])) {
+                foreach ($item as $key => $value) {
+                    if (isset($wheres[$type][$key])) {
+                        $result[$type][$key] = $wheres[$type][$key];
+                    }
+                }
+            }
+        }
     }
 }
