@@ -5,7 +5,7 @@ use App\Http\Controllers\Common\BaseController;
 use App\Repositories\Common\ApiRepository;
 use Illuminate\Support\Facades\Redis;
 
-class BaseController extends BaseController
+class CommonController extends BaseController
 {
 
 

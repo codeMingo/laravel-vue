@@ -39,7 +39,7 @@ class ArticleRepository extends CommonRepository
      * @param  Array $search 查询条件
      * @return Array
      */
-    public function getLists($search)
+    public function lists($search)
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
@@ -61,7 +61,7 @@ class ArticleRepository extends CommonRepository
      * @param  int $id 文章id
      * @return Array
      */
-    public function getDetail($id)
+    public function show($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         return $this->model->parseWheres([
@@ -85,7 +85,7 @@ class ArticleRepository extends CommonRepository
     }
 
     // 获取上一篇文章
-    public function getPrevlist($id)
+    public function prevlist($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         return $this->model->parseWheres([
@@ -101,7 +101,7 @@ class ArticleRepository extends CommonRepository
     }
 
     // 获取下一篇文章
-    public function getNextlist($id)
+    public function nextlist($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         return $this->model->parseWheres([
@@ -121,7 +121,7 @@ class ArticleRepository extends CommonRepository
      * @param  int $id 文章id
      * @return Object
      */
-    public function getCommentLists($id)
+    public function commentLists($id)
     {
         $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $lists = $this->articleComment->parseWheres([

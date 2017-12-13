@@ -25,8 +25,8 @@ class ArticleServer extends CommonServer
      */
     public function lists($input)
     {
-        $result['lists']               = $this->articleRepository->getLists($input);
-        $result['options']['category'] = $this->categoryRepository->getCategoryLists(['type' => 'article']);
+        $result['lists']               = $this->articleRepository->lists($input);
+        $result['options']['category'] = $this->categoryRepository->articleCategoryLists();
 
         return ['获取成功', $result];
     }

@@ -52,9 +52,9 @@ class LoginServer extends CommonServer
      * 获取登录信息
      * @return Array
      */
-    public function loginStatus()
+    public function currentUser()
     {
-        $list   = $this->userRepository->currentLogin();
+        $list   = $this->userRepository->currentUser();
         if (empty($list)) {
             return ['未登录'];
         }

@@ -45,13 +45,12 @@ class Base extends Model
 
         foreach ($where as $type => $item) {
             // 字段筛选
-            if (isset($item['filter']) && !empty($item['filter'])) {
-                $query->select($item['filter']);
-                unset($item['filter']);
+            if ($type == 'filter') {
+                $query->select($item);
             }
             // 查询条件
-            if (isset($item['search']) && !empty($item['search'])) {
-                foreach ($item['search'] as $field_key => $value) {
+            if ($type == 'search') {
+                foreach ($item as $field_key => $value) {
                     // =
                     if (is_string($value)) {
                         $query->where($field_key, $value);

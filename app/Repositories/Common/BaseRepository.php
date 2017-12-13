@@ -211,9 +211,12 @@ abstract class BaseRepository
                 foreach ($item as $key => $value) {
                     if (isset($wheres[$type][$key])) {
                         $result[$type][$key] = $wheres[$type][$key];
+                    } else {
+                        $result[$type][$key] = $value;
                     }
                 }
             }
         }
+        return $result;
     }
 }

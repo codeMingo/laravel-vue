@@ -22,7 +22,7 @@ class UserServer extends CommonServer
      */
     public function currentUser()
     {
-        $result['list'] = $this->userRepository->currentLoginUser();
+        $result['list'] = $this->userRepository->currentUser();
 
         return ['获取成功', $result];
     }

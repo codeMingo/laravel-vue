@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Common\BaseController;
 use App\Servers\Backend\LoginServer as AdminLoginServer;
 use App\Servers\Frontend\LoginServer as UserLoginServer;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class LoginController extends Controller
+class LoginController extends BaseController
 {
     /*
     |--------------------------------------------------------------------------
@@ -32,7 +32,7 @@ class LoginController extends Controller
     protected $redirectTo = '/home';
 
     public $adminLoginServer;
-    public $userServer;
+    public $userLoginServer;
     /**
      * Create a new controller instance.
      *
@@ -41,7 +41,7 @@ class LoginController extends Controller
     public function __construct(AdminLoginServer $adminLoginServer, UserLoginServer $userLoginServer)
     {
         $this->adminLoginServer = $adminLoginServer;
-        $this->userServer           = $userLoginServer;
+        $this->userLoginServer       = $userLoginServer;
     }
 
     // 后台登录界面
@@ -90,14 +90,14 @@ class LoginController extends Controller
     public function userLogin(Request $request)
     {
         $input  = $request->input('data');
-        $result = $this->userServer->login($input);
+        $result = $this->userLoginServer->login($input);
         return $this->responseResult($result);
     }
 
     // 前台注销
     public function userLogout()
     {
-        $result = $this->userServer->logout();
+        $result = $this->userLoginServer->logout();
         return $this->responseResult($result);
     }
 
@@ -105,14 +105,14 @@ class LoginController extends Controller
     public function userReset(Request $request)
     {
         $input  = $request->input('data');
-        $result = $this->userServer->reset($input);
+        $result = $this->userLoginServer->reset($input);
         return $this->responseResult($result);
     }
 
     // 前台获取初始用户数据
     public function loginStatus(Request $request)
     {
-        $result = $this->userServer->loginStatus();
+        $result = $this->userLoginServer->currentUser();
         return $this->responseResult($result);
     }
 }

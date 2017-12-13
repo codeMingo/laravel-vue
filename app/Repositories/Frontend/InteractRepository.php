@@ -26,7 +26,7 @@ class InteractRepository extends CommonRepository
     {
         $default_search = [
             'user_id' => $this->getCurrentId()
-        ]
+        ];
         $search = array_merge($default_search, $search);
         return $this->model->parseWheres([
             'search' => $search,

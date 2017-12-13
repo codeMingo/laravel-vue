@@ -16,9 +16,9 @@ class CategoryServer extends CommonServer
      * 文章菜单列表
      * @return Array
      */
-    public function getArticleCategoryLists()
+    public function articleCategoryLists()
     {
-        $result['lists'] = $this->categoryRepository->getArticleCategoryLists();
+        $result['lists'] = $this->categoryRepository->articleCategoryLists();
 
         return ['获取成功', $result];
     }
@@ -27,9 +27,9 @@ class CategoryServer extends CommonServer
      * 视频菜单列表
      * @return Array
      */
-    public function getVideoCategoryLists()
+    public function videoCategoryLists()
     {
-        $result['lists'] = $this->categoryRepository->getVideoCategoryLists();
+        $result['lists'] = $this->categoryRepository->videoCategoryLists();
 
         return ['获取成功', $result];
     }

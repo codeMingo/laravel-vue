@@ -16,7 +16,7 @@ class CategoryController extends CommonController
     // 文章菜单列表
     public function articleCategoryLists(Request $request)
     {
-        $result = $this->server->getArticleCategoryLists();
+        $result = $this->server->articleCategoryLists();
         return $this->responseResult($result);
     }
 }

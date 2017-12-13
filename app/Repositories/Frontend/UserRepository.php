@@ -8,19 +8,16 @@ use Illuminate\Support\Facades\Auth;
 class UserRepository extends CommonRepository
 {
 
-    public $interactRepository;
-
-    public function __construct(User $user, InteractRepository $interactRepository)
+    public function __construct(User $user)
     {
         parent::__construct($user);
-        $this->interactRepository = $interactRepository;
     }
 
     /**
      * 获取当前登录的用户
      * @return Array
      */
-    public function currentLogin()
+    public function currentUser()
     {
         $result = [];
         if (Auth::guard('web')->check()) {
@@ -95,7 +92,7 @@ class UserRepository extends CommonRepository
     {
         $search           = isset($input['search']) ? $input['search'] : [];
         $input['user_id'] = $this->getCurrentId();
-        $result  = $this->interactRepository->getInteractLists($search);
+        $result           = $this->interactRepository->getInteractLists($search);
         return $result;
     }
 
