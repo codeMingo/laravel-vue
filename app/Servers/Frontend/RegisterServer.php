@@ -13,7 +13,7 @@ class RegisterServer extends CommonServer
         UserRepository $userRepository
     ) {
         $this->registerRepository = $registerRepository;
-        $this->userRepository = $userRepository;
+        $this->userRepository     = $userRepository;
     }
 
     // 创建用户
@@ -29,7 +29,14 @@ class RegisterServer extends CommonServer
         }
 
         // 用户名和邮箱重复判断
-        $list = $this->userRepository->getListByWhere(['username' => $username, 'email' => ['or', $email]]);
+        $search_where = [
+            'filter' => ['username', 'email']
+            'search' => [
+                'username' => $username,
+                'email'    => ['or', $email],
+            ],
+        ];
+        $list = $this->userRepository->getList($search_where);
         if (!empty($list)) {
             $code = $list->username == $username ? 'x00002' : 'x00003';
             return ['code' => [$code, 'register']];
@@ -54,8 +61,13 @@ class RegisterServer extends CommonServer
         }
 
         // 判断是否存在这个用户
-        $list = $this->userRepository->getListByWhere(['id' => $user_id]);
-        if (!empty($list)) {
+        $search_where = [
+            'search' => [
+                'id' => $user_id,
+            ],
+        ];
+        $is_exist = $this->userRepository->existList($search_where);
+        if (!$is_exist) {
             return ['code' => ['x00004', 'register']];
         }
 

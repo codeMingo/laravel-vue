@@ -12,7 +12,4 @@ abstract class BaseServer
     protected $loginRepository;
     protected $userRepository;
     protected $videoRepository;
-
-    // 获取当前用户id
-    abstract protected function getCurrentId();
 }

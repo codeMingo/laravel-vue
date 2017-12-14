@@ -32,7 +32,7 @@ class UserRepository extends CommonRepository
      */
     public function show()
     {
-        $result['list'] = $this->getUserList($this->getCurrentId());
+        $result['list'] = $this->getUserList(getCurrentUserId());
         return responseResult(true, $result);
     }
 
@@ -42,7 +42,7 @@ class UserRepository extends CommonRepository
      */
     public function index()
     {
-        $result['list'] = $this->getUserList($this->getCurrentId());
+        $result['list'] = $this->getUserList(getCurrentUserId());
         return responseResult(true, $result);
     }
 
@@ -91,7 +91,7 @@ class UserRepository extends CommonRepository
     public function collect($input)
     {
         $search           = isset($input['search']) ? $input['search'] : [];
-        $input['user_id'] = $this->getCurrentId();
+        $input['user_id'] = getCurrentUserId();
         $result           = $this->interactRepository->getInteractLists($search);
         return $result;
     }

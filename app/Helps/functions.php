@@ -1,5 +1,31 @@
 <?php
 
+/**
+ * 获取当前登录的用户id
+ * @return int
+ */
+function getCurrentUserId()
+{
+    if (\Illuminate\Support\Facades\Auth\Auth::guard('web')->check()) {
+        return \Illuminate\Support\Facades\Auth\Auth::guard('web')->id();
+    } else {
+        return 0;
+    }
+}
+
+/**
+ * 获取当前登录的管理员id
+ * @return int
+ */
+function getCurrentAdminId()
+{
+    if (\Illuminate\Support\Facades\Auth\Auth::guard('admin')->check()) {
+        return \Illuminate\Support\Facades\Auth\Auth::guard('admin')->id();
+    } else {
+        return 0;
+    }
+}
+
 // 获取ip地址
 function getClientIp()
 {

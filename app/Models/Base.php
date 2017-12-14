@@ -93,4 +93,18 @@ class Base extends Model
         return $query;
     }
 
+    /**
+     * 判断一条数据是否存在
+     * @param  Object $query orm对象
+     * @param  Array $where 查询条件
+     * @return Boolean
+     */
+    public function scopeParseExist($query, $where)
+    {
+        if (!isset($where['filter']) || empty($where['filter']) {
+            $where['filter'] = ['id'];
+        }
+        return (bool) $query->parseWheres($where)->first();
+    }
+
 }

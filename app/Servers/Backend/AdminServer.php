@@ -44,7 +44,14 @@ class AdminServer extends CommonServer
         }
 
         // 用户名和邮箱重复判断
-        $list = $this->adminRepository->getListByWhere(['username' => $username, 'email' => ['or', $email]]);
+        $search_where = [
+            'filter' => ['username', 'email']
+            'search' => [
+                'username' => $username,
+                'email'    => ['or', $email],
+            ],
+        ];
+        $list = $this->adminRepository->getList($search_where);
         if (!empty($list)) {
             $code = $list->username == $username ? 'x00001' : 'x00002';
             return ['code' => [$code, 'system']];
@@ -74,7 +81,15 @@ class AdminServer extends CommonServer
         }
 
         // 用户名和邮箱重复判断
-        $list = $this->adminRepository->getListByWhere(['username' => $username, 'email' => ['or', $email], 'id' => ['!=', $id]]);
+        $search_where = [
+            'filter' => ['username', 'email']
+            'search' => [
+                'username' => $username,
+                'email'    => ['or', $email],
+                'id'       => ['!=', $id],
+            ],
+        ];
+        $list = $this->adminRepository->getList($search_where);
         if (!empty($list)) {
             $code = $list->username == $username ? 'x00001' : 'x00002';
             return ['code' => [$code, 'system']];

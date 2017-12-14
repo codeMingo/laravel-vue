@@ -38,7 +38,7 @@ class ArticleServer extends CommonServer
      */
     public function detail($id)
     {
-        $list = $this->articleRepository->getDetail($id);
+        $list = $this->articleRepository->getList($id);
         if (empty($list)) {
             return ['code' => ['x00001', 'article']];
         }
@@ -77,14 +77,21 @@ class ArticleServer extends CommonServer
             return ['code' => ['x00001', 'system']];
         }
 
-        $list = $this->articleRepository->getDetail($id);
+        $list = $this->articleRepository->getList($id);
         if (empty($list)) {
             return ['code' => ['x00002', 'system']];
         }
 
         // 重复操作判断
-        $list = $this->articleRepository->getListByWhere(['article_id' => $id, $typ => 1, 'user_id' => $user_id]);
-        if (!empty($list)) {
+        $search_where = [
+            'search' => [
+                'article_id' => $id,
+                'user_id'    => $user_id,
+                $type        => 1,
+            ],
+        ];
+        $is_exist = $this->articleRepository->existList($search_where);
+        if (!$is_exist) {
             return ['code' => ['x00003', 'system']];
         }
 
@@ -106,14 +113,14 @@ class ArticleServer extends CommonServer
             return ['code' => ['x00001', 'system']];
         }
 
-        $list = $this->articleRepository->getDetail($id);
+        $list = $this->articleRepository->getList($id);
         if (empty($list)) {
             return ['code' => ['x00002', 'system']];
         }
 
         if ($comment_id) {
-            $flag = $this->articleRepository->hasComment($comment_id);
-            if (!$flag) {
+            $is_exist = $this->articleRepository->hasComment($comment_id);
+            if (!$is_exist) {
                 return ['code' => ['x00002', 'system']];
             }
         }

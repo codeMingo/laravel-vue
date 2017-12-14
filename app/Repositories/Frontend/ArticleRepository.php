@@ -39,7 +39,7 @@ class ArticleRepository extends CommonRepository
      * @param  Array $search 查询条件
      * @return Array
      */
-    public function lists($search)
+    public function lists($input)
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
@@ -52,7 +52,7 @@ class ArticleRepository extends CommonRepository
                 'created_at' => 'desc',
             ],
         ];
-        $search = array_merge($default_search, $search);
+        $search = $this->parseParams($default_search, $input);
         return $this->model->parseWheres($search)->with('comment', 'read', 'interact')->paginate();
     }
 
@@ -63,21 +63,22 @@ class ArticleRepository extends CommonRepository
      */
     public function show($id)
     {
-        $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        return $this->model->parseWheres([
+        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
+        $default_search = [
             'search' => [
                 'id'       => $id,
                 'status'   => $dicts['article_status']['show'],
                 'is_audit' => $dicts['audit']['pass'],
             ],
-        ])->with('interact', 'category', 'read')->first();
+        ];
+        return $this->model->parseWheres($default_search)->with('interact', 'category', 'read')->first();
     }
 
     // 阅读数 + 1
     public function read($id)
     {
         $this->articleRead->create([
-            'user_id'    => $this->getCurrentId(),
+            'user_id'    => getCurrentUserId(),
             'article_id' => $id,
             'ip_address' => getClientIp(),
         ]);
@@ -87,8 +88,8 @@ class ArticleRepository extends CommonRepository
     // 获取上一篇文章
     public function prevlist($id)
     {
-        $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        return $this->model->parseWheres([
+        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
+        $default_search = [
             'search' => [
                 'id'       => ['<', $id],
                 'status'   => $dicts['article_status']['show'],
@@ -97,14 +98,15 @@ class ArticleRepository extends CommonRepository
             'sort'   => [
                 'id' => 'desc',
             ],
-        ])->with('interact', 'category', 'read')->first();
+        ];
+        return $this->model->parseWheres($default_search)->with('interact', 'category', 'read')->first();
     }
 
     // 获取下一篇文章
     public function nextlist($id)
     {
-        $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        return $this->model->parseWheres([
+        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
+        $default_search = [
             'search' => [
                 'id'       => ['>', $id],
                 'status'   => $dicts['article_status']['show'],
@@ -113,7 +115,8 @@ class ArticleRepository extends CommonRepository
             'sort'   => [
                 'id' => 'asc',
             ],
-        ])->with('interact', 'category', 'read')->first();
+        ];
+        return $this->model->parseWheres($default_search)->with('interact', 'category', 'read')->first();
     }
 
     /**
@@ -123,15 +126,16 @@ class ArticleRepository extends CommonRepository
      */
     public function commentLists($id)
     {
-        $dicts = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
-        $lists = $this->articleComment->parseWheres([
+        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
+        $default_search = [
             'search' => [
                 'article_id' => $id,
                 'status'     => 1,
                 'is_audit'   => $dicts['audit']['pass'],
                 'parent_id'  => 0,
             ],
-        ])->with('user')->paginate();
+        ];
+        $lists = $this->articleComment->parseWheres($default_search)->with('user')->paginate();
         if ($lists->isEmpty()) {
             return $lists;
         }
@@ -192,15 +196,18 @@ class ArticleRepository extends CommonRepository
      * @param  int  $comment_id 评论id
      * @return boolean
      */
-    public function hasComment($comment_id)
+    public function existComment($comment_id)
     {
-        $dicts = $this->getRedisDictLists(['audit' => ['loading', 'pass'], 'system' => ['article_comment_audit']]);
-        return (bool) $this->articleComment->parseWheres([
+        $dicts          = $this->getRedisDictLists(['audit' => ['pass']]);
+        $default_search = [
+            'filter' => ['id'],
             'search' => [
+                'id'       => $comment_id,
                 'status'   => 1,
                 'is_audit' => $dicts['audit']['pass'],
             ],
-        ])->first();
+        ];
+        return $this->existList($default_search);;
     }
 
     /**
@@ -213,9 +220,8 @@ class ArticleRepository extends CommonRepository
     public function comment($id, $content, $comment_id = 0)
     {
         $dicts   = $this->getRedisDictLists(['audit' => ['loading', 'pass'], 'system' => ['article_comment_audit']]);
-        $user_id = $this->getCurrentId();
         $result  = $this->articleComment->create([
-            'user_id'    => $user_id,
+            'user_id'    => getCurrentUserId(),
             'parent_id'  => $comment_id ? $comment_id : 0,
             'article_id' => $id,
             'content'    => $content,
@@ -233,8 +239,6 @@ class ArticleRepository extends CommonRepository
             ],
             'text'   => $comment_id ? '回复成功' : '评论成功',
         ]);
-        $result['response'] = [];
-        $result['user']     = $this->user->where('id', $user_id)->first();
 
         return $result;
     }

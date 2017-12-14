@@ -14,19 +14,6 @@ class DictRepository extends BaseRepository
     }
 
     /**
-     * 获取当前用户id
-     * @return Int
-     */
-    public function getCurrentId()
-    {
-        if (Auth::guard('admin')->check()) {
-            return Auth::guard('admin')->id();
-        } else {
-            return 0;
-        }
-    }
-
-    /**
      * 记录操作日志
      * @param  Array  $input [action, params, text, status]
      * @return Array

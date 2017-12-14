@@ -18,9 +18,6 @@ abstract class BaseRepository
     // 记录操作日志
     abstract protected function saveOperateRecord($input);
 
-    // 获取当前用户id
-    abstract protected function getCurrentId();
-
     /**
      * 插入一条数据
      * @param  Array  $data 数据
@@ -62,63 +59,27 @@ abstract class BaseRepository
     }
 
     /**
-     * 查询详情
-     * @param  int $id 主键
-     * @param  array $where 查询条件
-     * @param  boolean $with_trashed 查询软删除数据
-     * @return object
+     * 判断是否存在一条数据
+     * @param  array  $where        查询条件
+     * @param  boolean $with_trashed 是否查询软删除数据
+     * @return boolean
      */
-    public function getDetail($id, $where = [], $with_trashed = false)
+    public function existList($where, $with_trashed = false)
     {
-        $query = $this->model;
-        if (!empty($where)) {
-            $query = $query->parseWheres($where);
-        }
-        if ($with_trashed) {
-            $query = $query->withTrashed();
-        }
-        return $query->find($id);
+        return $this->model->parseExist($where);
     }
 
     /**
      * 获取一条数据
-     * @param  Array $where 查询条件
+     * @param  array   $where        查询条件
+     * @param  boolean $with_trashed 是否查询软删除数据
      * @return Object
      */
-    public function getListByWhere($where)
+    public function getList($where, $with_trashed = false)
     {
-        $query = $this->model;
-        if (empty($where)) {
-            return $query->model->first();
-        }
-        foreach ($where as $key => $item) {
-            if (is_string($item)) {
-                $query->where($key, $item);
-            } else {
-                if (!isset($item[0]) || !isset($item[1])) {
-                    continue;
-                }
-                switch ($item[0]) {
-                    case '=':
-                        $query->where($item[0], $item[1]);
-                        break;
-                    case '!=':
-                        $query->where($item[0], '!=', $item[1]);
-                        break;
-                    case 'or':
-                        $query->orWhere($item[0], $item[1]);
-                        break;
-                    case 'like':
-                        $query->where($item[0], 'like', '%' . $item[1] . '%');
-                        break;
-                    case 'in':
-                        $query->whereIn($item[0], $item[1]);
-                        break;
-                    default:
-                        # code...
-                        break;
-                }
-            }
+        $query = $this->model->parseWheres($where);
+        if ($with_trashed) {
+            $query = $query->withTrashed();
         }
         return $query->first();
     }
@@ -155,13 +116,13 @@ abstract class BaseRepository
 
     /**
      * 获取某条数据的值
-     * @param  Int $id    id
+     * @param  array $where    查询条件
      * @param  string $field 字段
      * @return string
      */
-    public function getValueById($id, $field)
+    public function getValueById($where, $field)
     {
-        return $this->model->where('id', $id)->value($field);
+        return $this->model->parseWheres($where)->value($field);
     }
 
     /**
@@ -195,7 +156,13 @@ abstract class BaseRepository
         return $result;
     }
 
-    public function parseWheres($default_wheres, $wheres)
+    /**
+     * 过滤参数
+     * @param  array $default_wheres 默认参数
+     * @param  array $wheres         参数
+     * @return array
+     */
+    public function parseParams($default_wheres, $wheres)
     {
         if (empty($wheres)) {
             return $default_wheres;

@@ -13,7 +13,7 @@ class InteractRepository extends CommonRepository
 
     public function getCollectLists($search)
     {
-        $search['user_id'] = $this->getCurrentId();
+        $search['user_id'] = getCurrentUserId();
         return $this->getInteractLists($search);
     }
 
@@ -25,7 +25,7 @@ class InteractRepository extends CommonRepository
     public function getInteractLists($search)
     {
         $default_search = [
-            'user_id' => $this->getCurrentId()
+            'user_id' => getCurrentUserId()
         ];
         $search = array_merge($default_search, $search);
         return $this->model->parseWheres([

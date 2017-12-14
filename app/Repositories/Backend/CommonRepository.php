@@ -15,19 +15,6 @@ class CommonRepository extends BaseRepository
     }
 
     /**
-     * 获取当前用户id
-     * @return Int
-     */
-    public function getCurrentId()
-    {
-        if (Auth::guard('admin')->check()) {
-            return Auth::guard('admin')->id();
-        } else {
-            return 0;
-        }
-    }
-
-    /**
      * 记录操作日志
      * @param  Array  $input [action, params, text, status]
      * @return Array
@@ -35,7 +22,7 @@ class CommonRepository extends BaseRepository
     public function saveOperateRecord($input)
     {
         DB::table('admin_operate_records')->insert([
-            'admin_id'   => $this->getCurrentId(),
+            'admin_id'   => getCurrentAdminId(),
             'action'     => isset($input['action']) ? strval($input['action']) : '',
             'params'     => isset($input['params']) ? json_encode($input['params']) : '',
             'text'       => isset($input['text']) ? strval($input['text']) : '操作成功',

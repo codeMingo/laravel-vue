@@ -16,10 +16,22 @@ class LeaveRepository extends CommonRepository
      * 获取列表
      * @return Object
      */
-    public function getLeaveLists($search)
+    public function lists($input)
     {
-        $dicts  = $this->getRedisDictLists(['audit' => ['pass']]);
-        $result = $this->model->where('is_audit', $dicts['audit']['pass'])->where('status', 1)->where('parent_id', 0)->with('user')->paginate();
+        $dicts          = $this->getRedisDictLists(['audit' => ['pass']]);
+        $default_search = [
+            'filter' => [],
+            'search' => [
+                'is_audit'  => $dicts['audit']['pass'],
+                'status'    => 1,
+                'parent_id' => 0,
+            ],
+            'sort'   => [
+                'created_at' => 'desc',
+            ],
+        ];
+        $search = $this->parseParams($default_search, $input);
+        $result = $this->model->parseWheres($search)->with('user')->paginate();
         if ($result->isEmpty()) {
             return $result;
         }
@@ -51,16 +63,9 @@ class LeaveRepository extends CommonRepository
      */
     public function leave($content, $leave_id = 0)
     {
-        $dicts = $this->getRedisDictLists(['system' => ['leave_audit'], 'audit' => ['loading', 'pass']]);
-        // 表示回复
-        if ($leave_id) {
-            $list = $this->model->where('id', $leave_id)->where('status', 1)->where('is_audit', $dicts['audit']['pass'])->first();
-            if (empty($list)) {
-                return ['flag' => false, 'message' => '回复失败，该留言不存在或已被删除'];
-            }
-        }
+        $dicts  = $this->getRedisDictLists(['system' => ['leave_audit'], 'audit' => ['loading', 'pass']]);
         $result = $this->model->create([
-            'user_id'    => $this->getCurrentId(),
+            'user_id'    => getCurrentUserId(),
             'parent_id'  => $leave_id,
             'content'    => $content,
             'is_audit'   => $dicts['system']['leave_audit'] ? $dicts['audit']['loading'] : $dicts['audit']['pass'],
@@ -71,14 +76,30 @@ class LeaveRepository extends CommonRepository
         Parent::saveOperateRecord([
             'action' => 'Leave/publish',
             'params' => [
-                'content' => $content,
-                'leave_id' => $leave_id
+                'content'  => $content,
+                'leave_id' => $leave_id,
             ],
             'text'   => $leave_id ? '回复成功' : '留言成功',
         ]);
-        $result['response']      = [];
-        $result['show_response'] = true;
-        $result['user']          = DB::table('users')->where('id', $this->getCurrentId())->first();
         return $result;
+    }
+
+    /**
+     * 是否存在这条留言
+     * @param  [type] $id [description]
+     * @return [type]     [description]
+     */
+    public function existLeave($id)
+    {
+        $dicts          = $this->getRedisDictLists(['audit' => ['pass']]);
+        $default_search = [
+            'filter' => ['id'],
+            'search' => [
+                'id'       => $id,
+                'status'   => 1,
+                'is_audit' => $dicts['audit']['pass'],
+            ],
+        ];
+        return $this->existList($default_search);
     }
 }

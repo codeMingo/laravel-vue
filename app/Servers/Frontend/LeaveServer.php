@@ -19,8 +19,7 @@ class LeaveServer extends CommonServer
      */
     public function lists($input)
     {
-        $search          = isset($input['search']) ? (array) $input['search'] : [];
-        $result['lists'] = $this->leaveRepository->getLeaveLists($search);
+        $result['lists'] = $this->leaveRepository->lists($input);
         return ['获取成功', $result];
     }
 
@@ -35,6 +34,13 @@ class LeaveServer extends CommonServer
         $content  = isset($input['content']) ? strval($input['content']) : '';
         if (!$content) {
             return ['code' => ['x00004', 'system']];
+        }
+
+        if ($leave_id) {
+            $is_exist = $this->leaveRepository->existLeave($leave_id);
+            if (!$is_exist) {
+                return ['code' => ['x00001', 'leave']];
+            }
         }
 
         $result['list'] = $this->leaveRepository->leave($content, $leave_id);
