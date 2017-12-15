@@ -28,10 +28,14 @@ class ArticleRepository extends CommonRepository
      */
     public function lists($input)
     {
-        $search            = isset($input['search']) ? (array) $input['search'] : [];
-        $result['lists']   = $this->getArticleLists($search);
-        $result['options'] = $this->getOptions();
-        return responseResult(true, $result);
+        $default_search = [
+            'filter' => ['id', 'title', 'content', 'auther'],
+            'sort'   => [
+                'created_at' => 'desc',
+            ],
+        ];
+        $search = $this->parseParams($default_search, $input);
+        return $this->model->parseWheres($search)->with('comment', 'read', 'interact')->paginate();
     }
 
     /**

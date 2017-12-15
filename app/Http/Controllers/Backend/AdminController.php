@@ -21,7 +21,7 @@ class AdminController extends CommonController
     public function index(Request $request)
     {
         $input  = json_decode($request->input('data'), true);
-        $result = $this->server->lists($input);
+        $result = $this->server->index($input);
         return $this->responseResult($result);
     }
 

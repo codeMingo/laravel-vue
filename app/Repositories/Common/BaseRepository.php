@@ -9,6 +9,13 @@ abstract class BaseRepository
 {
 
     public $model;
+    public $articleComment;
+    public $articleRead;
+    public $tags;
+    public $interact;
+    public $user;
+    public $adminPermission;
+    public $admin;
 
     public function __construct(Model $model)
     {
@@ -120,7 +127,7 @@ abstract class BaseRepository
      * @param  string $field 字段
      * @return string
      */
-    public function getValueById($where, $field)
+    public function getValueByWhere($where, $field)
     {
         return $this->model->parseWheres($where)->value($field);
     }

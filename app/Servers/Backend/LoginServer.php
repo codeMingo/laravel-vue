@@ -39,7 +39,12 @@ class LoginServer extends CommonServer
         $result['list'] = [
             'username'        => $list['username'],
             'email'           => $list['email'],
-            'permission_text' => $this->adminPermissionRepository->getValueById($list['permission_id'], 'text'),
+            'permission_text' => $this->adminPermissionRepository->getValueByWhere([
+                'search' => [
+                    'id' => $list['permission_id'],
+                    'status' =  > 1,
+                ],
+            ], 'text'),
         ];
 
         return ['登录成功', $result];
@@ -64,7 +69,12 @@ class LoginServer extends CommonServer
         $result['list'] = [
             'username'        => $list->username,
             'email'           => $list->email,
-            'permission_text' => $this->adminPermissionRepository->getValueById($list['permission_id'], 'text'),
+            'permission_text' => $this->adminPermissionRepository->getValueByWhere([
+                'search' => [
+                    'id' => $list['permission_id'],
+                    'status' =  > 1,
+                ],
+            ], 'text'),
         ];
 
         return ['已登录', $result];

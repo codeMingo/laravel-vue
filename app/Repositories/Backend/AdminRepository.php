@@ -2,28 +2,33 @@
 namespace App\Repositories\Backend;
 
 use App\Models\Admin;
+use App\Models\AdminPermission;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AdminRepository extends CommonRepository
 {
 
-    public function __construct(Admin $admin)
+    public function __construct(Admin $admin, AdminPermission $adminPermission)
     {
         parent::__construct($admin);
+        $this->adminPermission = $adminPermission;
     }
 
     /**
-     * 获取当前登录的用户
-     * @return Array
+     * 列表
+     * @param  array $input 查询条件
+     * @return object
      */
-    public function currentLogin()
+    public function lists($input)
     {
-        $result = [];
-        if (Auth::guard('admin')->check()) {
-            $result = Auth::guard('admin')->user();
-        }
-        return $result;
+        $default_search = [
+            'filter' => ['id', 'username', 'email', 'permission_id', 'last_login_ip', 'last_login_time'],
+            'sort'   => [
+                'created_at' => 'asc',
+            ],
+        ];
+        $search = $this->parseParams($default_search, $input);
+        return $this->model->parseWheres($search)->paginate();
     }
 
     /**
@@ -110,12 +115,27 @@ class AdminRepository extends CommonRepository
     }
 
     // 获取option
-    public function getOptions()
+    public function options()
     {
-        $result['permission'] = DB::table('admin_permissions')->where('status', 1)->get();
-        $result['status']     = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
+        $result['permission'] = $this->adminPermission->getAllLists([
+            'search' => [
+                'status' => 1,
+            ],
+        ]);
+        $result['status'] = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
         return $result;
     }
 
-    // 判断管理员是否存在
+    /**
+     * 获取当前登录的用户
+     * @return Array
+     */
+    public function currentLogin()
+    {
+        $result = [];
+        if (Auth::guard('admin')->check()) {
+            $result = Auth::guard('admin')->user();
+        }
+        return $result;
+    }
 }

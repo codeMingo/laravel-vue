@@ -17,11 +17,10 @@ class AdminServer extends CommonServer
      * @param  Array $input [search]
      * @return Array
      */
-    public function lists($input)
+    public function index($input)
     {
-        $search            = isset($input['search']) ? (array) $input['search'] : [];
-        $result['lists']   = $this->adminRepository->getLists($search);
-        $result['options'] = $this->adminRepository->getOptions();
+        $result['lists']   = $this->adminRepository->lists($input);
+        $result['options'] = $this->adminRepository->options();
 
         return ['获取成功', $result];
     }

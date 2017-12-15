@@ -11,13 +11,6 @@ use App\Models\User;
 class ArticleRepository extends CommonRepository
 {
 
-    public $articleComment;
-    public $articleRead;
-    public $tags;
-    public $interact;
-    public $user;
-    public $categoryRepository;
-
     public function __construct(
         Article $article,
         ArticleComment $articleComment,

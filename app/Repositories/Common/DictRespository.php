@@ -20,14 +20,7 @@ class DictRepository extends BaseRepository
      */
     public function saveOperateRecord($input)
     {
-        DB::table('admin_operate_records')->insert([
-            'admin_id'   => $this->getCurrentId(),
-            'action'     => isset($input['action']) ? strval($input['action']) : '',
-            'params'     => isset($input['params']) ? json_encode($input['params']) : '',
-            'text'       => isset($input['text']) ? strval($input['text']) : '操作成功',
-            'ip_address' => getClientIp(),
-            'status'     => isset($input['status']) ? intval($input['status']) : 1,
-        ]);
+
     }
 
     /**
