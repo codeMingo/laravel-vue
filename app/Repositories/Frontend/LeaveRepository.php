@@ -20,7 +20,7 @@ class LeaveRepository extends CommonRepository
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass']]);
         $default_search = [
-            'filter' => [],
+            'filter' => ['id', 'user_id', 'content', 'created_at'],
             'search' => [
                 'is_audit'  => $dicts['audit']['pass'],
                 'status'    => 1,

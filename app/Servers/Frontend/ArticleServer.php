@@ -38,7 +38,7 @@ class ArticleServer extends CommonServer
      */
     public function detail($id)
     {
-        $list = $this->articleRepository->getList($id);
+        $list = $this->articleRepository->getDetail($id);
         if (empty($list)) {
             return ['code' => ['x00001', 'article']];
         }
@@ -48,13 +48,13 @@ class ArticleServer extends CommonServer
         $this->articleRepository->read($id);
 
         // 获取文章评论
-        $result['comment_lists'] = $this->articleRepository->getCommentLists($id);
+        $result['comment_lists'] = $this->articleRepository->commentLists($id);
 
         // 获取上一篇文章
-        $result['prev_article'] = $this->articleRepository->getPrevlist($id);
+        $result['prev_article'] = $this->articleRepository->prevlist($id);
 
         // 获取下一篇文章
-        $result['next_article'] = $this->articleRepository->getNextlist($id);
+        $result['next_article'] = $this->articleRepository->nextlist($id);
 
         // 文章标签
         if (!empty($result['list']->tag_ids)) {
@@ -77,7 +77,7 @@ class ArticleServer extends CommonServer
             return ['code' => ['x00001', 'system']];
         }
 
-        $list = $this->articleRepository->getList($id);
+        $list = $this->articleRepository->getDetail($id);
         if (empty($list)) {
             return ['code' => ['x00002', 'system']];
         }
@@ -85,13 +85,13 @@ class ArticleServer extends CommonServer
         // 重复操作判断
         $search_where = [
             'search' => [
-                'article_id' => $id,
-                'user_id'    => $user_id,
-                $type        => 1,
+                'id'      => $id,
+                'user_id' => getCurrentUserId(),
+                $type     => 1,
             ],
         ];
         $is_exist = $this->articleRepository->existList($search_where);
-        if (!$is_exist) {
+        if ($is_exist) {
             return ['code' => ['x00003', 'system']];
         }
 
@@ -113,7 +113,7 @@ class ArticleServer extends CommonServer
             return ['code' => ['x00001', 'system']];
         }
 
-        $list = $this->articleRepository->getList($id);
+        $list = $this->articleRepository->getDetail($id);
         if (empty($list)) {
             return ['code' => ['x00002', 'system']];
         }

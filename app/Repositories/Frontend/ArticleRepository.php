@@ -36,7 +36,7 @@ class ArticleRepository extends CommonRepository
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
-            'filter' => ['id', 'title', 'content', 'auther'],
+            'filter' => ['id', 'title', 'content', 'auther', 'category_id'],
             'search' => [
                 'status'   => $dicts['article_status']['show'],
                 'is_audit' => $dicts['audit']['pass'],
@@ -167,7 +167,7 @@ class ArticleRepository extends CommonRepository
     public function interactive($id, $type)
     {
         $result = $this->interact->create([
-            'user_id'    => $user_id,
+            'user_id'    => getCurrentUserId(),
             'article_id' => $id,
             $type        => 1,
         ]);
@@ -200,7 +200,7 @@ class ArticleRepository extends CommonRepository
                 'is_audit' => $dicts['audit']['pass'],
             ],
         ];
-        return $this->existList($default_search);;
+        return $this->existList($default_search);
     }
 
     /**
@@ -212,8 +212,8 @@ class ArticleRepository extends CommonRepository
      */
     public function comment($id, $content, $comment_id = 0)
     {
-        $dicts   = $this->getRedisDictLists(['audit' => ['loading', 'pass'], 'system' => ['article_comment_audit']]);
-        $result  = $this->articleComment->create([
+        $dicts  = $this->getRedisDictLists(['audit' => ['loading', 'pass'], 'system' => ['article_comment_audit']]);
+        $result = $this->articleComment->create([
             'user_id'    => getCurrentUserId(),
             'parent_id'  => $comment_id ? $comment_id : 0,
             'article_id' => $id,

@@ -385,12 +385,10 @@ export default {
         '$route' (to, from) {
             this.article_id = this.$route.params.id;
             this.getList();
-            //this.getCommentLists();
         }
     },
     mounted() {
         this.getList();
-        //this.getCommentLists();
     },
     methods: {
         getList() {
@@ -494,8 +492,6 @@ export default {
             }
         },
         addResponse(username, comment_id) {
-            /*console.log(document.getElementById('response-box').offsetTop);
-            window.scrollTo(0, document.body.scrollHeight);*/
             window.scrollTo(0, document.getElementById('response-box').offsetTop);
             this.$refs.articleQuillEditor.quill.setContents([{
                     insert: '回复：' + username + '：',

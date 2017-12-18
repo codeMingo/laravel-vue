@@ -41,8 +41,8 @@ class LoginServer extends CommonServer
             'email'           => $list['email'],
             'permission_text' => $this->adminPermissionRepository->getValueByWhere([
                 'search' => [
-                    'id' => $list['permission_id'],
-                    'status' =  > 1,
+                    'id'     => $list['permission_id'],
+                    'status' => 1,
                 ],
             ], 'text'),
         ];
@@ -71,8 +71,8 @@ class LoginServer extends CommonServer
             'email'           => $list->email,
             'permission_text' => $this->adminPermissionRepository->getValueByWhere([
                 'search' => [
-                    'id' => $list['permission_id'],
-                    'status' =  > 1,
+                    'id'     => $list['permission_id'],
+                    'status' => 1,
                 ],
             ], 'text'),
         ];

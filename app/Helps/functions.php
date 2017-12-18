@@ -6,8 +6,8 @@
  */
 function getCurrentUserId()
 {
-    if (\Illuminate\Support\Facades\Auth\Auth::guard('web')->check()) {
-        return \Illuminate\Support\Facades\Auth\Auth::guard('web')->id();
+    if (\Illuminate\Support\Facades\Auth::guard('web')->check()) {
+        return \Illuminate\Support\Facades\Auth::guard('web')->id();
     } else {
         return 0;
     }

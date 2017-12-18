@@ -42,7 +42,6 @@ class Base extends Model
             'or'          => 'orWhere',
             'not_in'      => 'whereNotIn',
         ];
-
         foreach ($where as $type => $item) {
             // 字段筛选
             if ($type == 'filter') {
@@ -101,7 +100,7 @@ class Base extends Model
      */
     public function scopeParseExist($query, $where)
     {
-        if (!isset($where['filter']) || empty($where['filter']) {
+        if (!isset($where['filter']) || empty($where['filter'])) {
             $where['filter'] = ['id'];
         }
         return (bool) $query->parseWheres($where)->first();

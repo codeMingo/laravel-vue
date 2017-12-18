@@ -77,6 +77,21 @@ abstract class BaseRepository
     }
 
     /**
+     * 获取数据详情根据id
+     * @param  int $id 主键
+     * @param  boolean $with_trashed 是否查询软删除数据
+     * @return object     
+     */
+    public function getDetail($id, $with_trashed = false)
+    {
+        $query = $this->model;
+        if ($with_trashed) {
+            $query = $query->withTrashed();
+        }
+        return $query->find($id);
+    }
+
+    /**
      * 获取一条数据
      * @param  array   $where        查询条件
      * @param  boolean $with_trashed 是否查询软删除数据
