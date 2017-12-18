@@ -203,6 +203,7 @@ export default {
                             }
                             _this.$message.success(message);
                             if (data.list) {
+                                data.list.user = _this.$store.state.user_data;
                                 _this.leave_data[_this.leave_data.length] = data.list;
                             }
                             Vue.resetForm(_this.leave_form);
@@ -227,6 +228,7 @@ export default {
                         }
                         _this.$message.success(message);
                         if (data.list) {
+                            data.list.user = _this.$store.state.user_data;
                             for (let i = 0; i < _this.leave_data.length; i++) {
                                 if (_this.leave_data[i].id === data.list.parent_id) {
                                     _this.leave_data[i]['response'][_this.leave_data[i]['response'].length] = data.list;
@@ -249,6 +251,7 @@ export default {
                     }
                     _this.$message.success(message);
                     if (data.list) {
+                        data.list.user = _this.$store.state.user_data;
                         _this.leave_data[_this.leave_data.length] = data.list;
                     }
                     Vue.resetForm(_this.leave_form);

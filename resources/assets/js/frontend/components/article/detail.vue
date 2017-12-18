@@ -438,6 +438,7 @@ export default {
                             }
                             _this.$message.success(message);
                             if (data.list) {
+                                data.list.user = _this.$store.state.user_data;
                                 _this.article_comments[_this.article_comments.length] = data.list;
                             }
                             Vue.resetForm(_this.comment_form);
@@ -461,6 +462,7 @@ export default {
                             return false;
                         }
                         _this.$message.success(message);
+                        data.list.user = _this.$store.state.user_data;
                         if (data.list) {
                             for (let i = 0; i < _this.article_comments.length; i++) {
                                 if (_this.article_comments[i].id === data.list.parent_id) {
@@ -483,6 +485,7 @@ export default {
                     }
                     _this.$message.success(message);
                     if (data.list) {
+                        data.list.user = _this.$store.state.user_data;
                         _this.article_comments[_this.article_comments.length] = data.list;
                     }
                     Vue.resetForm(_this.comment_form);
