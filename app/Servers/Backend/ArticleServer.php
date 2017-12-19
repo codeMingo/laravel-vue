@@ -100,8 +100,9 @@ class ArticleServer extends CommonServer
      */
     public function update($id, $input)
     {
-        $list = $this->model->find($id);
-        if (empty($list)) {
+        if (!$is_exist = $this->articleRepository->existList([
+            'id' => $id,
+        ])) {
             return ['code' => ['x00002', 'system']];
         }
 

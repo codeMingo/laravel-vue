@@ -191,16 +191,12 @@ class ArticleRepository extends CommonRepository
      */
     public function existComment($comment_id)
     {
-        $dicts          = $this->getRedisDictLists(['audit' => ['pass']]);
-        $default_search = [
-            'filter' => ['id'],
-            'search' => [
-                'id'       => $comment_id,
-                'status'   => 1,
-                'is_audit' => $dicts['audit']['pass'],
-            ],
-        ];
-        return $this->existList($default_search);
+        $dicts = $this->getRedisDictLists(['audit' => ['pass']]);
+        return (bool) $this->model->parseSearch([
+            'id'       => $comment_id,
+            'status'   => 1,
+            'is_audit' => $dicts['audit']['pass'],
+        ])->first();
     }
 
     /**

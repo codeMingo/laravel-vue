@@ -74,7 +74,7 @@ class AdminRepository extends CommonRepository
         if ($password) {
             $data['password'] = $password;
         };
-        $result = (bool) $this->model->where('id', $id)->update($data);
+        $result = (bool) $this->model->updateByWhere(['id' => $id], $data);
 
         // 记录操作日志
         Parent::saveOperateRecord([

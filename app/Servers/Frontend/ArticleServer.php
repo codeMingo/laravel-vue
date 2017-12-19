@@ -83,15 +83,11 @@ class ArticleServer extends CommonServer
         }
 
         // 重复操作判断
-        $search_where = [
-            'search' => [
-                'id'      => $id,
-                'user_id' => getCurrentUserId(),
-                $type     => 1,
-            ],
-        ];
-        $is_exist = $this->articleRepository->existList($search_where);
-        if ($is_exist) {
+        if ($is_exist = $this->articleRepository->existList([
+            'id'      => $id,
+            'user_id' => getCurrentUserId(),
+            $type     => 1,
+        ])) {
             return ['code' => ['x00003', 'system']];
         }
 
@@ -113,14 +109,14 @@ class ArticleServer extends CommonServer
             return ['code' => ['x00001', 'system']];
         }
 
-        $list = $this->articleRepository->getDetail($id);
-        if (empty($list)) {
+        if (!$is_exist = $this->articleRepository->existList([
+            'id' => $id,
+        ])) {
             return ['code' => ['x00002', 'system']];
         }
 
         if ($comment_id) {
-            $is_exist = $this->articleRepository->hasComment($comment_id);
-            if (!$is_exist) {
+            if (!$is_exist = $this->articleRepository->hasComment($comment_id)) {
                 return ['code' => ['x00002', 'system']];
             }
         }

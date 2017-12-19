@@ -2,7 +2,6 @@
 namespace App\Repositories\Frontend;
 
 use App\Models\Leave;
-use Illuminate\Support\Facades\DB;
 
 class LeaveRepository extends CommonRepository
 {
@@ -91,15 +90,11 @@ class LeaveRepository extends CommonRepository
      */
     public function existLeave($id)
     {
-        $dicts          = $this->getRedisDictLists(['audit' => ['pass']]);
-        $default_search = [
-            'filter' => ['id'],
-            'search' => [
-                'id'       => $id,
-                'status'   => 1,
-                'is_audit' => $dicts['audit']['pass'],
-            ],
-        ];
-        return $this->existList($default_search);
+        $dicts = $this->getRedisDictLists(['audit' => ['pass']]);
+        return $this->existList([
+            'id'       => $id,
+            'status'   => 1,
+            'is_audit' => $dicts['audit']['pass'],
+        ]);
     }
 }

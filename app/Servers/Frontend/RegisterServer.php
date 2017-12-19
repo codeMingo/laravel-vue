@@ -61,13 +61,9 @@ class RegisterServer extends CommonServer
         }
 
         // 判断是否存在这个用户
-        $search_where = [
-            'search' => [
-                'id' => $user_id,
-            ],
-        ];
-        $is_exist = $this->userRepository->existList($search_where);
-        if (!$is_exist) {
+        if (!$is_exist = $this->userRepository->existList([
+            'id' => $user_id,
+        ])) {
             return ['code' => ['x00004', 'register']];
         }
 

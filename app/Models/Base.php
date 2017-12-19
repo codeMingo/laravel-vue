@@ -56,13 +56,13 @@ class Base extends Model
                         continue;
                     }
 
-                    $field_condition = isset($value[0]) ?? '';
-                    $field_value = isset($value[1]) ?? '';
+                    $field_condition = isset($value[0]) ? $value[0] : '';
+                    $field_value     = isset($value[1]) ? $value[1] : '';
                     if (!$field_condition || !$field_value) {
                         continue;
                     }
 
-                    $condition = isset($condition_arr[$field_condition]) ?? '';
+                    $condition = isset($condition_arr[$field_condition]) ?  ? '';
 
                     // <  >  <=  !=
                     if (!$condition) {
@@ -75,7 +75,7 @@ class Base extends Model
                     }
 
                     if ($condition == 'whereBetween' || $condition == 'whereNotBetween') {
-                        $field_value_two = isset($value[2]) ?? '';
+                        $field_value_two = isset($value[2]) ? $value[2] : '';
                         $query->$condition($field_key, $field_value, $field_value_two);
                         continue;
                     }
@@ -100,10 +100,62 @@ class Base extends Model
      */
     public function scopeParseExist($query, $where)
     {
-        if (!isset($where['filter']) || empty($where['filter'])) {
-            $where['filter'] = ['id'];
+        return (bool) $query->parseSearch($where)->first();
+    }
+
+    /**
+     * 查询条件
+     * @param  query $query orm对象
+     * @param  array $where 查询条件
+     * @return query
+     */
+    public function scopeParseSearch($query, $where)
+    {
+        if (empty($where)) {
+            return $query;
         }
-        return (bool) $query->parseWheres($where)->first();
+
+        $condition_arr = [
+            '='           => 'where',
+            'between'     => 'whereBetween',
+            'not_between' => 'whereNotBetween',
+            'in'          => 'whereIn',
+            'or'          => 'orWhere',
+            'not_in'      => 'whereNotIn',
+        ];
+        foreach ($where as $field_key => $value) {
+            // =
+            if (is_string($value)) {
+                $query->where($field_key, $value);
+                continue;
+            }
+
+            $field_condition = isset($value[0]) ? $value[0] : '';
+            $field_value     = isset($value[1]) ? $value[1] : '';
+            if (!$field_condition || !$field_value) {
+                continue;
+            }
+
+            $condition = isset($condition_arr[$field_condition]) ? $condition_arr[$field_condition] : '';
+
+            // <  >  <=  !=
+            if (!$condition) {
+                $query->where($field_key, $condition, $field_value);
+                continue;
+            }
+
+            if ($condition == 'like') {
+                $field_value = '%' . $field_value . '%';
+            }
+
+            if ($condition == 'whereBetween' || $condition == 'whereNotBetween') {
+                $field_value_two = isset($value[2]) ? $value[2] : '';
+                $query->$condition($field_key, $field_value, $field_value_two);
+                continue;
+            }
+            $query->$condition($field_key, $field_value);
+        }
+        return $query;
     }
 
 }

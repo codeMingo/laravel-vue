@@ -37,8 +37,7 @@ class LeaveServer extends CommonServer
         }
 
         if ($leave_id) {
-            $is_exist = $this->leaveRepository->existLeave($leave_id);
-            if (!$is_exist) {
+            if (!$is_exist = $this->leaveRepository->existLeave($leave_id)) {
                 return ['code' => ['x00001', 'leave']];
             }
         }

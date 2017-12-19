@@ -62,7 +62,18 @@ abstract class BaseRepository
      */
     public function deleteByWhere(array $where)
     {
-        return (bool) $this->model->parseWheres($where)->delete();
+        return (bool) $this->model->parseSearch($where)->delete();
+    }
+
+    /**
+     * 更新数据
+     * @param  array  $where 查询条件
+     * @param  array  $data  数据
+     * @return boolean
+     */
+    public function updateByWhere(array $where, array $data)
+    {
+        return (bool) $this->model->parseSearch($where)->update($data);
     }
 
     /**
@@ -80,7 +91,7 @@ abstract class BaseRepository
      * 获取数据详情根据id
      * @param  int $id 主键
      * @param  boolean $with_trashed 是否查询软删除数据
-     * @return object     
+     * @return object
      */
     public function getDetail($id, $with_trashed = false)
     {
@@ -144,7 +155,7 @@ abstract class BaseRepository
      */
     public function getValueByWhere($where, $field)
     {
-        return $this->model->parseWheres($where)->value($field);
+        return $this->model->parseSearch($where)->value($field);
     }
 
     /**
@@ -179,7 +190,7 @@ abstract class BaseRepository
     }
 
     /**
-     * 过滤参数
+     * 过滤，合并参数
      * @param  array $default_wheres 默认参数
      * @param  array $wheres         参数
      * @return array

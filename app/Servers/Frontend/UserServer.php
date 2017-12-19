@@ -43,15 +43,11 @@ class UserServer extends CommonServer
         }
 
         // 判断用户名是否重复
-        $search_where = [
-            'search' => [
-                'username' => $username,
-                'email'    => ['or', $email],
-                'id'       => ['!=', getCurrentUserId()],
-            ],
-        ];
-        $is_exist = $this->adminRepository->existList($search_where);
-        if (!$is_exist) {
+        if (!$is_exist = $this->adminRepository->existList([
+            'username' => $username,
+            'email'    => ['or', $email],
+            'id'       => ['!=', getCurrentUserId()],
+        ])) {
             return ['code' => ['x00001', 'user']];
         }
         $result = $this->userRepository->update($username, $sign, $web_url);
