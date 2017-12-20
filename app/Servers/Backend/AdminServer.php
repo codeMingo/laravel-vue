@@ -19,8 +19,8 @@ class AdminServer extends CommonServer
      */
     public function index($input)
     {
-        $result['lists']   = $this->adminRepository->lists($input);
-        $result['options'] = $this->adminRepository->options();
+        $result['lists']   = $this->adminRepository->getLists($input);
+        $result['options'] = $this->adminRepository->getOptions();
 
         return ['获取成功', $result];
     }
@@ -58,6 +58,9 @@ class AdminServer extends CommonServer
 
         $result['list'] = $this->adminRepository->store($username, $email, $password, $permission_id, $status);
 
+        if (!$result['list']) {
+            return ['code' => ['x00001', 'system']];
+        }
         return ['新增成功', $result];
     }
 
@@ -96,6 +99,9 @@ class AdminServer extends CommonServer
 
         $result = $this->adminRepository->update($id, $username, $email, $password, $permission_id, $status);
 
+        if (!$result) {
+            return ['code' => ['x00001', 'system']];
+        }
         return ['更新成功', $result];
     }
 
@@ -106,7 +112,11 @@ class AdminServer extends CommonServer
      */
     public function destroy($id)
     {
-        $this->adminRepository->destroy($id);
+        $result = $this->adminRepository->destroy($id);
+
+        if (!$result) {
+            return ['code' => ['x00002', 'system']];
+        }
 
         return ['删除成功', $result];
     }

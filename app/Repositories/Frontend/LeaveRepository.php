@@ -15,7 +15,7 @@ class LeaveRepository extends CommonRepository
      * 获取列表
      * @return Object
      */
-    public function lists($input)
+    public function getLists($input)
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass']]);
         $default_search = [

@@ -19,13 +19,14 @@ class LeaveServer extends CommonServer
      */
     public function lists($input)
     {
-        $result['lists'] = $this->leaveRepository->lists($input);
+        $result['lists'] = $this->leaveRepository->getLists($input);
+
         return ['获取成功', $result];
     }
 
     /**
      * 留言
-     * @param  Array $input [leave_id, content] 留言数据
+     * @param  Array $input 数据
      * @return Array
      */
     public function leave($input)
@@ -43,6 +44,7 @@ class LeaveServer extends CommonServer
         }
 
         $result['list'] = $this->leaveRepository->leave($content, $leave_id);
+
         return ['获取成功', $result];
     }
 

@@ -3,33 +3,42 @@ namespace App\Repositories\Backend;
 
 use App\Models\Article;
 use App\Models\ArticleComment;
-use App\Models\ArticleInteractive;
+use App\Models\ArticleRead;
 use App\Models\Category;
-use App\Repositories\Backend\CategoryRepository;
-use App\Repositories\Common\DictRepository;
+use App\Models\Interact;
+use App\Models\Tag;
+use App\Models\User;
 
 class ArticleRepository extends CommonRepository
 {
 
-    public $dictRepository;
-    public $categoryRepository;
-
-    public function __construct(Article $article, CategoryRepository $categoryRepository, DictRepository $dictRepository)
-    {
+    public function __construct(
+        Article $article,
+        ArticleComment $articleComment,
+        Tag $tag,
+        ArticleRead $articleRead,
+        Interact $interact,
+        User $user,
+        Category $category
+    ) {
         parent::__construct($article);
-        $this->dictRepository = $dictRepository;
-        $this->categoryRepository = $categoryRepository;
+        $this->articleComment = $articleComment;
+        $this->articleRead    = $articleRead;
+        $this->tag            = $tag;
+        $this->interact       = $interact;
+        $this->user           = $user;
+        $this->category       = $category;
     }
 
     /**
-     * 文章列表
-     * @param  Array $input [search]
-     * @return Array
+     * 列表
+     * @param  array $input 查询条件
+     * @return array
      */
-    public function lists($input)
+    public function getLists($input)
     {
         $default_search = [
-            'filter' => ['id', 'title', 'content', 'auther'],
+            'filter' => ['id', 'title', 'content', 'auther', 'category_id', 'status'],
             'sort'   => [
                 'created_at' => 'desc',
             ],
@@ -39,32 +48,21 @@ class ArticleRepository extends CommonRepository
     }
 
     /**
-     * 新增文章
-     * @param  Array $input [category_id, title, auther, content, tag_ids, source, is_audit, recommend, status]
-     * @return array
+     * 新增
+     * @param  int $category_id 菜单id
+     * @param  string $title       标题
+     * @param  string $thumbnail   缩略图
+     * @param  string $auther      作者
+     * @param  string $content     内容
+     * @param  string $tag_ids     标签id
+     * @param  string $source      来源
+     * @param  int $is_audit    审核
+     * @param  boolean $recommend   推荐
+     * @param  int $status      状态
+     * @return object
      */
-    public function store($input)
+    public function store($category_id, $title, $thumbnail, $auther, $content, $tag_ids, $source, $is_audit, $recommend, $status)
     {
-        $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
-        $title       = isset($input['title']) ? strval($input['title']) : '';
-        $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
-        $auther      = isset($input['auther']) ? strval($input['auther']) : '';
-        $content     = isset($input['content']) ? strval($input['content']) : '';
-        $tag_ids     = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
-        $source      = isset($input['source']) ? strval($input['source']) : '';
-        $is_audit    = isset($input['is_audit']) ? intval($input['is_audit']) : 0;
-        $recommend   = isset($input['recommend']) ? intval($input['recommend']) : 0;
-        $status      = isset($input['status']) ? intval($input['status']) : 0;
-
-        if (!$category_id || !$title || !$content) {
-            return responseResult(false, [], '新增失败，必填字段不得为空');
-        }
-
-        // 是否存在这个dict
-        if (!$this->dictRepository->existDict(['article_status' => $status, 'audit' => $is_audit])) {
-            return responseResult(false, [], '新增失败，参数错误，请刷新后重试');
-        }
-
         $result = $this->model->create([
             'category_id' => $category_id,
             'title'       => $title,
@@ -82,48 +80,42 @@ class ArticleRepository extends CommonRepository
         Parent::saveOperateRecord([
             'action' => 'Article/store',
             'params' => [
-                'input' => $input,
+                'category_id' => $category_id,
+                'title'       => $title,
+                'thumbnail'   => $thumbnail,
+                'auther'      => $auther,
+                'content'     => $content,
+                'tag_ids'     => $tag_ids,
+                'source'      => $source,
+                'is_audit'    => $is_audit,
+                'recommend'   => $recommend,
+                'status'      => $status,
             ],
-            'text'   => '新增成功',
+            'text'   => !!$result ? '新增文章成功' : '新增文章失败',
+            'status' => !!$result,
         ]);
 
-        return responseResult(true, $result, '新增成功');
+        return $result;
     }
 
     /**
      * 编辑
-     * @param Int $id 文章id
-     * @param  Array $input [category_id, title, auther, content, tag_ids, source, is_audit, recommend, status]
-     * @return array
+     * @param  int $id
+     * @param  int $category_id 菜单id
+     * @param  string $title       标题
+     * @param  string $thumbnail   缩略图
+     * @param  string $auther      作者
+     * @param  string $content     内容
+     * @param  string $tag_ids     标签id
+     * @param  string $source      来源
+     * @param  int $is_audit    审核
+     * @param  boolean $recommend   推荐
+     * @param  int $status      状态
+     * @return object
      */
-    public function update($id, $input)
+    public function update($id, $category_id, $title, $thumbnail, $auther, $content, $tag_ids, $source, $is_audit, $recommend, $status)
     {
-        $list = $this->model->find($id);
-        if (empty($list)) {
-            return responseResult(false, [], '更新失败，不存在这篇文章');
-        }
-
-        $category_id = isset($input['category_id']) ? intval($input['category_id']) : 0;
-        $title       = isset($input['title']) ? strval($input['title']) : '';
-        $thumbnail   = isset($input['thumbnail']) ? strval($input['thumbnail']) : '';
-        $auther      = isset($input['auther']) ? strval($input['auther']) : '';
-        $content     = isset($input['content']) ? strval($input['content']) : '';
-        $tag_ids     = isset($input['tag_ids']) ? implode(',', $input['tag_ids']) : '';
-        $source      = isset($input['source']) ? strval($input['source']) : '';
-        $is_audit    = isset($input['is_audit']) ? intval($input['is_audit']) : 0;
-        $recommend   = isset($input['recommend']) ? intval($input['recommend']) : 0;
-        $status      = isset($input['status']) ? intval($input['status']) : 0;
-
-        if (!$category_id || !$title || !$content) {
-            return responseResult(false, [], '更新失败，必填字段不得为空');
-        }
-
-        // 是否存在这个dict
-        if (!$this->dictRepository->existDict(['article_status' => $status, 'audit' => $is_audit])) {
-            return responseResult(false, [], '更新失败，参数错误，请刷新后重试');
-        }
-
-        $this->model->where('id', $id)->update([
+        $result = $this->model->where('id', $id)->update([
             'category_id' => $category_id,
             'title'       => $title,
             'thumbnail'   => $thumbnail,
@@ -140,124 +132,131 @@ class ArticleRepository extends CommonRepository
         Parent::saveOperateRecord([
             'action' => 'Article/update',
             'params' => [
-                'article_id' => $id,
-                'input'      => $input,
+                'id'          => $id,
+                'category_id' => $category_id,
+                'title'       => $title,
+                'thumbnail'   => $thumbnail,
+                'auther'      => $auther,
+                'content'     => $content,
+                'tag_ids'     => $tag_ids,
+                'source'      => $source,
+                'is_audit'    => $is_audit,
+                'recommend'   => $recommend,
+                'status'      => $status,
             ],
-            'text'   => '更新文章成功',
+            'text'   => $result ? '更新文章成功' : '更新文章失败',
+            'status' => $result,
         ]);
 
-        return responseResult(true, [], '更新成功');
+        return $result;
     }
 
     /**
      * 删除
-     * @param  Array $id 文章id
-     * @return Array
+     * @param  array $id
+     * @return array
      */
     public function destroy($id)
     {
-        $result = $this->model->deleteById($id);
+        $result = $this->deleteById($id);
 
-        if (!$result) {
-            return responseResult(false, [], '该文章不存在或已被删除');
-        }
         // 记录操作日志
         Parent::saveOperateRecord([
             'action' => 'Article/update',
             'params' => [
                 'article_id' => $id,
             ],
-            'text'   => '删除文章成功',
+            'text'   => $result ? '删除文章成功' : '删除文章失败',
+            'status' => $result,
         ]);
 
-        return responseResult(true, [], '删除成功');
-    }
-
-    /**
-     * 详情
-     * @param  Int $id
-     * @return Array
-     */
-    public function show($id)
-    {
-        $result['list'] = $this->model->where('id', $id)->first();
-
-        if (empty($result['list'])) {
-            return responseResult(false, [], '获取失败，不存在这篇文章');
-        }
-        $result['options'] = $this->getOptions();
-
-        return responseResult(true);
+        return $result;
     }
 
     /**
      * 获取一篇文章所有的 点赞 or 反对 or 收藏
-     * @param  Array $id
-     * @return Array
+     * @param  array $id
+     * @return array
      */
-    public function getInteractives($id, $type)
+    public function getInteractLists($id, $type)
     {
-        $list = $this->model->where('id', $id)->first();
-        if (empty($list)) {
-            return responseResult(false, [], '获取失败，不存在这篇文章');
-        }
-        $result['lists'] = ArticleInteractive::where('article_id', $id)->with('user')->get();
-
-        return responseResult(true, $result);
+        $default_search = [
+            'search' => [
+                'article_id' => $id,
+                $type        => 1,
+            ],
+        ];
+        $result = $this->articleComment->parseWheres($default_search)->with('user')->paginate();
+        return $result;
     }
 
     /**
-     * 获取评论列表
-     * @param  Int $id
-     * @return Array
+     * 获取文章评论列表
+     * @param  int $id
+     * @return object
      */
-    public function getComments($id)
+    public function getCommentLists($id)
     {
-        $list = $this->model->where('id', $id)->first();
-        if (empty($list)) {
-            return responseResult(false, [], '获取失败，不存在这篇文章');
+        $default_search = [
+            'search' => [
+                'article_id' => $id,
+                'parent_id'  => 0,
+            ],
+        ];
+        $lists = $this->articleComment->parseWheres($default_search)->with('user')->paginate();
+        if ($lists->isEmpty()) {
+            return $lists;
         }
-        $result['lists'] = ArticleComment::where('article_id', $id)->with('user')->get();
+        $comment_ids = [];
+        foreach ($lists as $index => $comment) {
+            $comment_ids[] = $comment->id;
+        }
 
-        return responseResult(true, $result);
+        // 找出所有的回复
+        $response_lists = $this->articleComment->parseWheres([
+            'search' => [
+                'parent_id' => ['in', $comment_ids],
+                'status'    => 1,
+                'is_audit'  => $dicts['audit']['pass'],
+            ],
+        ])->with('user')->get();
+        if (!$response_lists->isEmpty()) {
+            $response_temp = [];
+            foreach ($response_lists as $index => $response) {
+                $response_temp[$response->parent_id][] = $response;
+            }
+
+            foreach ($lists as $index => $comment) {
+                $lists[$index]['response'] = isset($response_temp[$comment->id]) ? $response_temp[$comment->id] : [];
+            }
+        }
+        return $lists;
     }
 
     /**
      * 获取浏览列表
-     * @param  Int $id
-     * @return Array
+     * @param  int $id
+     * @return array
      */
-    public function getReads($id)
+    public function getReadLists($id)
     {
-        $list = $this->model->where('id', $id)->first();
-        if (empty($list)) {
-            return responseResult(false, [], '获取失败，不存在这篇文章');
-        }
-        $result['lists'] = ArticleRead::where('article_id', $id)->with('user')->get();
-
-        return responseResult(true, $result);
-    }
-
-    /**
-     * 列表
-     * @param  Array $search [permission_id, status, username]
-     * @return Object              结果集
-     */
-    public function getArticleLists($search)
-    {
-        $where_params = $this->parseParams($search);
-
-        return $this->model->parseWheres($where_params)->paginate();
+        $default_search = [
+            'search' => [
+                'article_id' => $id,
+            ],
+        ];
+        $result = $this->articleRead->parseWheres($default_search)->with('user')->paginate();
+        return $result;
     }
 
     /**
      * 获取options
-     * @return Array
+     * @return array
      */
     public function getOptions()
     {
         $dicts               = $this->getRedisDictLists(['category_type' => 'article']);
-        $result['category']  = $this->categoryRepository->getCategoryLists(['category_type' => $dicts['category_type']['article']]);
+        $result['category']  = $this->category->select(['id', 'title'])->where('category_type', $dicts['category_type']['article'])->get();
         $result['status']    = $this->dictRepository->getListsByCode('article_status');
         $result['recommend'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
 

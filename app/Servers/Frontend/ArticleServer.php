@@ -25,8 +25,8 @@ class ArticleServer extends CommonServer
      */
     public function lists($input)
     {
-        $result['lists']               = $this->articleRepository->lists($input);
-        $result['options']['category'] = $this->categoryRepository->articleCategoryLists();
+        $result['lists']   = $this->articleRepository->getLists($input);
+        $result['options'] = $this->articleRepository->getOptions();
 
         return ['获取成功', $result];
     }
@@ -48,13 +48,13 @@ class ArticleServer extends CommonServer
         $this->articleRepository->read($id);
 
         // 获取文章评论
-        $result['comment_lists'] = $this->articleRepository->commentLists($id);
+        $result['comment_lists'] = $this->articleRepository->getCommentLists($id);
 
         // 获取上一篇文章
-        $result['prev_article'] = $this->articleRepository->prevlist($id);
+        $result['prev_article'] = $this->articleRepository->getPrevlist($id);
 
         // 获取下一篇文章
-        $result['next_article'] = $this->articleRepository->nextlist($id);
+        $result['next_article'] = $this->articleRepository->getNextlist($id);
 
         // 文章标签
         if (!empty($result['list']->tag_ids)) {

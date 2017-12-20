@@ -7,6 +7,7 @@ use App\Models\ArticleRead;
 use App\Models\Interact;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\Category;
 
 class ArticleRepository extends CommonRepository
 {
@@ -17,7 +18,8 @@ class ArticleRepository extends CommonRepository
         Tag $tag,
         ArticleRead $articleRead,
         Interact $interact,
-        User $user
+        User $user,
+        Category $category
     ) {
         parent::__construct($article);
         $this->articleComment = $articleComment;
@@ -25,6 +27,7 @@ class ArticleRepository extends CommonRepository
         $this->tag            = $tag;
         $this->interact       = $interact;
         $this->user           = $user;
+        $this->category           = $category;
     }
 
     /**
@@ -32,7 +35,7 @@ class ArticleRepository extends CommonRepository
      * @param  Array $search 查询条件
      * @return Array
      */
-    public function lists($input)
+    public function getLists($input)
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
@@ -79,7 +82,7 @@ class ArticleRepository extends CommonRepository
     }
 
     // 获取上一篇文章
-    public function prevlist($id)
+    public function getPrevlist($id)
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
@@ -96,7 +99,7 @@ class ArticleRepository extends CommonRepository
     }
 
     // 获取下一篇文章
-    public function nextlist($id)
+    public function getNextlist($id)
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
@@ -117,7 +120,7 @@ class ArticleRepository extends CommonRepository
      * @param  int $id 文章id
      * @return Object
      */
-    public function commentLists($id)
+    public function getCommentLists($id)
     {
         $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
@@ -228,6 +231,15 @@ class ArticleRepository extends CommonRepository
             ],
             'text'   => $comment_id ? '回复成功' : '评论成功',
         ]);
+
+        return $result;
+    }
+
+    public function getOptions()
+    {
+        $dicts               = $this->getRedisDictLists(['category_type' => 'article']);
+        $result['category']  = $this->category->select(['id', 'title'])->where('category_type', $dicts['category_type']['article'])->get();
+        $result['recommend'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
 
         return $result;
     }

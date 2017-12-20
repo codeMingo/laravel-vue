@@ -20,36 +20,27 @@ class ArticleServer extends CommonServer
 
     public function index()
     {
-        $result['lists']               = $this->articleRepository->lists($input);
-        $result['options']['category'] = $this->categoryRepository->articleCategoryLists();
+        $result['lists']   = $this->articleRepository->getLists($input);
+        $result['options'] = $this->articleRepository->getOptions();
 
         return ['获取成功', $result];
     }
 
     /**
      * 文章详情
-     * @param  int $id 文章id
-     * @return Array
+     * @param  int $id 主键
+     * @return array
      */
     public function show($id)
     {
-        $list = $this->articleRepository->getList($id);
+        $list = $this->articleRepository->getDetail($id);
         if (empty($list)) {
             return ['code' => ['x00001', 'article']];
         }
         $result['list'] = $list;
 
-        // 文章阅读量 +1
-        $this->articleRepository->read($id);
-
         // 获取文章评论
         $result['comment_lists'] = $this->articleRepository->getCommentLists($id);
-
-        // 获取上一篇文章
-        $result['prev_article'] = $this->articleRepository->getPrevlist($id);
-
-        // 获取下一篇文章
-        $result['next_article'] = $this->articleRepository->getNextlist($id);
 
         // 文章标签
         if (!empty($result['list']->tag_ids)) {
@@ -62,7 +53,7 @@ class ArticleServer extends CommonServer
 
     /**
      * 新增文章
-     * @param  Array $input [category_id, title, auther, content, tag_ids, source, is_audit, recommend, status]
+     * @param  array $input
      * @return array
      */
     public function store($input)
@@ -87,19 +78,23 @@ class ArticleServer extends CommonServer
             return ['code' => ['x00001', 'system']];
         }
 
-        $result = $this->articleRepository->store($category_id, $title, $thumbnail, $auther, $content, $tag_ids, $source, $is_audit, $recommend, $status);
+        $result = (bool) $this->articleRepository->store($category_id, $title, $thumbnail, $auther, $content, $tag_ids, $source, $is_audit, $recommend, $status);
 
+        if (!$result) {
+            return ['code' => ['x00001', 'system']];
+        }
         return ['新增成功', $result];
     }
 
     /**
      * 编辑
-     * @param Int $id 文章id
-     * @param  Array $input [category_id, title, auther, content, tag_ids, source, is_audit, recommend, status]
+     * @param int $id 主键
+     * @param  array $input
      * @return array
      */
     public function update($id, $input)
     {
+        // 是否存在这篇文章
         if (!$is_exist = $this->articleRepository->existList([
             'id' => $id,
         ])) {
@@ -128,29 +123,24 @@ class ArticleServer extends CommonServer
 
         $result = $this->articleRepository->update($id, $category_id, $title, $thumbnail, $auther, $content, $tag_ids, $source, $is_audit, $recommend, $status);
 
+        if (!$result) {
+            return ['code' => ['x00001', 'system']];
+        }
         return ['新增成功', $result];
     }
 
     /**
      * 删除
-     * @param  Array $id 文章id
-     * @return Array
+     * @param  int|array $id 文章id
+     * @return array
      */
     public function destroy($id)
     {
-        $result = $this->model->deleteById($id);
+        $result = $this->articleRepository->destroy($id);
 
         if (!$result) {
             return ['code' => ['x00002', 'system']];
         }
-        // 记录操作日志
-        Parent::saveOperateRecord([
-            'action' => 'Article/update',
-            'params' => [
-                'article_id' => $id,
-            ],
-            'text'   => '删除文章成功',
-        ]);
 
         return ['删除成功', $result];
     }

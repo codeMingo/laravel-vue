@@ -19,7 +19,7 @@ class AdminRepository extends CommonRepository
      * @param  array $input 查询条件
      * @return object
      */
-    public function lists($input)
+    public function getLists($input)
     {
         $default_search = [
             'filter' => ['id', 'username', 'email', 'permission_id', 'last_login_ip', 'last_login_time'],
@@ -33,8 +33,12 @@ class AdminRepository extends CommonRepository
 
     /**
      * 新增
-     * @param  Array $input [username, email, password, permission_id, status]
-     * @return Array
+     * @param  string $username      用户名
+     * @param  string $email         邮箱
+     * @param  string $password      加密后的密码
+     * @param  int $permission_id 权限id
+     * @param  int $status        状态
+     * @return object
      */
     public function store($username, $email, $password, $permission_id, $status)
     {
@@ -49,18 +53,27 @@ class AdminRepository extends CommonRepository
         Parent::saveOperateRecord([
             'action' => 'Admin/store',
             'params' => [
-                'input' => $input,
+                'username'      => $username,
+                'email'         => $email,
+                'password'      => $password,
+                'permission_id' => $permission_id,
+                'status'        => $status,
             ],
-            'text'   => '新增管理员成功',
+            'text'   => !!$result ? '新增管理员成功' : '新增管理员失败',
+            'status' => !!$result,
         ]);
         return $result;
     }
 
     /**
-     * 编辑
-     * @param  Array $input [username, email, password, permission_id, status]
-     * @param  Int $id
-     * @return Array
+     * 新增
+     * @param  int $id      主键
+     * @param  string $username      用户名
+     * @param  string $email         邮箱
+     * @param  string $password      加密后的密码
+     * @param  int $permission_id 权限id
+     * @param  int $status        状态
+     * @return object
      */
     public function update($id, $username, $email, $password, $permission_id, $status)
     {
@@ -74,7 +87,7 @@ class AdminRepository extends CommonRepository
         if ($password) {
             $data['password'] = $password;
         };
-        $result = (bool) $this->model->updateByWhere(['id' => $id], $data);
+        $result = $this->model->updateByWhere(['id' => $id], $data);
 
         // 记录操作日志
         Parent::saveOperateRecord([
@@ -95,12 +108,12 @@ class AdminRepository extends CommonRepository
 
     /**
      * 删除
-     * @param  Int $id
-     * @return Array
+     * @param  int|array $id
+     * @return boolean
      */
     public function destroy($id)
     {
-        $result = (bool) $this->deleteById($id);
+        $result = $this->deleteById($id);
 
         // 记录操作日志
         Parent::saveOperateRecord([
@@ -115,7 +128,7 @@ class AdminRepository extends CommonRepository
     }
 
     // 获取option
-    public function options()
+    public function getOptions()
     {
         $result['permission'] = $this->adminPermission->getAllLists([
             'search' => [
@@ -128,7 +141,7 @@ class AdminRepository extends CommonRepository
 
     /**
      * 获取当前登录的用户
-     * @return Array
+     * @return array
      */
     public function currentLogin()
     {
