@@ -16,10 +16,12 @@ abstract class BaseRepository
     public $user;
     public $adminPermission;
     public $admin;
+    public $dicts = [];
 
     public function __construct(Model $model)
     {
         $this->model = $model;
+        $this->dicts = $this->getAllDicts();
     }
 
     // 记录操作日志
@@ -186,6 +188,41 @@ abstract class BaseRepository
                 $result[$key][$field] = Redis::hget('dicts_' . $key, $field);
             }
         }
+        return $result;
+    }
+
+    /**
+     * 获取字典redis
+     * @return array
+     */
+    public function getAllDicts()
+    {
+        $lists  = Redis::hgetall('dicts');
+        $result = [];
+        if (empty($lists)) {
+            $lists = $this->setAllDictsRedis();
+        }
+        if (!empty($lists)) {
+            foreach ($lists as $key => $value) {
+                $result[$key] = json_decode($value, true);
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 生成字段redis
+     * @return  array
+     */
+    public function setAllDictsRedis()
+    {
+        $lists = DB::table('dicts')->where('status', 1)->orderBy('code')->get();
+        if (!empty($lists)) {
+            foreach ($lists as $key => $value) {
+                Redis::hset('dicts', $key, json_encode($value));
+            }
+        }
+        $result = Redis::hgetall('dicts');
         return $result;
     }
 

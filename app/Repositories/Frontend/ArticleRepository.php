@@ -4,10 +4,10 @@ namespace App\Repositories\Frontend;
 use App\Models\Article;
 use App\Models\ArticleComment;
 use App\Models\ArticleRead;
+use App\Models\Category;
 use App\Models\Interact;
 use App\Models\Tag;
 use App\Models\User;
-use App\Models\Category;
 
 class ArticleRepository extends CommonRepository
 {
@@ -27,7 +27,7 @@ class ArticleRepository extends CommonRepository
         $this->tag            = $tag;
         $this->interact       = $interact;
         $this->user           = $user;
-        $this->category           = $category;
+        $this->category       = $category;
     }
 
     /**
@@ -37,7 +37,10 @@ class ArticleRepository extends CommonRepository
      */
     public function getLists($input)
     {
-        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
+        $dicts          = $this->getRedisDictLists([
+            'audit' => ['pass'],
+            'article_status' => ['show']
+        ]);
         $default_search = [
             'filter' => ['id', 'title', 'content', 'auther', 'category_id'],
             'search' => [
