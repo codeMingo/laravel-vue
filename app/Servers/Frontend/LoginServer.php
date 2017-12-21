@@ -12,7 +12,7 @@ class LoginServer extends CommonServer
         UserRepository $userRepository
     ) {
         $this->loginRepository = $loginRepository;
-        $this->userRepository = $userRepository;
+        $this->userRepository  = $userRepository;
     }
 
     /**
@@ -54,7 +54,7 @@ class LoginServer extends CommonServer
      */
     public function currentUser()
     {
-        $list   = $this->userRepository->currentUser();
+        $list = $this->userRepository->currentUser();
         if (empty($list)) {
             return ['未登录'];
         }
@@ -64,6 +64,7 @@ class LoginServer extends CommonServer
             'face'     => $list->face,
             'sign'     => $list->sign,
         ];
+        
         return ['已登录', $result];
     }
 
@@ -73,7 +74,8 @@ class LoginServer extends CommonServer
      */
     public function logout()
     {
-        $this->loginRepository->logout();
+        $result = $this->loginRepository->logout();
+
         return ['退出成功', $result];
     }
 }
