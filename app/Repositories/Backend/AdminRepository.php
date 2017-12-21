@@ -130,11 +130,7 @@ class AdminRepository extends CommonRepository
     // 获取option
     public function getOptions()
     {
-        $result['permission'] = $this->adminPermission->getAllLists([
-            'search' => [
-                'status' => 1,
-            ],
-        ]);
+        $result['permission'] = $this->adminPermission->where('status', 1)->get();
         $result['status'] = [['value' => 0, 'text' => '冻结'], ['value' => 1, 'text' => '正常']];
         return $result;
     }

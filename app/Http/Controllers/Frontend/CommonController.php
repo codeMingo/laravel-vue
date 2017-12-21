@@ -11,10 +11,6 @@ class CommonController extends BaseController
 
     public function __construct()
     {
-        // 判断是否生成缓存
-        if (!Redis::exists('has_cache')) {
-            ApiRepository::getInstance()->refreshCache();
-        }
         $this->middleware(function ($request, $next) {
             // 请求频繁直接返回
             if (!$this->repeatMoreOperate($request)) {

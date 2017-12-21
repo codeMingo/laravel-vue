@@ -230,7 +230,7 @@ class ArticleRepository extends CommonRepository
 
     public function getOptions()
     {
-        $result['category']  = $this->category->select(['id', 'title'])->where('category_type', $this->dicts['category_type']['article'])->get();
+        $result['category']  = $this->category->select(['id', 'title'])->where('category_type', $this->dicts['category']['article'])->get();
         $result['recommend'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
 
         return $result;

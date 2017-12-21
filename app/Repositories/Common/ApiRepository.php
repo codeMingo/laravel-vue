@@ -44,13 +44,16 @@ class ApiRepository extends BaseRepository
         Redis::flushdb();
 
         // dicts字典表缓存
-        $lists = DB::table('dicts')->where('status', 1)->groupBy('code')->get();
+        $lists = DB::table('dicts')->select(['code', 'text_en', 'value'])->where('status', 1)->get();
         if (!empty($lists)) {
+            $temp_lists = [];
             foreach ($lists as $key => $value) {
+                $temp_lists[$value->code][$value->text_en] = $value->value;
+            }
+            foreach ($temp_lists as $key => $value) {
                 Redis::hset('dicts', $key, json_encode($value));
             }
         }
-
         // 文章列表缓存
         // 留言列表缓存
         // 推荐文章缓存

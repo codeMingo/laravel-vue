@@ -3,7 +3,7 @@ namespace App\Servers\Backend;
 
 use App\Repositories\Common\ApiRepository;
 
-class AdminServer extends CommonServer
+class ApiServer extends CommonServer
 {
 
     public function __construct(

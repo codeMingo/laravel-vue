@@ -141,7 +141,11 @@ export default {
     methods: {
         getLists() {
             let _this = this;
-            let paramsData = { 'data': { 'search': _this.search } };
+            let search = {
+                'username': ['like', _this.search.username],
+                'permission_id': _this.search.permission_id
+            };
+            let paramsData = { 'data': { 'search': search } };
             axios.get('/backend/admins?page=' + _this.$refs.pagination.pageData.current_page, { params: paramsData }).then(response => {
                 let { status, data, message } = response.data;
                 _this.admin_lists = data.lists.data;

@@ -110,7 +110,7 @@ abstract class BaseRepository
      * @param  boolean $with_trashed 是否查询软删除数据
      * @return Object
      */
-    public function getList($where, $with_trashed = false)
+    public function getListByParseWheres($where, $with_trashed = false)
     {
         $query = $this->model->parseWheres($where);
         if ($with_trashed) {
@@ -125,7 +125,7 @@ abstract class BaseRepository
      * @param  boolean $with_trashed 是否查找软删除数据
      * @return Object
      */
-    public function getLists($where = [], $with_trashed = false)
+    public function getListsByParseWheres($where = [], $with_trashed = false)
     {
         $query = $this->model->parseWheres($where);
         if ($with_trashed) {
@@ -199,7 +199,6 @@ abstract class BaseRepository
     {
         $lists  = Redis::hgetall('dicts');
         if (empty($lists)) {
-            abort(404, 'redis error,must create redis cache before let this website work!');
             return false;
         }
         $result = [];
@@ -226,6 +225,7 @@ abstract class BaseRepository
         foreach ($default_wheres as $type => $item) {
             if (!isset($wheres[$type])) {
                 $result[$type] = $item;
+                unset($wheres[$type]);
                 continue;
             }
 
@@ -237,7 +237,11 @@ abstract class BaseRepository
                         $result[$type][$key] = $value;
                     }
                 }
+                unset($wheres[$type]);
             }
+        }
+        if (!empty($wheres)) {
+            $result = array_merge($result, $wheres);
         }
         return $result;
     }

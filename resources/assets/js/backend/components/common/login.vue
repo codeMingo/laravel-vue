@@ -2,9 +2,9 @@
     <div class="login-container">
         <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left" label-width="0px" class="card-box login-form">
             <h3 class="title">Quickzz后台管理</h3>
-            <el-form-item prop="username">
+            <el-form-item prop="account">
                 <span class="svg-container"><i class="fa fa-envelope-o fa-fw"></i></span>
-                <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" placeholder="用户名\邮箱"></el-input>
+                <el-input name="account" type="text" v-model="loginForm.account" autoComplete="on" placeholder="用户名\邮箱"></el-input>
             </el-form-item>
             <el-form-item prop="password">
                 <span class="svg-container"><i class="fa fa-key fa-fw"></i></span>
@@ -81,11 +81,11 @@ export default {
     data() {
         return {
             loginForm: {
-                username: '',
+                account: '',
                 password: ''
             },
             loginRules: {
-                username: [
+                account: [
                     { required: true, message: '请输入登录账户', trigger: 'blur' },
                 ],
                 password: [

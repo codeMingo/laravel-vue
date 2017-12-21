@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Backend;
 
-use App\Http\Servers\Backend\ApiServer;
+use App\Servers\Backend\ApiServer;
 
 class IndexController extends CommonController
 {
