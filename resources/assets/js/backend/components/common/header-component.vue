@@ -104,12 +104,15 @@ export default {
     methods: {
         refreshCache() {
             let _this = this;
-            axios.post('/api/refreshCache').then(function(res) {
-                let { status, data, message } = res.data;
-                _this.$message.success(message);
-            }).catch(function(err) {
-                _this.$message.error('网络连接失败');
+            _this.$confirm('确定更新网站所有缓存吗').then(() => {
+                axios.post('/backend/refresh-cache').then(function(res) {
+                    let { status, data, message } = res.data;
+                    _this.$message.success(message);
+                }).catch(function(err) {
+                    _this.$message.error('网络连接失败');
+                });
             });
+
         },
         handleSelect(key, keyPath) {
             console.log(key, keyPath);

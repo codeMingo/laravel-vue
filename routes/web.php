@@ -58,7 +58,7 @@ Route::group(['namespace' => 'Frontend'], function () {
 Route::group(['namespace' => 'Backend', 'prefix' => 'backend', 'middleware' => 'auth.admin'], function () {
     // 公共模块
     Route::get('/index', 'IndexController@index');
-    Route::post('/update-redis', 'CommonController@uploadRedis');
+    Route::post('/refresh-cache', 'IndexController@refreshCache');
 
     // 管理员模块
     Route::resource('admins', 'AdminController');

@@ -37,15 +37,11 @@ class ArticleRepository extends CommonRepository
      */
     public function getLists($input)
     {
-        $dicts          = $this->getRedisDictLists([
-            'audit' => ['pass'],
-            'article_status' => ['show']
-        ]);
         $default_search = [
             'filter' => ['id', 'title', 'content', 'auther', 'category_id'],
             'search' => [
-                'status'   => $dicts['article_status']['show'],
-                'is_audit' => $dicts['audit']['pass'],
+                'status'   => $this->dicts['article_status']['show'],
+                'is_audit' => $this->dicts['audit']['pass'],
             ],
             'sort'   => [
                 'created_at' => 'desc',
@@ -62,12 +58,11 @@ class ArticleRepository extends CommonRepository
      */
     public function show($id)
     {
-        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
             'search' => [
                 'id'       => $id,
-                'status'   => $dicts['article_status']['show'],
-                'is_audit' => $dicts['audit']['pass'],
+                'status'   => $this->dicts['article_status']['show'],
+                'is_audit' => $this->dicts['audit']['pass'],
             ],
         ];
         return $this->model->parseWheres($default_search)->with('interact', 'category', 'read')->first();
@@ -87,12 +82,11 @@ class ArticleRepository extends CommonRepository
     // 获取上一篇文章
     public function getPrevlist($id)
     {
-        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
             'search' => [
                 'id'       => ['<', $id],
-                'status'   => $dicts['article_status']['show'],
-                'is_audit' => $dicts['audit']['pass'],
+                'status'   => $this->dicts['article_status']['show'],
+                'is_audit' => $this->dicts['audit']['pass'],
             ],
             'sort'   => [
                 'id' => 'desc',
@@ -104,12 +98,11 @@ class ArticleRepository extends CommonRepository
     // 获取下一篇文章
     public function getNextlist($id)
     {
-        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
             'search' => [
                 'id'       => ['>', $id],
-                'status'   => $dicts['article_status']['show'],
-                'is_audit' => $dicts['audit']['pass'],
+                'status'   => $this->dicts['article_status']['show'],
+                'is_audit' => $this->dicts['audit']['pass'],
             ],
             'sort'   => [
                 'id' => 'asc',
@@ -125,12 +118,11 @@ class ArticleRepository extends CommonRepository
      */
     public function getCommentLists($id)
     {
-        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'article_status' => ['show']]);
         $default_search = [
             'search' => [
                 'article_id' => $id,
                 'status'     => 1,
-                'is_audit'   => $dicts['audit']['pass'],
+                'is_audit'   => $this->dicts['audit']['pass'],
                 'parent_id'  => 0,
             ],
         ];
@@ -148,7 +140,7 @@ class ArticleRepository extends CommonRepository
             'search' => [
                 'parent_id' => ['in', $comment_ids],
                 'status'    => 1,
-                'is_audit'  => $dicts['audit']['pass'],
+                'is_audit'  => $this->dicts['audit']['pass'],
             ],
         ])->with('user')->get();
         if (!$response_lists->isEmpty()) {
@@ -197,11 +189,10 @@ class ArticleRepository extends CommonRepository
      */
     public function existComment($comment_id)
     {
-        $dicts = $this->getRedisDictLists(['audit' => ['pass']]);
         return (bool) $this->model->parseSearch([
             'id'       => $comment_id,
             'status'   => 1,
-            'is_audit' => $dicts['audit']['pass'],
+            'is_audit' => $this->dicts['audit']['pass'],
         ])->first();
     }
 
@@ -214,13 +205,12 @@ class ArticleRepository extends CommonRepository
      */
     public function comment($id, $content, $comment_id = 0)
     {
-        $dicts  = $this->getRedisDictLists(['audit' => ['loading', 'pass'], 'system' => ['article_comment_audit']]);
         $result = $this->articleComment->create([
             'user_id'    => getCurrentUserId(),
             'parent_id'  => $comment_id ? $comment_id : 0,
             'article_id' => $id,
             'content'    => $content,
-            'is_audit'   => $dicts['system']['article_comment_audit'] ? $dicts['audit']['loading'] : $dicts['audit']['pass'],
+            'is_audit'   => $this->dicts['system']['article_comment_audit'] ? $this->dicts['audit']['loading'] : $this->dicts['audit']['pass'],
             'status'     => 1,
         ]);
 
@@ -240,8 +230,7 @@ class ArticleRepository extends CommonRepository
 
     public function getOptions()
     {
-        $dicts               = $this->getRedisDictLists(['category_type' => 'article']);
-        $result['category']  = $this->category->select(['id', 'title'])->where('category_type', $dicts['category_type']['article'])->get();
+        $result['category']  = $this->category->select(['id', 'title'])->where('category_type', $this->dicts['category_type']['article'])->get();
         $result['recommend'] = [['text' => '是', 'value' => 1], ['text' => '否', 'value' => 0]];
 
         return $result;

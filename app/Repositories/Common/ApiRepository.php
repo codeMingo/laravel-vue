@@ -37,21 +37,17 @@ class ApiRepository extends BaseRepository
 
     /**
      * 清空redis缓存，并且重新生成缓存
-     * @return [type] [description]
+     * @return boolean
      */
     public function refreshCache()
     {
         Redis::flushdb();
 
-        // 记录是否生成缓存
-        Redis::set('has_cache', 1);
-
         // dicts字典表缓存
-        $dict_lists = DB::table('dicts')->where('status', 1)->get();
-        if (!empty($dict_lists)) {
-            $dict_redis_key = 'dicts_';
-            foreach ($dict_lists as $key => $dict) {
-                Redis::hset('dicts_' . $dict->code, $dict->text_en, $dict->value);
+        $lists = DB::table('dicts')->where('status', 1)->groupBy('code')->get();
+        if (!empty($lists)) {
+            foreach ($lists as $key => $value) {
+                Redis::hset('dicts', $key, json_encode($value));
             }
         }
 
@@ -60,7 +56,7 @@ class ApiRepository extends BaseRepository
         // 推荐文章缓存
         // 热门文章缓存
         // 视频列表缓存
-        return responseResult(true);
+        return true;
     }
 
 }

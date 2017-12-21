@@ -17,11 +17,10 @@ class LeaveRepository extends CommonRepository
      */
     public function getLists($input)
     {
-        $dicts          = $this->getRedisDictLists(['audit' => ['pass']]);
         $default_search = [
             'filter' => ['id', 'user_id', 'content', 'created_at'],
             'search' => [
-                'is_audit'  => $dicts['audit']['pass'],
+                'is_audit'  => $this->dicts['audit']['pass'],
                 'status'    => 1,
                 'parent_id' => 0,
             ],
@@ -62,12 +61,11 @@ class LeaveRepository extends CommonRepository
      */
     public function leave($content, $leave_id = 0)
     {
-        $dicts  = $this->getRedisDictLists(['system' => ['leave_audit'], 'audit' => ['loading', 'pass']]);
         $result = $this->model->create([
             'user_id'    => getCurrentUserId(),
             'parent_id'  => $leave_id,
             'content'    => $content,
-            'is_audit'   => $dicts['system']['leave_audit'] ? $dicts['audit']['loading'] : $dicts['audit']['pass'],
+            'is_audit'   => $this->dicts['system']['leave_audit'] ? $this->dicts['audit']['loading'] : $this->dicts['audit']['pass'],
             'ip_address' => getClientIp(),
         ]);
 
@@ -90,11 +88,10 @@ class LeaveRepository extends CommonRepository
      */
     public function existLeave($id)
     {
-        $dicts = $this->getRedisDictLists(['audit' => ['pass']]);
         return $this->existList([
             'id'       => $id,
             'status'   => 1,
-            'is_audit' => $dicts['audit']['pass'],
+            'is_audit' => $this->dicts['audit']['pass'],
         ]);
     }
 }

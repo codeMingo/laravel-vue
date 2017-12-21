@@ -18,12 +18,11 @@ class VideoRepository extends CommonRepository
      */
     public function lists($input)
     {
-        $dicts          = $this->getRedisDictLists(['audit' => ['pass'], 'video_status' => ['show']]);
         $default_search = [
             'filter' => ['id', 'title', 'content', 'auther'],
             'search' => [
-                'status'   => $dicts['video_status']['show'],
-                'is_audit' => $dicts['audit']['pass'],
+                'status'   => $this->dicts['video_status']['show'],
+                'is_audit' => $this->dicts['audit']['pass'],
             ],
             'sort'   => [
                 'created_at' => 'desc',

@@ -27,9 +27,8 @@ class RegisterRepository extends CommonRepository
             'password' => $password,
         ]);
 
-        $dicts        = $this->getRedisDictLists(['email_type' => ['register_active']]);
         $email_record = EmailRecord::create([
-            'type_id'     => $dicts['email_type']['register_active'],
+            'type_id'     => $this->dicts['email_type']['register_active'],
             'user_id'     => $result->id,
             'email_title' => '账户激活邮件',
             'text'        => '用户注册',

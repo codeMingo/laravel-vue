@@ -17,12 +17,11 @@ class CategoryRepository extends CommonRepository
      */
     public function articleCategoryLists()
     {
-        $dicts  = $this->getRedisDictLists(['category' => ['article']]);
         $search = [
             'filter' => ['id', 'title'],
             'search' => [
                 'status'        => 1,
-                'category_type' => $dicts['category']['article'],
+                'category_type' => $this->dicts['category']['article'],
             ],
         ];
         $result = $this->getAllLists($search);
@@ -35,12 +34,11 @@ class CategoryRepository extends CommonRepository
      */
     public function videoCategoryLists()
     {
-        $dicts  = $this->getRedisDictLists(['category' => ['video']]);
         $search = [
             'filter' => ['id', 'title'],
             'search' => [
                 'status'        => 1,
-                'category_type' => $dicts['category']['video'],
+                'category_type' => $this->dicts['category']['video'],
             ],
         ];
         $result = $this->getCategoryLists($search);

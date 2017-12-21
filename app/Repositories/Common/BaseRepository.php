@@ -198,31 +198,16 @@ abstract class BaseRepository
     public function getAllDicts()
     {
         $lists  = Redis::hgetall('dicts');
-        $result = [];
         if (empty($lists)) {
-            $lists = $this->setAllDictsRedis();
+            abort(404, 'redis error,must create redis cache before let this website work!');
+            return false;
         }
+        $result = [];
         if (!empty($lists)) {
             foreach ($lists as $key => $value) {
                 $result[$key] = json_decode($value, true);
             }
         }
-        return $result;
-    }
-
-    /**
-     * 生成字段redis
-     * @return  array
-     */
-    public function setAllDictsRedis()
-    {
-        $lists = DB::table('dicts')->where('status', 1)->orderBy('code')->get();
-        if (!empty($lists)) {
-            foreach ($lists as $key => $value) {
-                Redis::hset('dicts', $key, json_encode($value));
-            }
-        }
-        $result = Redis::hgetall('dicts');
         return $result;
     }
 
