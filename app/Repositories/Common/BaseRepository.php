@@ -135,6 +135,22 @@ abstract class BaseRepository
     }
 
     /**
+     * 获取一条数据
+     * @param  array   $where        查询条件
+     * @param  boolean $with_trashed 是否查找软删除数据
+     * @return Object
+     */
+    public function getList($where = [], $with_trashed = false)
+    {
+        $query = $this->model->parseWheres($where);
+        if ($with_trashed) {
+            $query = $query->withTrashed();
+        }
+        return $query->first();
+    }
+
+
+    /**
      * 获取多条数据，不分页
      * @param  array   $where        查询条件
      * @param  boolean $with_trashed 是否查找软删除数据
