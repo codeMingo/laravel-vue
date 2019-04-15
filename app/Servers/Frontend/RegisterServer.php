@@ -30,7 +30,7 @@ class RegisterServer extends CommonServer
 
         // 用户名和邮箱重复判断
         $search_where = [
-            'filter' => ['username', 'email']
+            'filter' => ['username', 'email'],
             'search' => [
                 'username' => $username,
                 'email'    => ['or', $email],
